@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    </android.support.v4.view.ViewPager>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tablayout"
+        android:layout_width="match_parent"
+        android:elevation="@dimen/actionbar_elevation"
+        android:layout_height="@dimen/actionbar_height">
+        <android.support.design.widget.TabItem
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:icon="@drawable/selector_find" />
+        <android.support.design.widget.TabItem
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:icon="@drawable/selector_scheduler"/>
+        <android.support.design.widget.TabItem
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:icon="@drawable/selector_status"/>
+        <android.support.design.widget.TabItem
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:icon="@drawable/selector_tips"/>
+        <android.support.design.widget.TabItem
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:icon="@drawable/selector_profile"/>
+    </android.support.design.widget.TabLayout>
+</LinearLayout>
