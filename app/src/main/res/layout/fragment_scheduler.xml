@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingTop="30dp"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,70 +62,61 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="Mo"
                 android:textAllCaps="true"
                 android:textColor="@color/tubble_yellow" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="Tu"
                 android:textAllCaps="true"
                 android:textColor="@color/tubble_yellow" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="We"
                 android:textAllCaps="true"
                 android:textColor="@color/tubble_yellow" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="Th"
                 android:textAllCaps="true"
                 android:textColor="@color/tubble_yellow" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="Fr"
                 android:textAllCaps="true"
                 android:textColor="@color/tubble_yellow" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="Sa"
                 android:textAllCaps="true"
                 android:textColor="@color/tubble_yellow" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="Su"
                 android:textAllCaps="true"
@@ -134,19 +125,16 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/scheduler_day_width"
             android:layout_gravity="center"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
             android:layout_marginTop="10dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/monday"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
                 android:text="16"
@@ -155,9 +143,8 @@
 
             <TextView
                 android:id="@+id/tuesday"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
                 android:text="17"
@@ -166,9 +153,8 @@
 
             <TextView
                 android:id="@+id/wednesday"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
                 android:text="18"
@@ -177,9 +163,8 @@
 
             <TextView
                 android:id="@+id/thursday"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
                 android:text="19"
@@ -188,9 +173,8 @@
 
             <TextView
                 android:id="@+id/friday"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@drawable/calendar_day_selected"
                 android:gravity="center"
                 android:text="20"
@@ -199,9 +183,8 @@
 
             <TextView
                 android:id="@+id/saturday"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
                 android:text="21"
@@ -210,9 +193,8 @@
 
             <TextView
                 android:id="@+id/sunday"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/scheduler_day_width"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
                 android:text="22"
@@ -265,6 +247,7 @@
         android:id="@+id/booking"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         android:orientation="vertical">
 
         <LinearLayout

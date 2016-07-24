@@ -7,19 +7,21 @@ import java.util.ArrayList;
 public class LaundryShop extends SugarRecord {
 
     private String mName, mAddress, mSchedule, mContact;
-    private long[] mLocationCoordinates = new long[2];
+    private long[] mLocationCoordinates = {0, 0};
     private float mTotalRating = 0;
-    private int mRatingCount = 0;
+    private int mRatingCount = 1;
     private float mRating = 0;
 
     public LaundryShop() {
     }
 
-    public LaundryShop(String mName, String mAddress, String mSchedule, String mContact) {
+    public LaundryShop(String mName, String mAddress, String mSchedule, String mContact, float mRating) {
         this.mName = mName;
         this.mAddress = mAddress;
         this.mSchedule = mSchedule;
         this.mContact = mContact;
+        this.mTotalRating = mRating;
+        this.mRating = mRating;
     }
 
     public String getName() {

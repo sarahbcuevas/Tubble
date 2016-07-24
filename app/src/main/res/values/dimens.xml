@@ -17,7 +17,15 @@
     <dimen name="form_button_height">40dp</dimen>
     <dimen name="form_button_width">100dp</dimen>
 
+    /*Scheduler*/
+    <dimen name="scheduler_day_width">45dp</dimen>
+
     /*Booking*/
     <dimen name="booking_field_paddingTop">20dp</dimen>
     <dimen name="booking_field_divider_width">1dp</dimen>
+
+    /*List Items*/
+    <dimen name="list_item_height">40dp</dimen>
+    <dimen name="list_item_padding_left">20dp</dimen>
+    <dimen name="list_item_text_size">18sp</dimen>
 </resources>
