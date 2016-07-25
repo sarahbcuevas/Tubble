@@ -21,14 +21,18 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,7 +73,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
     private CheckBox locationCheckbox;
     private EditText locationEdittext;
     private Dialog shopDialog, serviceDialog, messageDialog;
-    private long laundryShop_id = -1;
+    private long laundryShop_id = -1, laundryShopService_id = -1;
+    List<LaundryShop> shops;
+    List<LaundryShopService> services = new ArrayList<LaundryShopService>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -188,7 +194,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
 
         mCalendar = Calendar.getInstance();
         mCalendar.setFirstDayOfWeek(Calendar.MONDAY);
-
+        updateCalendar();
         updateLaundryShops();
         updateMessageDialog();
         return fragmentView;
@@ -219,8 +225,6 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-
-        updateCalendar();
     }
 
     @Override
@@ -255,19 +259,22 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
         int[] actualDays = new int[7];
         for (int i = 0; i < 7; i++) {
             actualDays[i] = day + i - week;
+            if (actualDays[i] == day) {
+                days[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
+                days[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
+            } else {
+                days[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
+                days[i].setBackground(null);
+            }
             if (actualDays[i] <= 0) {
                 mCalendar.set(year, month - 1, 1);
                 actualDays[i] += mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
                 days[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-                days[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_deselected, null));
             } else if (actualDays[i] > lastDay) {
                 actualDays[i] -= lastDay;
                 days[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-                days[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_deselected, null));
-            } else {
-                days[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-                days[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
             }
+
             days[i].setText(Integer.toString(actualDays[i]));
         }
 
@@ -353,23 +360,23 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
     public void updateLaundryShops() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.laundry_shop);
-        final List<LaundryShop> shops = LaundryShop.listAll(LaundryShop.class);
-        List<String> shopsName = new ArrayList<String>();
+        shops = LaundryShop.listAll(LaundryShop.class);
+        ArrayList<String> shopsName = new ArrayList<String>();
         Log.d(TAG, "Number of shops: " + shops.size());
         for (LaundryShop shop : shops) {
             shopsName.add(shop.getName());
             Log.d(TAG, "shop = " + shop.getName());
         }
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.radio_button_option, R.id.option_text, shopsName);
-        final int itemClicked;
+        final ArrayAdapter<String> adapter = new ListViewArrayAdapter(getContext(), shopsName, ListViewArrayAdapter.LAUNDRY_SHOP);
         adapter.notifyDataSetChanged();
         builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                laundryShop_id = shops.get(i).getId();
-                updateLaundryServices();
-                adapter.notifyDataSetChanged();
-                shopDialog.dismiss();
+//                laundryShop_id = shops.get(i).getId();
+//                Toast.makeText(getContext(), "Laundry Shop Id : " + laundryShop_id, Toast.LENGTH_SHORT).show();
+//                updateLaundryServices();
+//                adapter.notifyDataSetChanged();
+//                shopDialog.dismiss();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -387,13 +394,24 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
     public void updateLaundryServices() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.laundry_services);
-        List<LaundryShopService> services = LaundryShopService.find(LaundryShopService.class, "laundryshop_id", Long.toString(laundryShop_id));
-        List<String> servicesName = new ArrayList<String>();
-        for (LaundryShopService service : services) {
-            LaundryService serv = LaundryService.findById(LaundryService.class, service.getLaundryServiceId());
-            servicesName.add(serv.getLabel());
+        List<LaundryShopService> allServices = LaundryShopService.listAll(LaundryShopService.class);
+        ArrayList<String> servicesName = new ArrayList<String>();
+        services.clear();
+        for (LaundryShopService lss : allServices) {
+            Log.d(TAG, "All services: " + lss.getLaundryServiceId() + " " + lss.getLaundryShopId() + " " + lss.getPrice());
+            if (lss.getLaundryShopId() == laundryShop_id) {
+                services.add(lss);
+                LaundryService serv = LaundryService.findById(LaundryService.class, lss.getLaundryServiceId());
+                servicesName.add(serv.getLabel());
+            }
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.radio_button_option, R.id.option_text, servicesName);
+//        services = LaundryShopService.find(LaundryShopService.class, "laundryshop_id = ?", Long.toString(laundryShop_id));
+//        services = Select.from(LaundryShopService.class).where(Condition.prop("laundryshop_id").eq(Long.toString(laundryShop_id))).list();
+//        for (LaundryShopService service : services) {
+//            LaundryService serv = LaundryService.findById(LaundryService.class, service.getLaundryServiceId());
+//            servicesName.add(serv.getLabel());
+//        }
+        ArrayAdapter<String> adapter = new ListViewArrayAdapter(getContext(), servicesName, ListViewArrayAdapter.LAUNDRY_SERVICE);
         adapter.notifyDataSetChanged();
         builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
             @Override
@@ -410,6 +428,8 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
                 }
             }
         });
+
+        serviceDialog = builder.create();
     }
 
     public void updateMessageDialog() {
@@ -424,5 +444,59 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener 
                 }
             }
         });
+
+        messageDialog = builder.create();
+    }
+
+    class ListViewArrayAdapter extends ArrayAdapter<String> {
+        static final int LAUNDRY_SHOP = 1;
+        static final int LAUNDRY_SERVICE = 2;
+        ArrayList<String> names;
+        int from;
+
+        private class ViewHolder {
+            TextView textView;
+            RadioButton radioButton;
+        }
+
+        public ListViewArrayAdapter(Context context, ArrayList<String> names, int from) {
+            super(context, R.layout.radio_button_option, names);
+            this.names = names;
+            this.from = from;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            String name = names.get(position);
+            final ViewHolder viewHolder;
+            if (convertView == null) {
+                viewHolder = new ViewHolder();
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                convertView = inflater.inflate(R.layout.radio_button_option, parent, false);
+                viewHolder.textView = (TextView) convertView.findViewById(R.id.option_text);
+                viewHolder.radioButton = (RadioButton) convertView.findViewById(R.id.radio_button);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            viewHolder.textView.setText(name);
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (from == LAUNDRY_SHOP) {
+                        laundryShop_id = shops.get(position).getId();
+                        Log.d(TAG, "Laundry Shop Id : " + laundryShop_id);
+                        updateLaundryServices();
+                        shopDialog.dismiss();
+                    } else if (from == LAUNDRY_SERVICE) {
+                        laundryShopService_id = services.get(position).getId();
+                        Log.d(TAG, "Laundry Shop Service: " + laundryShopService_id);
+                        serviceDialog.dismiss();
+                    }
+                }
+            });
+            return convertView;
+        }
     }
 }

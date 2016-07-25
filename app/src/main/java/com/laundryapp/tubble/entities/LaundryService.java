@@ -4,7 +4,11 @@ import com.orm.SugarRecord;
 
 public class LaundryService extends SugarRecord {
 
-    public enum Service {WASH_DRY_FOLD, WASH_DRY_PRESS, WASH_DRY, DRY_CLEAN}
+    public static final int WASH_DRY_FOLD = 0;
+    public static final int WASH_DRY_PRESS = 1;
+    public static final int COMFORTER_CLEANING = 2;
+    public static final int HOUSEHOLD_ITEM_CLEANING = 3;
+    public static final int DRY_CLEANING = 4;
 
     private String mLabel;
 

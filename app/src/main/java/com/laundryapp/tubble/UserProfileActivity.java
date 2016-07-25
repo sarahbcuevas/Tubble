@@ -8,8 +8,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.laundryapp.tubble.entities.User;
+import com.squareup.picasso.Picasso;
 
 public class UserProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -20,6 +22,7 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
     private final String TAG = this.getClass().getName();
     private Button mClearButton, mSaveButton;
     private EditText mMobileNumber, mFullName, mEmail, mAddress;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +35,13 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
         mFullName = (EditText) findViewById(R.id.full_name);
         mEmail = (EditText) findViewById(R.id.email);
         mAddress = (EditText) findViewById(R.id.address);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mClearButton.setOnClickListener(this);
         mSaveButton.setOnClickListener(this);
+        Picasso.with(getApplicationContext()).load(R.drawable.userphoto).into((ImageView) findViewById(R.id.user_photo));
+        Picasso.with(getApplicationContext()).load(R.drawable.photo).into((ImageView) findViewById(R.id.photo));
+        Picasso.with(getApplicationContext()).load(R.drawable.cam).into((ImageView) findViewById(R.id.camera));
+        Picasso.with(getApplicationContext()).load(R.drawable.tubblelogo).into((ImageView) mToolbar.findViewById(R.id.tubble_logo));
     }
 
     @Override

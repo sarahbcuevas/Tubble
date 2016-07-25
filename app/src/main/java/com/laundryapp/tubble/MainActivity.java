@@ -8,7 +8,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -20,6 +22,7 @@ import com.laundryapp.tubble.fragment.ProfileFragment;
 import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
 import com.laundryapp.tubble.fragment.TipsFragment;
+import com.squareup.picasso.Picasso;
 
 public class MainActivity extends FragmentActivity implements FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener, TipsFragment.OnFragmentInteractionListener {
 
@@ -27,6 +30,7 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
     private TabPagerAdapter mTabPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
+    private Toolbar mToolbar;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -41,6 +45,9 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
 
         long user_id = getIntent().getLongExtra(User.USER_ID, -1);
         Log.d(TAG, "user id: " + user_id);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Picasso.with(getApplicationContext()).load(R.drawable.tubblelogo).into((ImageView) mToolbar.findViewById(R.id.tubble_logo));
 
         mTabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);

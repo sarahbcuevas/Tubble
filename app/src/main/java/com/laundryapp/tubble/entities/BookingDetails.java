@@ -1,7 +1,6 @@
 package com.laundryapp.tubble.entities;
 
 import com.orm.SugarRecord;
-import com.laundryapp.tubble.entities.LaundryService.Service;
 
 import java.util.Date;
 
@@ -15,9 +14,8 @@ public class BookingDetails extends SugarRecord {
 
     private Mode mMode;
     private Type mType;
-    private Service mService;
     private Status mStatus;
-    private long mLaundryShopId, mUserId;
+    private long mLaundryShopId, mServiceId, mUserId;
     private String mLocation, mNotes;
     private Date mPickupDateTime, mReturnDateTime, mDateCreated;
     private int mNoOfClothes;
@@ -26,10 +24,10 @@ public class BookingDetails extends SugarRecord {
     public BookingDetails() {
     }
 
-    public BookingDetails(Mode mMode, Type mType, Service mService, long mLaundryShopId, long mUserId, String mLocation, String mNotes, Date mPickupDateTime, Date mReturnDateTime, int mNoOfClothes, float mEstimatedKilo) {
+    public BookingDetails(Mode mMode, Type mType, long mServiceId, long mLaundryShopId, long mUserId, String mLocation, String mNotes, Date mPickupDateTime, Date mReturnDateTime, int mNoOfClothes, float mEstimatedKilo) {
         this.mMode = mMode;
         this.mType = mType;
-        this.mService = mService;
+        this.mServiceId = mServiceId;
         this.mLaundryShopId = mLaundryShopId;
         this.mUserId = mUserId;
         this.mLocation = mLocation;
