@@ -1,13 +1,21 @@
 package com.laundryapp.tubble.fragment;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.laundryapp.tubble.R;
 
 /**
@@ -18,7 +26,7 @@ import com.laundryapp.tubble.R;
  * Use the {@link FindFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FindFragment extends Fragment {
+public class FindFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -27,6 +35,9 @@ public class FindFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private GoogleMap myMap;
+    private MapView mMapView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,7 +76,19 @@ public class FindFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_find, container, false);
+        final View view = inflater.inflate(R.layout.fragment_find, container, false);
+
+        try {
+            MapsInitializer.initialize(this.getActivity());
+            mMapView = (MapView) view.findViewById(R.id.map);
+            mMapView.onCreate(savedInstanceState);
+            mMapView.getMapAsync(this);
+
+        } catch (Exception e) {
+            Log.e("Map", e.getMessage(), e);
+        }
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -90,6 +113,70 @@ public class FindFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mMapView != null) {
+            mMapView.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (mMapView != null) {
+            mMapView.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mMapView != null) {
+            mMapView.onDestroy();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (mMapView != null) {
+            mMapView.onLowMemory();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mMapView != null) {
+            mMapView.onSaveInstanceState(outState);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        myMap = googleMap;
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        } else {
+            myMap.setMyLocationEnabled(true);
+        }
+
+        myMap.setOnMyLocationButtonClickListener(this);
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        return false;
     }
 
     /**
