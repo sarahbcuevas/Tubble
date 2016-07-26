@@ -12,11 +12,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.laundryapp.tubble.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,6 +47,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
 
     private GoogleMap myMap;
     private MapView mMapView;
+    private List<Marker> mapMarkers = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -171,7 +181,48 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
             myMap.setMyLocationEnabled(true);
         }
 
+        // default position
+        double lat = 14.5589257;
+        double lng = 121.013967;
+
+        LatLng change = new LatLng(lat, lng);
+        myMap.moveCamera(CameraUpdateFactory.newLatLng(change));
         myMap.setOnMyLocationButtonClickListener(this);
+
+        setUpMarkers();
+    }
+
+    public void setUpMarkers() {
+        for (Marker marker : mapMarkers) {
+            marker.remove();
+        }
+
+        mapMarkers = new ArrayList<>();
+
+        MarkerOptions sudsMarker = new MarkerOptions().position(new LatLng(14.6341307d, 121.0721176d))
+                .title("Suds")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+
+
+        MarkerOptions metroMarker = new MarkerOptions().position(new LatLng(14.6197947d, 121.0249749d))
+                .title("Metropole")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+
+        MarkerOptions quickMarker = new MarkerOptions().position(new LatLng(14.6461237d, 121.0604149d))
+                .title("Quickclean")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+        MarkerOptions wellMarker = new MarkerOptions().position(new LatLng(14.6385568d, 121.0741269d))
+                .title("Well Wash")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+        MarkerOptions farMarker = new MarkerOptions().position(new LatLng(14.6329323d, 121.0390375d))
+                .title("Farclean")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+
+        mapMarkers.add(myMap.addMarker(sudsMarker));
+        mapMarkers.add(myMap.addMarker(metroMarker));
+        mapMarkers.add(myMap.addMarker(quickMarker));
+        mapMarkers.add(myMap.addMarker(wellMarker));
+        mapMarkers.add(myMap.addMarker(farMarker));
     }
 
     @Override
