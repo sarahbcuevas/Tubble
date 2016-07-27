@@ -1,14 +1,31 @@
 package com.laundryapp.tubble.fragment;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.laundryapp.tubble.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,7 +35,7 @@ import com.laundryapp.tubble.R;
  * Use the {@link FindFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FindFragment extends Fragment {
+public class FindFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -27,6 +44,10 @@ public class FindFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private GoogleMap myMap;
+    private MapView mMapView;
+    private List<Marker> mapMarkers = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,7 +86,19 @@ public class FindFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_find, container, false);
+        final View view = inflater.inflate(R.layout.fragment_find, container, false);
+
+        try {
+            MapsInitializer.initialize(this.getActivity());
+            mMapView = (MapView) view.findViewById(R.id.map);
+            mMapView.onCreate(savedInstanceState);
+            mMapView.getMapAsync(this);
+
+        } catch (Exception e) {
+            Log.e("Map", e.getMessage(), e);
+        }
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -90,6 +123,111 @@ public class FindFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mMapView != null) {
+            mMapView.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (mMapView != null) {
+            mMapView.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mMapView != null) {
+            mMapView.onDestroy();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (mMapView != null) {
+            mMapView.onLowMemory();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mMapView != null) {
+            mMapView.onSaveInstanceState(outState);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        myMap = googleMap;
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        } else {
+            myMap.setMyLocationEnabled(true);
+        }
+
+        // default position
+        double lat = 14.5589257;
+        double lng = 121.013967;
+
+        LatLng change = new LatLng(lat, lng);
+        myMap.moveCamera(CameraUpdateFactory.newLatLng(change));
+        myMap.setOnMyLocationButtonClickListener(this);
+
+        setUpMarkers();
+    }
+
+    public void setUpMarkers() {
+        for (Marker marker : mapMarkers) {
+            marker.remove();
+        }
+
+        mapMarkers = new ArrayList<>();
+
+        MarkerOptions sudsMarker = new MarkerOptions().position(new LatLng(14.6341307d, 121.0721176d))
+                .title("Suds")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+
+
+        MarkerOptions metroMarker = new MarkerOptions().position(new LatLng(14.6197947d, 121.0249749d))
+                .title("Metropole")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+
+        MarkerOptions quickMarker = new MarkerOptions().position(new LatLng(14.6461237d, 121.0604149d))
+                .title("Quickclean")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+        MarkerOptions wellMarker = new MarkerOptions().position(new LatLng(14.6385568d, 121.0741269d))
+                .title("Well Wash")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+        MarkerOptions farMarker = new MarkerOptions().position(new LatLng(14.6329323d, 121.0390375d))
+                .title("Farclean")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+
+        mapMarkers.add(myMap.addMarker(sudsMarker));
+        mapMarkers.add(myMap.addMarker(metroMarker));
+        mapMarkers.add(myMap.addMarker(quickMarker));
+        mapMarkers.add(myMap.addMarker(wellMarker));
+        mapMarkers.add(myMap.addMarker(farMarker));
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        return false;
     }
 
     /**
