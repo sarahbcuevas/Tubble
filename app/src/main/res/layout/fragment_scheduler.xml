@@ -10,478 +10,705 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingTop="30dp"
         android:visibility="visible">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_height="match_parent">
 
-            <FrameLayout
-                android:id="@+id/left_button"
-                android:layout_width="50dp"
-                android:layout_height="40dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingTop="30dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:id="@+id/left_button"
+                        android:layout_width="50dp"
+                        android:layout_height="40dp">
+
+                        <ImageButton
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bluebutton_left" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/month_text"
+                        android:layout_width="170dp"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:gravity="center"
+                        android:text="December 2016"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_blue"
+                        android:textSize="20sp"
+                        android:typeface="normal" />
+
+                    <FrameLayout
+                        android:id="@+id/right_button"
+                        android:layout_width="50dp"
+                        android:layout_height="40dp">
+
+                        <ImageButton
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bluebutton_right" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="@dimen/scheduler_day_width"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="Mo"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_yellow" />
+
+                    <TextView
+                        android:layout_width="@dimen/scheduler_day_width"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="Tu"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_yellow" />
+
+                    <TextView
+                        android:layout_width="@dimen/scheduler_day_width"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="We"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_yellow" />
+
+                    <TextView
+                        android:layout_width="@dimen/scheduler_day_width"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="Th"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_yellow" />
+
+                    <TextView
+                        android:layout_width="@dimen/scheduler_day_width"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="Fr"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_yellow" />
+
+                    <TextView
+                        android:layout_width="@dimen/scheduler_day_width"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="Sa"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_yellow" />
+
+                    <TextView
+                        android:layout_width="@dimen/scheduler_day_width"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="Su"
+                        android:textAllCaps="true"
+                        android:textColor="@color/tubble_yellow" />
+                </LinearLayout>
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/calendar_pager"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:layout_height="45dp">
+                </android.support.v4.view.ViewPager>
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="@dimen/scheduler_day_width"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:layout_marginTop="10dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/monday"-->
+                        <!--android:layout_width="@dimen/scheduler_day_width"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background="@android:color/transparent"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="16"-->
+                        <!--android:textAllCaps="true"-->
+                        <!--android:textColor="@color/calendar_day" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tuesday"-->
+                        <!--android:layout_width="@dimen/scheduler_day_width"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background="@android:color/transparent"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="17"-->
+                        <!--android:textAllCaps="true"-->
+                        <!--android:textColor="@color/calendar_day" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/wednesday"-->
+                        <!--android:layout_width="@dimen/scheduler_day_width"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background="@android:color/transparent"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="18"-->
+                        <!--android:textAllCaps="true"-->
+                        <!--android:textColor="@color/calendar_day" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/thursday"-->
+                        <!--android:layout_width="@dimen/scheduler_day_width"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background="@android:color/transparent"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="19"-->
+                        <!--android:textAllCaps="true"-->
+                        <!--android:textColor="@color/calendar_day" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/friday"-->
+                        <!--android:layout_width="@dimen/scheduler_day_width"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background="@drawable/calendar_day_selected"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="20"-->
+                        <!--android:textAllCaps="true"-->
+                        <!--android:textColor="@android:color/white" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/saturday"-->
+                        <!--android:layout_width="@dimen/scheduler_day_width"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background="@android:color/transparent"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="21"-->
+                        <!--android:textAllCaps="true"-->
+                        <!--android:textColor="@color/calendar_day" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/sunday"-->
+                        <!--android:layout_width="@dimen/scheduler_day_width"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background="@android:color/transparent"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="22"-->
+                        <!--android:textAllCaps="true"-->
+                        <!--android:textColor="@color/calendar_day" />-->
+                <!--</LinearLayout>-->
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/tubble_yellow"
+                    android:minHeight="130dp">
+
+                    <ListView
+                        android:id="@+id/schedule_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:visibility="visible"></ListView>
+
+                    <TextView
+                        android:id="@+id/no_schedule_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="130dp"
+                        android:gravity="center"
+                        android:text="No laundry schedule."
+                        android:visibility="gone"
+                        android:textSize="16sp" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:gravity="center"
+                    android:paddingLeft="70dp"
+                    android:paddingRight="70dp"
+                    android:textStyle="bold"
+                    android:text="Manage your laundry\nwith us. Book a\nschedule now!"
+                    android:textSize="16sp" />
 
                 <ImageButton
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
+                    android:id="@+id/book_button"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bluebutton_left" />
-            </FrameLayout>
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/add" />
 
-            <TextView
-                android:id="@+id/month_text"
-                android:layout_width="170dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:gravity="center"
-                android:text="December 2016"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_blue"
-                android:textSize="20sp"
-                android:typeface="normal" />
+            </LinearLayout>
+        </ScrollView>
 
-            <FrameLayout
-                android:id="@+id/right_button"
-                android:layout_width="50dp"
-                android:layout_height="40dp">
 
-                <ImageButton
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/bluebutton_right" />
-            </FrameLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Mo"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_yellow" />
-
-            <TextView
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Tu"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_yellow" />
-
-            <TextView
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="We"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_yellow" />
-
-            <TextView
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Th"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_yellow" />
-
-            <TextView
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Fr"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_yellow" />
-
-            <TextView
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Sa"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_yellow" />
-
-            <TextView
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Su"
-                android:textAllCaps="true"
-                android:textColor="@color/tubble_yellow" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/scheduler_day_width"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/monday"
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:text="16"
-                android:textAllCaps="true"
-                android:textColor="@color/calendar_day" />
-
-            <TextView
-                android:id="@+id/tuesday"
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:text="17"
-                android:textAllCaps="true"
-                android:textColor="@color/calendar_day" />
-
-            <TextView
-                android:id="@+id/wednesday"
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:text="18"
-                android:textAllCaps="true"
-                android:textColor="@color/calendar_day" />
-
-            <TextView
-                android:id="@+id/thursday"
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:text="19"
-                android:textAllCaps="true"
-                android:textColor="@color/calendar_day" />
-
-            <TextView
-                android:id="@+id/friday"
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="match_parent"
-                android:background="@drawable/calendar_day_selected"
-                android:gravity="center"
-                android:text="20"
-                android:textAllCaps="true"
-                android:textColor="@android:color/white" />
-
-            <TextView
-                android:id="@+id/saturday"
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:text="21"
-                android:textAllCaps="true"
-                android:textColor="@color/calendar_day" />
-
-            <TextView
-                android:id="@+id/sunday"
-                android:layout_width="@dimen/scheduler_day_width"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:gravity="center"
-                android:text="22"
-                android:textAllCaps="true"
-                android:textColor="@color/calendar_day" />
-        </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@color/tubble_yellow"
-            android:minHeight="130dp">
-
-            <ListView
-                android:id="@+id/schedule_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"></ListView>
-
-            <TextView
-                android:id="@+id/no_schedule_text"
-                android:layout_width="match_parent"
-                android:layout_height="130dp"
-                android:gravity="center"
-                android:text="No laundry schedule."
-                android:textSize="16sp" />
-        </RelativeLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:gravity="center"
-            android:paddingLeft="70dp"
-            android:paddingRight="70dp"
-            android:text="Manage your laundry\nwith us. Book a\nschedule now!"
-            android:textSize="16sp" />
-
-        <ImageButton
-            android:id="@+id/book_button"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/add" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/booking"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <LinearLayout
-            android:id="@+id/mode"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/booking_field_background_blue"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/mode_text"
-                style="@style/Booking_Field_Style"
-                android:text="Mode" />
+            android:layout_height="match_parent">
 
             <LinearLayout
-                android:id="@+id/mode_toggle_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/booking_field_paddingTop"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Drop Off"
-                    android:textColor="@color/booking_field_text_selected" />
-
-                <Switch
-                    android:id="@+id/mode_toggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:textColor="@color/booking_field_text_selected"
-                    android:textOff="Drop Off"
-                    android:textOn="Deliver" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Deliver"
-                    android:textColor="@color/booking_field_text_selected" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/booking_field_divider_width"
-            android:background="@color/booking_field_divider_color" />
-
-        <LinearLayout
-            android:id="@+id/type"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/booking_field_background_gray"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/type_text"
-                style="@style/Booking_Field_Style"
-                android:text="Type"
-                android:textColor="@color/booking_field_text_deselected" />
-
-            <LinearLayout
-                android:id="@+id/type_toggle_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/booking_field_paddingTop"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:visibility="visible">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Commercial"
-                    android:textColor="@color/booking_field_text_selected" />
-
-                <Switch
-                    android:id="@+id/type_toggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:textColor="@color/booking_field_text_selected"
-                    android:textOff="Commercial"
-                    android:textOn="Personal"
-                    android:visibility="visible" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Personal"
-                    android:textColor="@color/booking_field_text_selected" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/booking_field_divider_width"
-            android:background="@color/booking_field_divider_color" />
-
-        <LinearLayout
-            android:id="@+id/location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/booking_field_background_gray"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/location_text"
-                style="@style/Booking_Field_Style"
-                android:text="Location"
-                android:textColor="@color/booking_field_text_deselected" />
-
-            <LinearLayout
-                android:id="@+id/location_toggle_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/booking_field_paddingTop"
-                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <CheckBox
-                    android:id="@+id/location_checkbox"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/mode"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Same as current address"
-                    android:textColor="@color/booking_field_text_selected" />
+                    android:background="@color/booking_field_background_blue"
+                    android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/location_edittext"
-                    android:layout_width="@dimen/form_edittext_width"
-                    android:layout_height="@dimen/form_edittext_height"
+                    <TextView
+                        android:id="@+id/mode_text"
+                        style="@style/Booking_Field_Style"
+                        android:text="Mode" />
+
+                    <LinearLayout
+                        android:id="@+id/mode_toggle_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/booking_field_paddingTop"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pick-Up"
+                            android:textColor="@color/booking_field_text_selected" />
+
+                        <Switch
+                            android:id="@+id/mode_toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:textColor="@color/booking_field_text_selected"
+                            android:textOff="Drop Off"
+                            android:textOn="Deliver" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Deliver"
+                            android:textColor="@color/booking_field_text_selected" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/booking_field_divider_width"
+                    android:background="@color/booking_field_divider_color" />
+
+                <LinearLayout
+                    android:id="@+id/type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/booking_field_background_gray"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/type_text"
+                        style="@style/Booking_Field_Style"
+                        android:text="Type"
+                        android:textColor="@color/booking_field_text_deselected" />
+
+                    <LinearLayout
+                        android:id="@+id/type_toggle_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/booking_field_paddingTop"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Commercial"
+                            android:textColor="@color/booking_field_text_selected" />
+
+                        <Switch
+                            android:id="@+id/type_toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:textColor="@color/booking_field_text_selected"
+                            android:textOff="Commercial"
+                            android:textOn="Personal"
+                            android:visibility="visible" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Personal"
+                            android:textColor="@color/booking_field_text_selected" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/booking_field_divider_width"
+                    android:background="@color/booking_field_divider_color" />
+
+                <LinearLayout
+                    android:id="@+id/location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/booking_field_background_gray"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/location_text"
+                        style="@style/Booking_Field_Style"
+                        android:text="Location"
+                        android:textColor="@color/booking_field_text_deselected" />
+
+                    <LinearLayout
+                        android:id="@+id/location_toggle_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/booking_field_paddingTop"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <CheckBox
+                            android:id="@+id/location_checkbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Same as current address"
+                            android:textColor="@color/booking_field_text_selected" />
+
+                        <EditText
+                            android:id="@+id/location_edittext"
+                            android:layout_width="@dimen/form_edittext_width"
+                            android:layout_height="@dimen/form_edittext_height"
+                            android:gravity="center"
+                            android:hint="complete address"
+                            android:textColor="@color/booking_field_text_selected"
+                            android:textColorHint="@color/booking_field_location_hint_text"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/booking_field_divider_width"
+                    android:background="@color/booking_field_divider_color" />
+
+                <LinearLayout
+                    android:id="@+id/shop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/booking_field_background_gray"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/shop_text"
+                        style="@style/Booking_Field_Style"
+                        android:text="Laundry Shop"
+                        android:textColor="@color/booking_field_text_deselected" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/booking_field_divider_width"
+                    android:background="@color/booking_field_divider_color" />
+
+                <LinearLayout
+                    android:id="@+id/service"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/booking_field_background_gray"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/service_text"
+                        style="@style/Booking_Field_Style"
+                        android:text="Service"
+                        android:textColor="@color/booking_field_text_deselected" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/booking_field_divider_width"
+                    android:background="@color/booking_field_divider_color" />
+
+                <LinearLayout
+                    android:id="@+id/summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/booking_field_background_gray"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/summary_text"
+                        style="@style/Booking_Field_Style"
+                        android:text="Summary"
+                        android:textColor="@color/booking_field_text_deselected" />
+
+                    <LinearLayout
+                        android:id="@+id/summary_toggle_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="@dimen/booking_field_paddingTop"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+
+                        <RelativeLayout
+                            android:id="@+id/pick_up_datetime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="10dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerInParent="true"
+                                android:text="Pick up"
+                                android:textColor="@color/booking_field_text_selected"
+                                android:textSize="16sp" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:layout_centerInParent="true"
+                                android:orientation="horizontal">
+
+                                <Button
+                                    android:id="@+id/pickup_date_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="right|center_vertical"
+                                    android:text="Mon, 07/25/2016"
+                                    android:textColor="@color/booking_field_text_selected"
+                                    android:textSize="16sp" />
+
+                                <Button
+                                    android:id="@+id/pickup_time_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="right|center_vertical"
+                                    android:layout_marginLeft="5dp"
+                                    android:text="05:00 PM"
+                                    android:textColor="@color/booking_field_text_selected"
+                                    android:textSize="16sp" />
+                            </LinearLayout>
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:id="@+id/return_datetime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="10dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerInParent="true"
+                                android:text="Return"
+                                android:textColor="@color/booking_field_text_selected"
+                                android:textSize="16sp" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:orientation="horizontal">
+
+                                <Button
+                                    android:id="@+id/return_date_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="right|center_vertical"
+                                    android:text="Mon, 07/25/2016"
+                                    android:textColor="@color/booking_field_text_selected"
+                                    android:textSize="16sp" />
+
+                                <Button
+                                    android:id="@+id/return_time_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="right|center_vertical"
+                                    android:layout_marginLeft="5dp"
+                                    android:text="06:00 PM"
+                                    android:textColor="@color/booking_field_text_selected"
+                                    android:textSize="16sp" />
+                            </LinearLayout>
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:paddingTop="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerInParent="true"
+                                android:text="No. of clothes"
+                                android:textColor="@color/booking_field_text_selected"
+                                android:textSize="16sp" />
+
+                            <EditText
+                                android:id="@+id/no_of_clothes"
+                                android:layout_width="100dp"
+                                android:layout_height="@dimen/form_edittext_height"
+                                android:layout_alignParentRight="true"
+                                android:gravity="center"
+                                android:layout_centerInParent="true"
+                                android:inputType="number"
+                                android:textSize="16sp"
+                                android:textColor="@color/booking_field_text_selected" />
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:paddingTop="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:layout_centerInParent="true"
+                                android:text="Estimated kilo"
+                                android:textColor="@color/booking_field_text_selected"
+                                android:textSize="16sp" />
+
+                            <EditText
+                                android:id="@+id/estimated_kilo"
+                                android:layout_width="100dp"
+                                android:layout_height="@dimen/form_edittext_height"
+                                android:layout_alignParentRight="true"
+                                android:layout_centerInParent="true"
+                                android:inputType="numberDecimal"
+                                android:gravity="center"
+                                android:textSize="16sp"
+                                android:textColor="@color/booking_field_text_selected" />
+                        </RelativeLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingBottom="10dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="20dp"
+                            android:paddingTop="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Notes"
+                                android:textSize="16sp"
+                                android:textColor="@color/booking_field_text_selected" />
+
+                            <EditText
+                                android:id="@+id/notes"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:textColor="@color/booking_field_text_selected" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/booking_field_divider_width"
+                    android:background="@color/booking_field_divider_color" />
+
+                <LinearLayout
+                    android:id="@+id/confirm_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/tubble_yellow"
                     android:gravity="center"
-                    android:hint="complete address"
-                    android:textColor="@color/booking_field_text_selected"
-                    android:textColorHint="@color/booking_field_location_hint_text"
-                    android:textSize="14sp" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="@dimen/booking_field_paddingTop"
+                        android:paddingTop="@dimen/booking_field_paddingTop"
+                        android:text="Confirm"
+                        android:textAllCaps="true" />
+
+                    <ImageView
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/blackbutton_right" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+        </ScrollView>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/booking_field_divider_width"
-            android:background="@color/booking_field_divider_color" />
-
-        <LinearLayout
-            android:id="@+id/shop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/booking_field_background_gray"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/shop_text"
-                style="@style/Booking_Field_Style"
-                android:text="Laundry Shop"
-                android:textColor="@color/booking_field_text_deselected" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/booking_field_divider_width"
-            android:background="@color/booking_field_divider_color" />
-
-        <LinearLayout
-            android:id="@+id/service"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/booking_field_background_gray"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/service_text"
-                style="@style/Booking_Field_Style"
-                android:text="Service"
-                android:textColor="@color/booking_field_text_deselected" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/booking_field_divider_width"
-            android:background="@color/booking_field_divider_color" />
-
-        <LinearLayout
-            android:id="@+id/summary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/booking_field_background_gray"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/summary_text"
-                style="@style/Booking_Field_Style"
-                android:text="Summary"
-                android:textColor="@color/booking_field_text_deselected" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/booking_field_divider_width"
-            android:background="@color/booking_field_divider_color" />
-
-        <LinearLayout
-            android:id="@+id/confirm_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/tubble_yellow"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/booking_field_paddingTop"
-                android:paddingTop="@dimen/booking_field_paddingTop"
-                android:text="Confirm"
-                android:textAllCaps="true" />
-
-            <ImageView
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_gravity="center"
-                android:layout_marginLeft="10dp"
-                android:src="@drawable/blackbutton_right" />
-        </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

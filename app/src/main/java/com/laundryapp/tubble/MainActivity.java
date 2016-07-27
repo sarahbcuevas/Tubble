@@ -64,6 +64,9 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
+                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof SchedulerFragment) {
+                    SchedulerFragment.updateCalendarAdapter();
+                }
             }
 
             @Override
@@ -127,6 +130,8 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
         boolean onBackPressed = false;
         if (mViewPager.getCurrentItem() == 1) { // Scheduler Fragment
             onBackPressed = ((SchedulerFragment) mTabPagerAdapter.getItem(1)).onBackPressed();
+        } else if (mViewPager.getCurrentItem() == 4) {  // Profile Fragment
+            onBackPressed = ((ProfileFragment) mTabPagerAdapter.getItem(4)).onBackPressed();
         }
 
         if (!onBackPressed) {

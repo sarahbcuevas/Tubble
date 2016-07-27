@@ -4,13 +4,27 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.laundryapp.tubble.R;
+import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.User;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,7 +34,7 @@ import com.laundryapp.tubble.entities.User;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -34,6 +48,11 @@ public class ProfileFragment extends Fragment {
 
     private View fragmentView;
     private EditText mMobileNumber, mFullName, mEmail;
+    private ScrollView profileLayout;
+    private RelativeLayout trackLayout;
+    private LinearLayout noTrackLayout;
+    private ListView trackListView;
+    private Button trackHistoryButton;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -71,9 +90,14 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this
         fragmentView = inflater.inflate(R.layout.fragment_profile, container, false);
+        profileLayout = (ScrollView) fragmentView.findViewById(R.id.user_profile);
+        trackLayout = (RelativeLayout) fragmentView.findViewById(R.id.track_history);
+        noTrackLayout = (LinearLayout) fragmentView.findViewById(R.id.no_track);
+        trackListView = (ListView) fragmentView.findViewById(R.id.track_history_list);
         mMobileNumber = (EditText) fragmentView.findViewById(R.id.mobile_number);
         mFullName = (EditText) fragmentView.findViewById(R.id.full_name);
         mEmail = (EditText) fragmentView.findViewById(R.id.email);
+        trackHistoryButton = (Button) fragmentView.findViewById(R.id.track_history_button);
         User user = User.listAll(User.class).get(0);
         mMobileNumber.setText(user.getMobileNumber());
         mFullName.setText(user.getFullName());
@@ -81,6 +105,14 @@ public class ProfileFragment extends Fragment {
         mMobileNumber.setEnabled(false);
         mFullName.setEnabled(false);
         mEmail.setEnabled(false);
+        profileLayout.setVisibility(View.VISIBLE);
+        trackLayout.setVisibility(View.GONE);
+        trackHistoryButton.setOnClickListener(this);
+        Picasso.with(getContext()).load(R.drawable.nolaundry).into((ImageView) fragmentView.findViewById(R.id.no_track_image));
+        List<BookingDetails> bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", String.valueOf(User.listAll(User.class).get(0).getId()));
+        ArrayAdapter<BookingDetails> adapter = new TrackHistoryAdapter(getContext(), bookings);
+        trackListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
         return fragmentView;
     }
 
@@ -89,6 +121,15 @@ public class ProfileFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    public boolean onBackPressed() {
+        if (trackLayout.getVisibility() == View.VISIBLE) {
+            trackLayout.setVisibility(View.GONE);
+            profileLayout.setVisibility(View.VISIBLE);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -113,7 +154,7 @@ public class ProfileFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p/>
+     * <p>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
@@ -121,5 +162,78 @@ public class ProfileFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.track_history_button:
+                setTrackHistoryVisibility(true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void setTrackHistoryVisibility(boolean isVisible) {
+        if (isVisible) {
+            profileLayout.setVisibility(View.GONE);
+            trackLayout.setVisibility(View.VISIBLE);
+            List<BookingDetails> bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", String.valueOf(User.listAll(User.class).get(0).getId()));
+            if (bookings.isEmpty()) {
+                noTrackLayout.setVisibility(View.VISIBLE);
+                trackListView.setVisibility(View.GONE);
+            } else {
+                noTrackLayout.setVisibility(View.GONE);
+                trackListView.setVisibility(View.VISIBLE);
+            }
+        } else {
+            profileLayout.setVisibility(View.VISIBLE);
+            trackLayout.setVisibility(View.GONE);
+        }
+    }
+
+    class TrackHistoryAdapter extends ArrayAdapter<BookingDetails> {
+        List<BookingDetails> bookings;
+
+        private class ViewHolder {
+            TextView laundryShop;
+            TextView dateCreated;
+            TextView serviceType;
+            TextView mode;
+            TextView fee;
+        }
+
+        public TrackHistoryAdapter(Context context, List<BookingDetails> bookings) {
+            super(context, R.layout.track_list_item, bookings);
+            this.bookings = bookings;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            BookingDetails details = bookings.get(position);
+            ViewHolder viewHolder;
+
+            if (convertView == null) {
+                viewHolder = new ViewHolder();
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                convertView = inflater.inflate(R.layout.track_list_item, parent, false);
+                viewHolder.laundryShop = (TextView) convertView.findViewById(R.id.laundry_shop);
+                viewHolder.dateCreated = (TextView) convertView.findViewById(R.id.date_created);
+                viewHolder.serviceType = (TextView) convertView.findViewById(R.id.service_type);
+                viewHolder.mode = (TextView) convertView.findViewById(R.id.mode);
+                viewHolder.fee = (TextView) convertView.findViewById(R.id.fee);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+
+            viewHolder.laundryShop.setText(details.getLaundryShop().getName());
+            viewHolder.dateCreated.setText(details.getDateTimeCreated());
+            viewHolder.serviceType.setText(details.getTypeName() + " - " + details.getLaundryServiceName());
+            viewHolder.mode.setText(details.getModeName());
+            viewHolder.fee.setText("Fee: " + details.getFee());
+            return convertView;
+        }
     }
 }

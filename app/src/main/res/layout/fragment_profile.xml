@@ -4,84 +4,124 @@
     android:layout_height="match_parent"
     tools:context="com.laundryapp.tubble.fragment.ProfileFragment">
 
-    <LinearLayout
+    <ScrollView
         android:id="@+id/user_profile"
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:visibility="visible"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp">
 
-            <ImageView
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_centerInParent="true"
-                android:background="@drawable/userphoto"
-                android:contentDescription="Picture" />
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/userphoto"
+                    android:contentDescription="Picture" />
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentBottom="true"
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginLeft="40dp"
+                    android:background="@drawable/photo"
+                    android:contentDescription="opengallery" />
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginRight="40dp"
+                    android:background="@drawable/cam"
+                    android:contentDescription="openCamera" />
+            </RelativeLayout>
+
+            <EditText
+                android:id="@+id/mobile_number"
+                android:layout_width="@dimen/form_edittext_width"
+                android:layout_height="@dimen/form_edittext_height"
+                android:gravity="center"
+                android:hint="mobile number" />
+
+            <EditText
+                android:id="@+id/full_name"
+                android:layout_width="@dimen/form_edittext_width"
+                android:layout_height="@dimen/form_edittext_height"
+                android:gravity="center"
+                android:hint="full name" />
+
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="@dimen/form_edittext_width"
+                android:layout_height="@dimen/form_edittext_height"
+                android:gravity="center"
+                android:hint="email" />
+
+            <Button
+                android:id="@+id/view_address_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/form_button_height"
+                android:layout_marginTop="10dp"
+                android:background="@color/tubble_blue"
+                android:text="Address"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/track_history_button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/form_button_height"
+                android:layout_marginTop="10dp"
                 android:layout_marginBottom="20dp"
-                android:layout_marginLeft="40dp"
-                android:background="@drawable/photo"
-                android:contentDescription="opengallery" />
+                android:background="@color/tubble_blue"
+                android:text="Track History"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </ScrollView>
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginBottom="20dp"
-                android:layout_marginRight="40dp"
-                android:background="@drawable/cam"
-                android:contentDescription="openCamera" />
-        </RelativeLayout>
-
-        <EditText
-            android:id="@+id/mobile_number"
-            android:layout_width="@dimen/form_edittext_width"
-            android:layout_height="@dimen/form_edittext_height"
-            android:gravity="center"
-            android:hint="mobile number" />
-
-        <EditText
-            android:id="@+id/full_name"
-            android:layout_width="@dimen/form_edittext_width"
-            android:layout_height="@dimen/form_edittext_height"
-            android:gravity="center"
-            android:hint="full name" />
-
-        <EditText
-            android:id="@+id/email"
-            android:layout_width="@dimen/form_edittext_width"
-            android:layout_height="@dimen/form_edittext_height"
-            android:gravity="center"
-            android:hint="email" />
-
-        <Button
-            android:id="@+id/view_address_button"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/form_button_height"
-            android:layout_marginTop="10dp"
-            android:background="@color/tubble_blue"
-            android:text="Address"
-            android:textAllCaps="true"
-            android:textColor="@android:color/white" />
-
-        <Button
-            android:id="@+id/track_history_button"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/form_button_height"
-            android:layout_marginTop="10dp"
-            android:background="@color/tubble_blue"
-            android:text="Track History"
-            android:textAllCaps="true"
-            android:textColor="@android:color/white" />
-    </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/track_history"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent" >
+         <LinearLayout
+             android:id="@+id/no_track"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical"
+             android:gravity="center"
+             android:layout_centerInParent="true"
+             android:visibility="gone">
+             <ImageView
+                 android:id="@+id/no_track_image"
+                 android:layout_width="@dimen/no_laundry_image_width"
+                 android:layout_height="@dimen/no_laundry_image_height"
+                 android:scaleType="fitXY"
+                 android:src="@drawable/nolaundry"/>
+             <TextView
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:gravity="center"
+                 android:layout_marginTop="10dp"
+                 android:textSize="16sp"
+                 android:text="No laundry scheduled yet."/>
+         </LinearLayout>
+         <ListView
+             android:id="@+id/track_history_list"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:visibility="gone"></ListView>
+    </RelativeLayout>
 
 </RelativeLayout>

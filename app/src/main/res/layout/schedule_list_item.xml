@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="20dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/time_text"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:textStyle="bold"
+        android:textSize="12sp"
+        android:text="00:00 PM"/>
+    <TextView
+        android:id="@+id/detail_text"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Metropole Katipunan\nPick-up at Ateneo"
+        android:textSize="12sp"/>
+    <Button
+        android:id="@+id/info_button"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/info"/>
+    <View
+        android:layout_width="5dp"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/cancel_button"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/cancel"/>
+</LinearLayout>

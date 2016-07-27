@@ -12,5 +12,9 @@
     <string name="laundry_services">Laundry Service</string>
     <string name="cancel">Cancel</string>
     <string name="note">Note</string>
-    <string name="select_laundry_shop">Please select laundry shop first.</string>
+    <string name="select_laundry_shop">Please select laundry shop.</string>
+    <string name="select_laundry_service">Please select laundry service.</string>
+    <string name="input_location">Please input your location.</string>
+    <string name="input_no_of_clothes">Please input no. of clothes.</string>
+    <string name="input_estimated_kilo">Please input estimated kilo.</string>
 </resources>

@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 
 import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ public class StartUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_up);
 
+        Picasso.with(getApplicationContext()).load(R.drawable.start_up).into((ImageView) findViewById(R.id.start_up_image));
         setupDatabase();
         List<User> users = User.listAll(User.class);
         final Intent nextActivity;
