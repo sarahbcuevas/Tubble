@@ -64,9 +64,9 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
-                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof SchedulerFragment) {
-                    SchedulerFragment.updateCalendarAdapter();
-                }
+//                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof SchedulerFragment) {
+//                    SchedulerFragment.updateCalendarAdapter();
+//                }
             }
 
             @Override

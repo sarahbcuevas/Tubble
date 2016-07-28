@@ -191,9 +191,10 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         listView.setAdapter(listAdapter);
         bookButton = (ImageButton) fragmentView.findViewById(R.id.book_button);
         fm = getFragmentManager();
-        calendarAdapter = new CalendarWeekViewAdapter(fm);
+//        calendarAdapter = new CalendarWeekViewAdapter(fm);
         calendarPager = (ViewPager) fragmentView.findViewById(R.id.calendar_pager);
-        calendarPager.setAdapter(calendarAdapter);
+//        calendarPager.setAdapter(calendarAdapter);
+//        calendarPager.setCurrentItem(calendarAdapter.getCount()/2, false);
         leftButton.setOnClickListener(this);
         rightButton.setOnClickListener(this);
         modeLayout.setOnClickListener(this);
@@ -242,29 +243,67 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         mCalendar = Calendar.getInstance();
         mCalendar.setFirstDayOfWeek(Calendar.MONDAY);
 //        updateCalendar(false, -1);
-        updateCalendarAdapter();
+//        updateCalendarAdapter();
         updateLaundryShops();
         updateMessageDialog(R.string.select_laundry_shop);
         return fragmentView;
     }
 
     public static void updateCalendarAdapter() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        int year = calendar.get(Calendar.YEAR);
-        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-
-        long[] days = new long[7];
-        for (int i = 0; i < 7; i++) {
-            days[i] = calendar.getTimeInMillis();
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+//        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+//        int year = calendar.get(Calendar.YEAR);
+//        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
+//
+//        long[] days = new long[7];
+//        for (int i = 0; i < 7; i++) {
+//            days[i] = calendar.getTimeInMillis();
+//            calendar.add(Calendar.DAY_OF_MONTH, 1);
+//        }
         calendarAdapter = new CalendarWeekViewAdapter(fm);
-        calendarAdapter.setDaysOfWeek(days);
+//        DaysOfWeek(days);
         calendarPager.setAdapter(calendarAdapter);
-        monthTextView.setText(monthString);
+        calendarPager.setCurrentItem(5000-1, false);
+//        monthTextView.setText(monthString);
         calendarAdapter.notifyDataSetChanged();
+    }
+
+    public void updateScheduleList(long timeInMillis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMillis);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        listAdapter.setDate(timeInMillis);
+        List<BookingDetails> bookings = BookingDetails.listAll(BookingDetails.class);
+        SchedulerFragment.allBookings.clear();
+        for (BookingDetails booking : bookings) {
+            calendar.setTimeInMillis(booking.getPickupDate());
+            int pickupYear = calendar.get(Calendar.YEAR);
+            int pickupMonth = calendar.get(Calendar.MONTH);
+            int pickupDay = calendar.get(Calendar.DAY_OF_MONTH);
+            calendar.setTimeInMillis(booking.getReturnDate());
+            int returnYear = calendar.get(Calendar.YEAR);
+            int returnMonth = calendar.get(Calendar.MONTH);
+            int returnDay = calendar.get(Calendar.DAY_OF_MONTH);
+            if (pickupYear == year && pickupMonth == month && pickupDay == day) {
+                SchedulerFragment.allBookings.add(booking);
+            } else if (returnYear == year && returnMonth == month && returnDay == day) {
+                SchedulerFragment.allBookings.add(booking);
+            }
+        }
+        Log.d(TAG, "Number of bookings: " + SchedulerFragment.allBookings.size());
+        if (allBookings.isEmpty()) {
+            noScheduleText.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.GONE);
+        } else {
+            noScheduleText.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
+            listAdapter = new ScheduleListAdapter(getContext(), SchedulerFragment.allBookings);
+            listView.setAdapter(SchedulerFragment.listAdapter);
+            listAdapter.notifyDataSetChanged();
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -300,6 +339,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     public void onResume() {
         super.onResume();
         updateCalendarAdapter();
+//        calendarPager.setCurrentItem(calendarAdapter.getCount()/2, false);
+        updateScheduleList(System.currentTimeMillis());
+        calendarAdapter.updateCalendar();
     }
 
     @Override
@@ -787,7 +829,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 }
 
 class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
-    long[] daysOfWeek;
+    long[] daysOfWeek = new long[7];
     Fragment fragment;
 
     public CalendarWeekViewAdapter(FragmentManager fm) {
@@ -795,22 +837,41 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
     }
 
     public void updateCalendar() {
-        ((CalendarWeekViewFragment) fragment).updateCalendar(false, -1);
+        if (fragment != null) {
+            ((CalendarWeekViewFragment) fragment).updateCalendar(false, -1);
+        }
     }
 
-    public void setDaysOfWeek(long[] daysOfWeek) {
+    public void getDaysOfWeek(int position) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(Calendar.DATE, (position - (getCount()/2)) * 7);
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        Log.d("Sarah", "Position: " + position + " Date of monday = " + new SimpleDateFormat("MMMM dd, yyyy").format(calendar.getTime()));
+        int year = calendar.get(Calendar.YEAR);
+        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
+        for (int i = 0; i < 7; i++) {
+//            days[i] = calendar.getTimeInMillis();
+            daysOfWeek[i] = calendar.getTimeInMillis();
+            calendar.add(Calendar.DATE, 1);
+        }
+        Log.d("Sarah", "" + monthString);
+        SchedulerFragment.monthTextView.setText(monthString);
+//        return days;
         this.daysOfWeek = daysOfWeek;
     }
 
     @Override
     public int getCount() {
-        return 100;
+        return 10_000;
     }
 
     @Override
     public Fragment getItem(int position) {
         fragment = new CalendarWeekViewFragment();
         Bundle args = new Bundle();
+        getDaysOfWeek(position);
         args.putLongArray(CalendarWeekViewFragment.CALENDAR_DAY, daysOfWeek);
         fragment.setArguments(args);
         return fragment;
@@ -820,9 +881,12 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
 class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
     long dateInMillis;
     List<BookingDetails> bookings;
+    Context context;
+    Dialog messageDialog;
 
     public ScheduleListAdapter(Context context, List<BookingDetails> bookings) {
         super(context, R.layout.schedule_list_item);
+        this.context = context;
         this.bookings = bookings;
     }
 
@@ -841,7 +905,7 @@ class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -856,9 +920,9 @@ class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        BookingDetails details = bookings.get(position);
+        final BookingDetails details = bookings.get(position);
         BookingDetails.Mode modeId = details.getMode();
-        String laundryShop = details.getLaundryShop().getName();
+        final String laundryShop = details.getLaundryShop().getName();
         String mode = details.getModeName();
         String location = details.getLocation();
         Calendar calendar = Calendar.getInstance();
@@ -871,6 +935,34 @@ class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
         viewHolder.timeView.setText(format.format(calendar.getTime()));
         viewHolder.detailView.setText(laundryShop + "\n" + mode + " at " + location);
         Log.d("SchedulerFragment", "Position " + position + ": " + format.format(calendar.getTime()) + "\n" + laundryShop + "\n" + mode + " at " + location);
+        viewHolder.cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Cancel");
+                builder.setMessage("Are you sure you want to cancel your laundry schedule with " + laundryShop + "?");
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (messageDialog != null) {
+                            messageDialog.dismiss();
+                        }
+                    }
+                });
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        boolean isDeleted = BookingDetails.delete(details);
+                        if (isDeleted) {
+                            bookings.remove(position);
+                            notifyDataSetChanged();
+                        }
+                    }
+                });
+                messageDialog = builder.create();
+                messageDialog.show();
+            }
+        });
         return convertView;
     }
 }

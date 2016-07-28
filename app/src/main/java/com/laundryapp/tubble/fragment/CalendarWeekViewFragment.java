@@ -2,6 +2,7 @@ package com.laundryapp.tubble.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.IntegerRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -23,7 +24,6 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
     private final String TAG = this.getClass().getName();
     private static TextView[] daysView;
     private String[] days;
-    private TextView monthView;
     private long[] daysOfWeek;
 
     public CalendarWeekViewFragment() {
@@ -36,7 +36,7 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
         View view = inflater.inflate(R.layout.calendar_day_layout, container, false);
         Bundle args = getArguments();
         daysOfWeek = args.getLongArray(CALENDAR_DAY);
-        String[] days = getDays(daysOfWeek);
+        days = getDays(daysOfWeek);
         daysView = new TextView[7];
         daysView[0] = (TextView) view.findViewById(R.id.monday);
         daysView[1] = (TextView) view.findViewById(R.id.tuesday);
@@ -50,6 +50,7 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
             daysView[i].setOnClickListener(this);
         }
         updateCalendar(false, -1);
+        Log.d(TAG, "CalendarWeekViewFragment onCreateView");
         return view;
     }
 
@@ -94,33 +95,43 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
 
     public void updateCalendar(boolean isSelectedFromCalendar, int position) {
         Calendar mCalendar = Calendar.getInstance();
-        int month = mCalendar.get(Calendar.MONTH);
+//        int month = mCalendar.get(Calendar.MONTH);
         int day = mCalendar.get(Calendar.DAY_OF_MONTH);
-        int year = mCalendar.get(Calendar.YEAR);
-        int week = mCalendar.get(Calendar.DAY_OF_WEEK) - 2;
-        String monthString = mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-        week = week < 0 ? 6 : week;
-        int lastDay = mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        int[] actualDays = new int[7];
+//        int year = mCalendar.get(Calendar.YEAR);
+//        int week = mCalendar.get(Calendar.DAY_OF_WEEK) - 2;
+//        String monthString = mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
+//        week = week < 0 ? 6 : week;
+//        int lastDay = mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+//        int[] actualDays = new int[7];
         for (int i = 0; i < 7; i++) {
-            actualDays[i] = day + i - week;
-            if ((actualDays[i] == day && !isSelectedFromCalendar) || (isSelectedFromCalendar && Integer.parseInt(days[position]) == actualDays[i])) {
+            if ((isSelectedFromCalendar && (position == i)) || (!isSelectedFromCalendar && (Integer.parseInt(days[i]) == day))) {
                 daysView[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
                 daysView[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
             } else {
                 daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
                 daysView[i].setBackground(null);
             }
-            if (actualDays[i] <= 0) {
-                mCalendar.set(year, month - 1, 1);
-                actualDays[i] += mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-            } else if (actualDays[i] > lastDay) {
-                actualDays[i] -= lastDay;
-                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-            }
+//            actualDays[i] = day + i - week;
+//            Log.d("Sarah", "isSelectedFromCalendar: " + isSelectedFromCalendar);
+//            Log.d("Sarah", "days[" + position + "]: " + (position >=0 ? days[position]: -1));
+//            Log.d("Sarah", "actualDays[" + i + "]: " + actualDays[i]);
+//            if ((actualDays[i] == day && !isSelectedFromCalendar) || (isSelectedFromCalendar && Integer.parseInt(days[position]) == actualDays[i])) {
+//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
+//                daysView[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
+//            } else {
+//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
+//                daysView[i].setBackground(null);
+//            }
+//            if (actualDays[i] <= 0) {
+//                mCalendar.set(year, month - 1, 1);
+//                actualDays[i] += mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
+//            } else if (actualDays[i] > lastDay) {
+//                actualDays[i] -= lastDay;
+//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
+//            }
         }
-        SchedulerFragment.monthTextView.setText(monthString);
+//        SchedulerFragment.monthTextView.setText(monthString);
         if (position >= 0 && position < 7) {
             updateScheduleList(daysOfWeek[position]);
         }
@@ -157,9 +168,9 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
         } else {
             SchedulerFragment.noScheduleText.setVisibility(View.GONE);
             SchedulerFragment.listView.setVisibility(View.VISIBLE);
+            SchedulerFragment.listAdapter = new ScheduleListAdapter(getContext(), SchedulerFragment.allBookings);
+            SchedulerFragment.listView.setAdapter(SchedulerFragment.listAdapter);
+            SchedulerFragment.listAdapter.notifyDataSetChanged();
         }
-        SchedulerFragment.listAdapter = new ScheduleListAdapter(getContext(), SchedulerFragment.allBookings);
-        SchedulerFragment.listView.setAdapter(SchedulerFragment.listAdapter);
-        SchedulerFragment.listAdapter.notifyDataSetChanged();
     }
 }
