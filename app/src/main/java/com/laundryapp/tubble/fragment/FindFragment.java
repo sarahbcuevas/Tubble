@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -190,6 +191,30 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
         myMap.setOnMyLocationButtonClickListener(this);
 
         setUpMarkers();
+
+        myMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            // Use default InfoWindow frame
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            // Defines the contents of the InfoWindow
+            @Override
+            public View getInfoContents(Marker arg0) {
+
+                // Getting view from the layout file info_window_layout
+                View v = getActivity().getLayoutInflater().inflate(R.layout.marker_info_layout, null);
+
+                // Getting reference to the TextView to set latitude
+                TextView shopName = (TextView) v.findViewById(R.id.laundry_shop_name_text);
+                shopName.setText(arg0.getTitle());
+                // Returning the view containing InfoWindow contents
+                return v;
+
+            }
+        });
     }
 
     public void setUpMarkers() {
@@ -202,7 +227,6 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
         MarkerOptions sudsMarker = new MarkerOptions().position(new LatLng(14.6341307d, 121.0721176d))
                 .title("Suds")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
-
 
         MarkerOptions metroMarker = new MarkerOptions().position(new LatLng(14.6197947d, 121.0249749d))
                 .title("Metropole")
