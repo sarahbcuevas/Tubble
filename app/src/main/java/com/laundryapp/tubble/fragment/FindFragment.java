@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -24,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.laundryapp.tubble.R;
+import com.laundryapp.tubble.entities.LaundryShop;
+import com.orm.query.Select;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -202,14 +206,21 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
 
             // Defines the contents of the InfoWindow
             @Override
-            public View getInfoContents(Marker arg0) {
+            public View getInfoContents(Marker marker) {
 
                 // Getting view from the layout file info_window_layout
                 View v = getActivity().getLayoutInflater().inflate(R.layout.marker_info_layout, null);
 
                 // Getting reference to the TextView to set latitude
                 TextView shopName = (TextView) v.findViewById(R.id.laundry_shop_name_text);
-                shopName.setText(arg0.getTitle());
+                RatingBar laundryRating = (RatingBar) v.findViewById(R.id.laundry_rating);
+                ImageButton infoButton = (ImageButton) v.findViewById(R.id.info_button);
+
+                shopName.setText(marker.getTitle());
+                LaundryShop shop = LaundryShop.find(LaundryShop.class, "m_Name = ?", marker.getTitle()).get(0);
+
+                laundryRating.setRating(shop.getRating());
+
                 // Returning the view containing InfoWindow contents
                 return v;
 
@@ -223,30 +234,26 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
         }
 
         mapMarkers = new ArrayList<>();
+        List<MarkerOptions> markerOptionses = new ArrayList<>();
 
-        MarkerOptions sudsMarker = new MarkerOptions().position(new LatLng(14.6341307d, 121.0721176d))
-                .title("Suds")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+        List<LaundryShop> shopList = LaundryShop.listAll(LaundryShop.class);
 
-        MarkerOptions metroMarker = new MarkerOptions().position(new LatLng(14.6197947d, 121.0249749d))
-                .title("Metropole")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+        for (LaundryShop shop : shopList){
+            Log.e("Shops", shop.getName() + " " + shop.getAddress());
 
-        MarkerOptions quickMarker = new MarkerOptions().position(new LatLng(14.6461237d, 121.0604149d))
-                .title("Quickclean")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
-        MarkerOptions wellMarker = new MarkerOptions().position(new LatLng(14.6385568d, 121.0741269d))
-                .title("Well Wash")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
-        MarkerOptions farMarker = new MarkerOptions().position(new LatLng(14.6329323d, 121.0390375d))
-                .title("Farclean")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+            double[] coords = shop.getLocationCoordinates();
 
-        mapMarkers.add(myMap.addMarker(sudsMarker));
-        mapMarkers.add(myMap.addMarker(metroMarker));
-        mapMarkers.add(myMap.addMarker(quickMarker));
-        mapMarkers.add(myMap.addMarker(wellMarker));
-        mapMarkers.add(myMap.addMarker(farMarker));
+            Log.e("ShopCoords", "Coords = " + coords[0] + " , " + coords[1]);
+            MarkerOptions marker = new MarkerOptions().position(new LatLng(coords[0], coords[1]))
+                    .title(shop.getName())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.find));
+
+            markerOptionses.add(marker);
+        }
+
+        for (MarkerOptions options : markerOptionses){
+            mapMarkers.add(myMap.addMarker(options));
+        }
     }
 
     @Override

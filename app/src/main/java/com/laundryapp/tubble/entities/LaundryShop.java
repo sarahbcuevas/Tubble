@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class LaundryShop extends SugarRecord {
 
     private String mName, mAddress, mSchedule, mContact;
-    private long mLocationCoordinateX = 0, mLocationCoordinateY = 0;
+    private double mLocationCoordinateX = 0, mLocationCoordinateY = 0;
     private float mTotalRating = 0;
     private int mRatingCount = 1;
     private float mRating = 0;
@@ -50,12 +50,12 @@ public class LaundryShop extends SugarRecord {
         return mRating;
     }
 
-    public void setLocationCoordinates(long x, long y) {
+    public void setLocationCoordinates(double x, double y) {
         mLocationCoordinateX = x;
         mLocationCoordinateY = y;
     }
 
-    public long[] getLocationCoordinates() {
-        return new long[]{mLocationCoordinateX, mLocationCoordinateY};
+    public double[] getLocationCoordinates() {
+        return new double[]{mLocationCoordinateX, mLocationCoordinateY};
     }
 }
