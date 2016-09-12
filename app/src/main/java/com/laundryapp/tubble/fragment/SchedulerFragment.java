@@ -1,6 +1,7 @@
 package com.laundryapp.tubble.fragment;
 
 import android.app.Dialog;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
@@ -12,8 +13,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
+import android.app.AlertDialog;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -101,7 +104,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     static ViewPager calendarPager;
     private static FragmentManager fm;
 
-    private OnFragmentInteractionListener mListener;
+    OnFragmentInteractionListener mListener;
 
     public SchedulerFragment() {
         // Required empty public constructor
@@ -187,12 +190,13 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 //        days[6] = (TextView) fragmentView.findViewById(R.id.sunday);
         listView = (ListView) fragmentView.findViewById(R.id.schedule_list);
         allBookings = new ArrayList<BookingDetails>();
-        listAdapter = new ScheduleListAdapter(getContext(), allBookings);
+        listAdapter = new ScheduleListAdapter((Context) mListener, allBookings);
         listView.setAdapter(listAdapter);
         bookButton = (ImageButton) fragmentView.findViewById(R.id.book_button);
         fm = getFragmentManager();
 //        calendarAdapter = new CalendarWeekViewAdapter(fm);
         calendarPager = (ViewPager) fragmentView.findViewById(R.id.calendar_pager);
+        calendarPager.setOffscreenPageLimit(0);
 //        calendarPager.setAdapter(calendarAdapter);
 //        calendarPager.setCurrentItem(calendarAdapter.getCount()/2, false);
         leftButton.setOnClickListener(this);
@@ -261,10 +265,14 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 //            days[i] = calendar.getTimeInMillis();
 //            calendar.add(Calendar.DAY_OF_MONTH, 1);
 //        }
-        calendarAdapter = new CalendarWeekViewAdapter(fm);
+        if (null == calendarAdapter) {
+            calendarAdapter = new CalendarWeekViewAdapter(fm);
+        }
 //        DaysOfWeek(days);
         calendarPager.setAdapter(calendarAdapter);
-        calendarPager.setCurrentItem(5000-1, false);
+        calendarPager.setCurrentItem(5000);
+        calendarPager.setOffscreenPageLimit(0);
+        calendarAdapter.getDaysOfWeek(5000);
 //        monthTextView.setText(monthString);
         calendarAdapter.notifyDataSetChanged();
     }
@@ -306,13 +314,6 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     public boolean onBackPressed() {
         if (bookingLayout.getVisibility() == View.VISIBLE) {
             bookingLayout.setVisibility(View.GONE);
@@ -336,10 +337,16 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
+    public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+        super.onInflate(context, attrs, savedInstanceState);
+        updateCalendarAdapter();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        updateCalendarAdapter();
 //        calendarPager.setCurrentItem(calendarAdapter.getCount()/2, false);
+        updateCalendarAdapter();
         updateScheduleList(System.currentTimeMillis());
         calendarAdapter.updateCalendar();
     }
@@ -362,71 +369,27 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onCheckBookingStatus(long id);
+        void onAddOrDeleteLaundrySchedule();
     }
-
-//    private void updateCalendar(boolean isSelectedFromCalendar, int selectedDay) {
-//        int month = mCalendar.get(Calendar.MONTH);
-//        int day = mCalendar.get(Calendar.DAY_OF_MONTH);
-//        int year = mCalendar.get(Calendar.YEAR);
-//        int week = mCalendar.get(Calendar.DAY_OF_WEEK) - 2;
-//        String monthString = mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-//        week = week < 0 ? 6 : week;
-//        int lastDay = mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-//        int[] actualDays = new int[7];
-//        for (int i = 0; i < 7; i++) {
-//            actualDays[i] = day + i - week;
-//            if ((actualDays[i] == day && !isSelectedFromCalendar) || (isSelectedFromCalendar && selectedDay == actualDays[i])) {
-//                days[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-//                days[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
-//            } else {
-//                days[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
-//                days[i].setBackground(null);
-//            }
-//            if (actualDays[i] <= 0) {
-//                mCalendar.set(year, month - 1, 1);
-//                actualDays[i] += mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-//                days[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-//            } else if (actualDays[i] > lastDay) {
-//                actualDays[i] -= lastDay;
-//                days[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-//            }
-//
-//            days[i].setText(Integer.toString(actualDays[i]));
-//        }
-//
-//        monthTextView.setText(monthString);
-//
-//    }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.left_button:
+                int currentItem = calendarPager.getCurrentItem();
+                if (currentItem > 0) {
+                    currentItem--;
+                    calendarPager.setCurrentItem(currentItem);
+                }
                 break;
             case R.id.right_button:
+                int currentItem2 = calendarPager.getCurrentItem();
+                if (currentItem2 < calendarAdapter.getCount() - 1) {
+                    currentItem2++;
+                    calendarPager.setCurrentItem(currentItem2);
+                }
                 break;
-//            case R.id.monday:
-//                updateCalendar(true, Integer.parseInt(days[0].getText().toString()));
-//                break;
-//            case R.id.tuesday:
-//                updateCalendar(true, Integer.parseInt(days[1].getText().toString()));
-//                break;
-//            case R.id.wednesday:
-//                updateCalendar(true, Integer.parseInt(days[2].getText().toString()));
-//                break;
-//            case R.id.thursday:
-//                updateCalendar(true, Integer.parseInt(days[3].getText().toString()));
-//                break;
-//            case R.id.friday:
-//                updateCalendar(true, Integer.parseInt(days[4].getText().toString()));
-//                break;
-//            case R.id.saturday:
-//                updateCalendar(true, Integer.parseInt(days[5].getText().toString()));
-//                break;
-//            case R.id.sunday:
-//                updateCalendar(true, Integer.parseInt(days[6].getText().toString()));
-//                break;
             case R.id.book_button:
                 break;
             case R.id.mode:
@@ -664,22 +627,13 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             messageDialog.show();
         } else {
             Calendar calendar = Calendar.getInstance();
-//            calendar.setTimeInMillis(System.currentTimeMillis());
-//            createdDate = new Date();
-//            createdDate.setDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-//            createdTime = new Time();
-//            createdTime.setTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
             SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
             calendar.set(pickupDate.year, pickupDate.month, pickupDate.date, pickupTime.hour, pickupTime.minute);
             final long pickupMillis = calendar.getTimeInMillis();
-//            calendar.setTimeInMillis(pickupDate);
             String pick = format.format(calendar.getTime());
             calendar.set(returnDate.year, returnDate.month, returnDate.date, returnTime.hour, returnTime.minute);
-//            calendar.setTimeInMillis(returnDate);
             final long returnMillis = calendar.getTimeInMillis();
             String ret = format.format(calendar.getTime());
-//            calendar.set(createdDate.year, createdDate.month, createdDate.date, createdTime.hour, createdTime.minute);
-//            String cre = format.format(calendar.getTime());
             float estimatedFee = LaundryShopService.findById(LaundryShopService.class, laundryShopService_id).getPrice() * Float.parseFloat(mEstimatedKilo);
 
             String message = "Please confirm details below:\n\n" +
@@ -713,6 +667,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                     booking.save();
                     reset();
                     calendarAdapter.updateCalendar();
+                    mListener.onAddOrDeleteLaundrySchedule();
                 }
             });
             messageDialog = builder.create();
@@ -838,7 +793,7 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
 
     public void updateCalendar() {
         if (fragment != null) {
-            ((CalendarWeekViewFragment) fragment).updateCalendar(false, -1);
+            ((CalendarWeekViewFragment) fragment).updateCalendar(false);
         }
     }
 
@@ -856,10 +811,7 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
             daysOfWeek[i] = calendar.getTimeInMillis();
             calendar.add(Calendar.DATE, 1);
         }
-        Log.d("Sarah", "" + monthString);
         SchedulerFragment.monthTextView.setText(monthString);
-//        return days;
-        this.daysOfWeek = daysOfWeek;
     }
 
     @Override
@@ -869,13 +821,15 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+        Log.d("Sarah", "Position getItem: " + position);
         fragment = new CalendarWeekViewFragment();
         Bundle args = new Bundle();
-        getDaysOfWeek(position);
+        getDaysOfWeek(position - 1);
         args.putLongArray(CalendarWeekViewFragment.CALENDAR_DAY, daysOfWeek);
         fragment.setArguments(args);
         return fragment;
     }
+
 }
 
 class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
@@ -956,11 +910,22 @@ class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
                         if (isDeleted) {
                             bookings.remove(position);
                             notifyDataSetChanged();
+                            if (bookings.isEmpty()) {
+                                SchedulerFragment.noScheduleText.setVisibility(View.VISIBLE);
+                                SchedulerFragment.listView.setVisibility(View.GONE);
+                            }
+                            ((SchedulerFragment.OnFragmentInteractionListener) context).onAddOrDeleteLaundrySchedule();
                         }
                     }
                 });
                 messageDialog = builder.create();
                 messageDialog.show();
+            }
+        });
+        viewHolder.infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((SchedulerFragment.OnFragmentInteractionListener) context).onCheckBookingStatus(details.getId());
             }
         });
         return convertView;

@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.google.android.gms.appindexing.Action;
@@ -49,6 +50,7 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         Picasso.with(getApplicationContext()).load(R.drawable.tubblelogo).into((ImageView) mToolbar.findViewById(R.id.tubble_logo));
 
+//        mTabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
         mTabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mTabPagerAdapter);
@@ -64,6 +66,9 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
+//                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof StatusFragment) {
+//                    StatusFragment.updateLaundryList();
+//                }
 //                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof SchedulerFragment) {
 //                    SchedulerFragment.updateCalendarAdapter();
 //                }
@@ -142,6 +147,17 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onCheckBookingStatus(long id) {
+        ((StatusFragment) mTabPagerAdapter.getItem(2)).onCheckBookingStatus(id);
+        mViewPager.setCurrentItem(2);
+    }
+
+    @Override
+    public void onAddOrDeleteLaundrySchedule() {
+        ((StatusFragment) mTabPagerAdapter.getItem(2)).updateLaundryList();
     }
 }
 

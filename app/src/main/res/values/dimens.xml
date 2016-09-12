@@ -29,6 +29,8 @@
     <dimen name="list_item_padding_left">20dp</dimen>
     <dimen name="list_item_text_size">18sp</dimen>
 
-    <dimen name="no_laundry_image_width">180dp</dimen>
-    <dimen name="no_laundry_image_height">140dp</dimen>
+    <dimen name="no_laundry_image_width">150dp</dimen>
+    <dimen name="no_laundry_image_height">120dp</dimen>
+    <dimen name="laundry_process_image_width">130dp</dimen>
+    <dimen name="laundry_process_image_height">170dp</dimen>
 </resources>

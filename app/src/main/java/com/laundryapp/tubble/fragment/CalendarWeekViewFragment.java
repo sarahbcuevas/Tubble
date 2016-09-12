@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.entities.BookingDetails;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +26,7 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
     private static TextView[] daysView;
     private String[] days;
     private long[] daysOfWeek;
+    private static int selectedPosition = -1;
 
     public CalendarWeekViewFragment() {
 
@@ -49,7 +51,7 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
             daysView[i].setText(days[i]);
             daysView[i].setOnClickListener(this);
         }
-        updateCalendar(false, -1);
+        updateCalendar(false);
         Log.d(TAG, "CalendarWeekViewFragment onCreateView");
         return view;
     }
@@ -57,9 +59,11 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
     private String[] getDays(long[] daysOfWeek) {
         days = new String[daysOfWeek.length];
         Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
         for (int i = 0; i < daysOfWeek.length; i++) {
             calendar.setTimeInMillis(daysOfWeek[i]);
             days[i] = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
+            Log.d("Sarah", "Date: " + dateFormat.format(daysOfWeek[i]));
         }
         return days;
     }
@@ -68,72 +72,62 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.monday:
-                updateCalendar(true, 0);
+                selectedPosition = 0;
+                updateCalendar(true);
                 break;
             case R.id.tuesday:
-                updateCalendar(true, 1);
+                selectedPosition = 1;
+                updateCalendar(true);
                 break;
             case R.id.wednesday:
-                updateCalendar(true, 2);
+                selectedPosition = 2;
+                updateCalendar(true);
                 break;
             case R.id.thursday:
-                updateCalendar(true, 3);
+                selectedPosition = 3;
+                updateCalendar(true);
                 break;
             case R.id.friday:
-                updateCalendar(true, 4);
+                selectedPosition = 4;
+                updateCalendar(true);
                 break;
             case R.id.saturday:
-                updateCalendar(true, 5);
+                selectedPosition = 5;
+                updateCalendar(true);
                 break;
             case R.id.sunday:
-                updateCalendar(true, 6);
+                selectedPosition = 6;
+                updateCalendar(true);
                 break;
             default:
                 break;
         }
     }
 
-    public void updateCalendar(boolean isSelectedFromCalendar, int position) {
+    public void updateCalendar(boolean isSelectedFromCalendar) {
         Calendar mCalendar = Calendar.getInstance();
-//        int month = mCalendar.get(Calendar.MONTH);
+        mCalendar.setTimeInMillis(System.currentTimeMillis());
         int day = mCalendar.get(Calendar.DAY_OF_MONTH);
-//        int year = mCalendar.get(Calendar.YEAR);
-//        int week = mCalendar.get(Calendar.DAY_OF_WEEK) - 2;
-//        String monthString = mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-//        week = week < 0 ? 6 : week;
-//        int lastDay = mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-//        int[] actualDays = new int[7];
         for (int i = 0; i < 7; i++) {
-            if ((isSelectedFromCalendar && (position == i)) || (!isSelectedFromCalendar && (Integer.parseInt(days[i]) == day))) {
+            if ((isSelectedFromCalendar && (selectedPosition == i)) || (!isSelectedFromCalendar && (Integer.parseInt(days[i]) == day))) {
                 daysView[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
                 daysView[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
+                Log.d("Sarah", "updatecalendar " + daysView[i].getText());
             } else {
-                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
-                daysView[i].setBackground(null);
+                try {
+                    daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
+                    daysView[i].setBackground(null);
+                } catch (NullPointerException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                }
             }
-//            actualDays[i] = day + i - week;
-//            Log.d("Sarah", "isSelectedFromCalendar: " + isSelectedFromCalendar);
-//            Log.d("Sarah", "days[" + position + "]: " + (position >=0 ? days[position]: -1));
-//            Log.d("Sarah", "actualDays[" + i + "]: " + actualDays[i]);
-//            if ((actualDays[i] == day && !isSelectedFromCalendar) || (isSelectedFromCalendar && Integer.parseInt(days[position]) == actualDays[i])) {
-//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-//                daysView[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
-//            } else {
-//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
-//                daysView[i].setBackground(null);
-//            }
-//            if (actualDays[i] <= 0) {
-//                mCalendar.set(year, month - 1, 1);
-//                actualDays[i] += mCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-//            } else if (actualDays[i] > lastDay) {
-//                actualDays[i] -= lastDay;
-//                daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day_disabled));
-//            }
         }
-//        SchedulerFragment.monthTextView.setText(monthString);
-        if (position >= 0 && position < 7) {
-            updateScheduleList(daysOfWeek[position]);
+
+        mCalendar.setTimeInMillis(daysOfWeek[4]);
+        int year = mCalendar.get(Calendar.YEAR);
+        SchedulerFragment.monthTextView.setText(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year));
+        if (selectedPosition >= 0 && selectedPosition < 7) {
+            updateScheduleList(daysOfWeek[selectedPosition]);
         }
     }
 

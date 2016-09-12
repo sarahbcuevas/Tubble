@@ -15,7 +15,7 @@ public class BookingDetails extends SugarRecord {
 
     public enum Type {PERSONAL, COMMERCIAL}
 
-    public enum Status {NEW, ACCEPTED, REJECTED}
+    public enum Status {NEW, ACCEPTED, COMPLETED, REJECTED}
 
     private Mode mMode;
     private Type mType;
@@ -26,6 +26,7 @@ public class BookingDetails extends SugarRecord {
 //    private Time mPickupTime, mReturnTime, mTimeCreated;
     private int mNoOfClothes;
     private float mEstimatedKilo;
+    public static final String BOOKING_URI = "booking_uri";
 
     public BookingDetails() {
     }
@@ -71,6 +72,10 @@ public class BookingDetails extends SugarRecord {
     public LaundryShop getLaundryShop() {
         LaundryShop laundryShop = LaundryShop.findById(LaundryShop.class, mLaundryShopId);
         return laundryShop;
+    }
+
+    public long getDateCreatedInMillis() {
+        return mDateCreated;
     }
 
     public String getDateTimeCreated() {
@@ -120,4 +125,6 @@ public class BookingDetails extends SugarRecord {
     public long getReturnDate() {
         return mReturnDate;
     }
+
+    public Status getStatus() { return mStatus; }
 }
