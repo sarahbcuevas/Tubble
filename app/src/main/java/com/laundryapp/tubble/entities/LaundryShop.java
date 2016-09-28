@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class LaundryShop extends SugarRecord {
 
-    private String mName, mAddress, mSchedule, mContact;
+    private String mName, mAddress, mSchedule, mContact, mLogin, mPassword;
     private double mLocationCoordinateX = 0, mLocationCoordinateY = 0;
     private float mTotalRating = 0;
     private int mRatingCount = 1;
@@ -15,13 +15,15 @@ public class LaundryShop extends SugarRecord {
     public LaundryShop() {
     }
 
-    public LaundryShop(String mName, String mAddress, String mSchedule, String mContact, float mRating) {
+    public LaundryShop(String mName, String mAddress, String mSchedule, String mContact, float mRating, String mLogin, String mPassword) {
         this.mName = mName;
         this.mAddress = mAddress;
         this.mSchedule = mSchedule;
         this.mContact = mContact;
         this.mTotalRating = mRating;
         this.mRating = mRating;
+        this.mLogin = mLogin;
+        this.mPassword = mPassword;
     }
 
     public String getName() {
@@ -40,6 +42,8 @@ public class LaundryShop extends SugarRecord {
         return mContact;
     }
 
+    public String getLogin() { return mLogin; }
+
     public void addRating(int rating) {
         mTotalRating += rating;
         mRatingCount++;
@@ -57,5 +61,9 @@ public class LaundryShop extends SugarRecord {
 
     public double[] getLocationCoordinates() {
         return new double[]{mLocationCoordinateX, mLocationCoordinateY};
+    }
+
+    public String getPassword() {
+        return mPassword;
     }
 }

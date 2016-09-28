@@ -1,5 +1,7 @@
 package com.laundryapp.tubble;
 
+import android.app.ActionBar;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -8,30 +10,36 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.fragment.FindFragment;
+import com.laundryapp.tubble.fragment.LaundryRequestFragment;
 import com.laundryapp.tubble.fragment.ProfileFragment;
 import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
 import com.laundryapp.tubble.fragment.TipsFragment;
 import com.squareup.picasso.Picasso;
 
-public class MainActivity extends FragmentActivity implements FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener, TipsFragment.OnFragmentInteractionListener {
+public class MainActivity extends FragmentActivity implements FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener, TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener {
 
     private final String TAG = this.getClass().getName();
     private TabPagerAdapter mTabPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
-    private Toolbar mToolbar;
+
+    public static final String USER_ID = "user_id";
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -45,15 +53,35 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
         setContentView(R.layout.activity_mainpage);
 
         long user_id = getIntent().getLongExtra(User.USER_ID, -1);
-        Log.d(TAG, "user id: " + user_id);
+        User.Type userType = Utility.getUserType(getApplicationContext());
+        if (User.Type.CUSTOMER == userType) {
+            User user = User.findById(User.class, user_id);
+        } else if (User.Type.LAUNDRY_SHOP == userType) {
+            LaundryShop shop = LaundryShop.findById(LaundryShop.class, user_id);
+        }
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        Picasso.with(getApplicationContext()).load(R.drawable.tubblelogo).into((ImageView) mToolbar.findViewById(R.id.tubble_logo));
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setActionBar(mToolbar);
+//        ActionBar actionBar = getActionBar();
+//        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+//        actionBar.setCustomView(R.layout.toolbar);
+//        actionBar.show();
+//        Log.d("Sarah", "Action bar is showing? " + actionBar.isShowing());
+//        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+//        Picasso.with(getApplicationContext()).load(R.drawable.tubblelogo).into((ImageView) mToolbar.findViewById(R.id.tubble_logo));
+//        setActionBar(mToolbar);
 
-//        mTabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
-        mTabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        initializeFragments();
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void initializeFragments() {
+        mTabPagerAdapter = new TabPagerAdapter(getApplicationContext(), getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mTabPagerAdapter);
+
 
         mTabLayout = (TabLayout) findViewById(R.id.tablayout);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -84,10 +112,11 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
 
             }
         });
+    }
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -108,6 +137,23 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
                 Uri.parse("android-app://com.laundryapp.tubble/http/host/path")
         );
         AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_logout:
+                Utility.logout(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -162,34 +208,45 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
 }
 
 class TabPagerAdapter extends FragmentPagerAdapter {
-    FindFragment mFindFragment;
-    SchedulerFragment mSchedulerFragment;
-    StatusFragment mStatusFragment;
-    TipsFragment mTipsFragment;
-    ProfileFragment mProfileFragment;
+//    FindFragment mFindFragment;
+//    LaundryRequestFragment mLaundryRequestFragment;
+//    SchedulerFragment mSchedulerFragment;
+//    StatusFragment mStatusFragment;
+//    TipsFragment mTipsFragment;
+//    ProfileFragment mProfileFragment;
+    User.Type userType;
 
-    public TabPagerAdapter(FragmentManager fm) {
+    public TabPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
-        mFindFragment = new FindFragment();
-        mSchedulerFragment = new SchedulerFragment();
-        mStatusFragment = new StatusFragment();
-        mTipsFragment = new TipsFragment();
-        mProfileFragment = new ProfileFragment();
+        userType = Utility.getUserType(context);
+//        if (User.Type.CUSTOMER == userType) {
+//            mFindFragment = new FindFragment();
+//        } else if (User.Type.LAUNDRY_SHOP == userType) {
+//            mLaundryRequestFragment = new LaundryRequestFragment();
+//        }
+//        mSchedulerFragment = new SchedulerFragment();
+//        mStatusFragment = new StatusFragment();
+//        mTipsFragment = new TipsFragment();
+//        mProfileFragment = new ProfileFragment();
     }
 
     @Override
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return mFindFragment;
+                if (User.Type.CUSTOMER == userType) {
+                    return new FindFragment();
+                } else if (User.Type.LAUNDRY_SHOP == userType) {
+                    return new LaundryRequestFragment();
+                }
             case 1:
-                return mSchedulerFragment;
+                return new SchedulerFragment();
             case 2:
-                return mStatusFragment;
+                return new StatusFragment();
             case 3:
-                return mTipsFragment;
+                return new TipsFragment();
             case 4:
-                return mProfileFragment;
+                return new ProfileFragment();
             default:
                 return null;
         }

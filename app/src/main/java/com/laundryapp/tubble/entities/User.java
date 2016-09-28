@@ -7,17 +7,21 @@ public class User extends SugarRecord {
     private String mMobileNumber;
     private String mEmailAddress;
     private String mAddress;
+    private String mPassword;
+
+    public enum Type { CUSTOMER, LAUNDRY_SHOP }
 
     public static final String USER_ID = "user_id";
 
     public User() {
     }
 
-    public User(String mFullName, String mMobileNumber, String mEmailAddress, String mAddress) {
+    public User(String mFullName, String mMobileNumber, String mEmailAddress, String mAddress, String mPassword) {
         this.mFullName = mFullName;
         this.mMobileNumber = mMobileNumber;
         this.mEmailAddress = mEmailAddress;
         this.mAddress = mAddress;
+        this.mPassword = mPassword;
     }
 
     public String getFullName() {
@@ -35,4 +39,6 @@ public class User extends SugarRecord {
     public String getAddress() {
         return mAddress;
     }
+
+    public String getmPassword() { return mPassword; }
 }

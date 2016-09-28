@@ -36,6 +36,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.laundryapp.tubble.R;
+import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
@@ -44,6 +45,7 @@ import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.fragment.DatePickerFragment.Date;
 import com.laundryapp.tubble.fragment.TimePickerFragment.Time;
 
+import java.lang.reflect.Field;
 import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -193,7 +195,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         listAdapter = new ScheduleListAdapter((Context) mListener, allBookings);
         listView.setAdapter(listAdapter);
         bookButton = (ImageButton) fragmentView.findViewById(R.id.book_button);
-        fm = getFragmentManager();
+        fm = getChildFragmentManager();
 //        calendarAdapter = new CalendarWeekViewAdapter(fm);
         calendarPager = (ViewPager) fragmentView.findViewById(R.id.calendar_pager);
         calendarPager.setOffscreenPageLimit(0);
@@ -237,7 +239,8 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 String str = "";
                 if (isChecked) {
-                    User user = User.listAll(User.class).get(0);
+                    User user = User.findById(User.class, Utility.getUserId(getContext()));
+//                    User user = User.listAll(User.class).get(0);
                     str = user.getAddress();
                 }
                 locationEdittext.setText(str);
@@ -284,7 +287,13 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         listAdapter.setDate(timeInMillis);
-        List<BookingDetails> bookings = BookingDetails.listAll(BookingDetails.class);
+        List<BookingDetails> bookings = null;
+        String user_id = Long.toString(Utility.getUserId(getContext()));
+        if (Utility.getUserType(getContext()) == User.Type.CUSTOMER) {
+            bookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", user_id);
+        } else if (Utility.getUserType(getContext()) == User.Type.LAUNDRY_SHOP) {
+            bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", user_id);
+        }
         SchedulerFragment.allBookings.clear();
         for (BookingDetails booking : bookings) {
             calendar.setTimeInMillis(booking.getPickupDate());
@@ -315,7 +324,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     }
 
     public boolean onBackPressed() {
-        if (bookingLayout.getVisibility() == View.VISIBLE) {
+        if (bookingLayout != null && bookingLayout.getVisibility() == View.VISIBLE) {
             bookingLayout.setVisibility(View.GONE);
             schedulerLayout.setVisibility(View.VISIBLE);
             updateCalendarAdapter();
@@ -355,6 +364,15 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+        } catch (NoSuchFieldException ex1) {
+            Log.e(TAG, ex1.getMessage(), ex1);
+        } catch (IllegalAccessException ex2) {
+            Log.e(TAG, ex2.getMessage(), ex2);
+        }
     }
 
     /**
@@ -604,7 +622,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     public void createBooking() {
         final BookingDetails.Mode mMode = modeToggle.isChecked() ? BookingDetails.Mode.DELIVERY : BookingDetails.Mode.PICKUP;
         final BookingDetails.Type mType = typeToggle.isChecked() ? BookingDetails.Type.PERSONAL : BookingDetails.Type.COMMERCIAL;
-        final long mUserId = User.listAll(User.class).get(0).getId();
+        final long mUserId = Utility.getUserId(getContext());
         final String mLocation = locationEdittext.getText().toString();
         final String mNotes = notesEdittext.getText().toString();
         final String mNoOfClothes = noOfClothesEdittext.getText().toString();
@@ -668,6 +686,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                     reset();
                     calendarAdapter.updateCalendar();
                     mListener.onAddOrDeleteLaundrySchedule();
+                    listAdapter.notifyDataSetChanged();
                 }
             });
             messageDialog = builder.create();
@@ -800,8 +819,11 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
     public void getDaysOfWeek(int position) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.add(Calendar.DATE, (position - (getCount()/2)) * 7);
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.add(Calendar.DATE, (position - (getCount()/2)) * 7);
+        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            calendar.add(Calendar.DATE, -1);
+        }
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         Log.d("Sarah", "Position: " + position + " Date of monday = " + new SimpleDateFormat("MMMM dd, yyyy").format(calendar.getTime()));
         int year = calendar.get(Calendar.YEAR);

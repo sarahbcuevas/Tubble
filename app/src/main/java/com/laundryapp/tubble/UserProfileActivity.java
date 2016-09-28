@@ -21,8 +21,7 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
      */
     private final String TAG = this.getClass().getName();
     private Button mClearButton, mSaveButton;
-    private EditText mMobileNumber, mFullName, mEmail, mAddress;
-    private Toolbar mToolbar;
+    private EditText mMobileNumber, mFullName, mEmail, mPassword, mAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +33,13 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
         mMobileNumber = (EditText) findViewById(R.id.mobile_number);
         mFullName = (EditText) findViewById(R.id.full_name);
         mEmail = (EditText) findViewById(R.id.email);
+        mPassword = (EditText) findViewById(R.id.password);
         mAddress = (EditText) findViewById(R.id.address);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mClearButton.setOnClickListener(this);
         mSaveButton.setOnClickListener(this);
         Picasso.with(getApplicationContext()).load(R.drawable.userphoto).into((ImageView) findViewById(R.id.user_photo));
         Picasso.with(getApplicationContext()).load(R.drawable.photo).into((ImageView) findViewById(R.id.photo));
         Picasso.with(getApplicationContext()).load(R.drawable.cam).into((ImageView) findViewById(R.id.camera));
-        Picasso.with(getApplicationContext()).load(R.drawable.tubblelogo).into((ImageView) mToolbar.findViewById(R.id.tubble_logo));
     }
 
     @Override
@@ -51,17 +49,21 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
                 mMobileNumber.setText("");
                 mFullName.setText("");
                 mEmail.setText("");
+                mPassword.setText("");
                 mAddress.setText("");
                 break;
             case R.id.save_button:
                 String mobileNumber = mMobileNumber.getText().toString();
                 String fullName = mFullName.getText().toString();
                 String email = mEmail.getText().toString();
+                String password = mPassword.getText().toString();
                 String address = mAddress.getText().toString();
-                User user = new User(fullName, mobileNumber, email, address);
+                User user = new User(fullName, mobileNumber, email, address, password);
                 long user_id = user.save();
+                Utility.setUserId(this, user_id);
+                Utility.setUserType(this, User.Type.CUSTOMER);
                 Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra(User.USER_ID, user_id);
+                intent.putExtra(MainActivity.USER_ID, user_id);
                 startActivity(intent);
                 Log.d(TAG, "user id: " + user_id);
                 break;

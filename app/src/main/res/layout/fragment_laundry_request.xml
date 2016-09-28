@@ -1,0 +1,74 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.laundryapp.tubble.fragment.LaundryRequestFragment">
+
+    <LinearLayout
+        android:id="@+id/laundry_request_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <com.lorentzos.flingswipe.SwipeFlingAdapterView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/fling_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_margin="15dp"
+            app:min_adapter_stack="6"
+            app:max_visible="4"
+            app:rotation_degrees="16">
+
+        </com.lorentzos.flingswipe.SwipeFlingAdapterView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="33dp"
+                android:layout_height="40dp"
+                android:src="@drawable/swipe"
+                android:scaleType="fitXY"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:textSize="16sp"
+                android:text="Swipe left to deny\nSwipe right to accept"
+                android:textStyle="bold"
+                android:textColor="@color/tubble_blue"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/no_laundry_request"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+        <ImageView
+            android:id="@+id/no_track_image"
+            android:layout_width="@dimen/no_laundry_image_width"
+            android:layout_height="@dimen/no_laundry_image_height"
+            android:scaleType="fitXY"
+            android:src="@drawable/nolaundry"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp"
+            android:text="No laundry request."/>
+    </LinearLayout>
+</FrameLayout>

@@ -23,7 +23,6 @@ public class BookingDetails extends SugarRecord {
     private long mLaundryShopId, mServiceId, mUserId;
     private String mLocation, mNotes;
     private long mPickupDate, mReturnDate, mDateCreated;
-//    private Time mPickupTime, mReturnTime, mTimeCreated;
     private int mNoOfClothes;
     private float mEstimatedKilo;
     public static final String BOOKING_URI = "booking_uri";
@@ -41,33 +40,11 @@ public class BookingDetails extends SugarRecord {
         this.mNotes = mNotes;
         this.mPickupDate = mPickupDate;
         this.mReturnDate = mReturnDate;
-//        this.mPickupTime = mPickupTime;
-//        this.mReturnTime = mReturnTime;
         this.mNoOfClothes = mNoOfClothes;
         this.mEstimatedKilo = mEstimatedKilo;
         this.mStatus = Status.NEW;
         this.mDateCreated = System.currentTimeMillis();
-//        this.mDateCreated = mDateCreated;
-//        this.mTimeCreated = mTimeCreated;
-//        Log.d("BookingDetails", "Pickup: " + this.mPickupDate +"\n" +
-//        "Return: " + this.mReturnDate + "\n" +
-//        "Created: " + this.mDateCreated);
-//        setDateTimeCreated();
     }
-
-//    private void setDateTimeCreated() {
-//        Calendar calendar = Calendar.getInstance();
-//        int year = calendar.get(Calendar.YEAR);
-//        int month = calendar.get(Calendar.MONTH);
-//        int day = calendar.get(Calendar.DAY_OF_MONTH);
-//        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-//        int minute = calendar.get(Calendar.MINUTE);
-//        Date date = new Date();
-//        date.setDate(year, month, day);
-//        this.mDateCreated = date;
-//        Time time = new Time();
-//        time.setTime(hour, minute);
-//    }
 
     public LaundryShop getLaundryShop() {
         LaundryShop laundryShop = LaundryShop.findById(LaundryShop.class, mLaundryShopId);
@@ -79,15 +56,10 @@ public class BookingDetails extends SugarRecord {
     }
 
     public String getDateTimeCreated() {
-//        Log.d("BookingDetails", "Date Created: " + mDateCreated);
-//        Log.d("BookingDetails", "Pickup Date: " + mPickupDate);
-//        Log.d("BookingDetails", "Return Date: " + mReturnDate);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(mDateCreated);
-//        calendar.set(mDateCreated.getYear(), mDateCreated.getMonth(), mDateCreated.getDate(), mTimeCreated.getHour(), mTimeCreated.getMinute());
         SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy hh:mm a");
         return format.format(calendar.getTime());
-//        return "";
     }
 
     public String getTypeName() {
@@ -127,4 +99,24 @@ public class BookingDetails extends SugarRecord {
     }
 
     public Status getStatus() { return mStatus; }
+
+    public void setStatus (Status status) {
+        this.mStatus = status;
+    }
+
+    public String getCustomerName() {
+        User user = User.findById(User.class, mUserId);
+        if (user != null) {
+            return user.getFullName();
+        }
+        return null;
+    }
+
+    public long getUserId() { return mUserId; }
+
+    public int getNoOfClothes() { return mNoOfClothes; }
+
+    public float getEstimatedKilo() { return mEstimatedKilo; }
+
+    public String getNotes() { return mNotes; }
 }

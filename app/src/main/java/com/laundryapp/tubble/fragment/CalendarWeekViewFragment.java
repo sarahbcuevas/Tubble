@@ -12,8 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.laundryapp.tubble.MainActivity;
 import com.laundryapp.tubble.R;
+import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
+import com.laundryapp.tubble.entities.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -108,26 +111,30 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
         Calendar mCalendar = Calendar.getInstance();
         mCalendar.setTimeInMillis(System.currentTimeMillis());
         int day = mCalendar.get(Calendar.DAY_OF_MONTH);
-        for (int i = 0; i < 7; i++) {
-            if ((isSelectedFromCalendar && (selectedPosition == i)) || (!isSelectedFromCalendar && (Integer.parseInt(days[i]) == day))) {
-                daysView[i].setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-                daysView[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
-                Log.d("Sarah", "updatecalendar " + daysView[i].getText());
-            } else {
-                try {
-                    daysView[i].setTextColor(ContextCompat.getColor(getContext(), R.color.calendar_day));
-                    daysView[i].setBackground(null);
-                } catch (NullPointerException e) {
-                    Log.e(TAG, e.getMessage(), e);
+        try {
+            for (int i = 0; i < 7; i++) {
+                if ((isSelectedFromCalendar && (selectedPosition == i)) || (!isSelectedFromCalendar && (Integer.parseInt(days[i]) == day))) {
+                    daysView[i].setTextColor(ContextCompat.getColor(this.getActivity(), android.R.color.white));
+                    daysView[i].setBackground(getResources().getDrawable(R.drawable.calendar_day_selected, null));
+                    Log.d("Sarah", "updatecalendar " + daysView[i].getText());
+                } else {
+                    try {
+                        daysView[i].setTextColor(ContextCompat.getColor(this.getActivity(), R.color.calendar_day));
+                        daysView[i].setBackground(null);
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
                 }
             }
-        }
 
-        mCalendar.setTimeInMillis(daysOfWeek[4]);
-        int year = mCalendar.get(Calendar.YEAR);
-        SchedulerFragment.monthTextView.setText(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year));
-        if (selectedPosition >= 0 && selectedPosition < 7) {
-            updateScheduleList(daysOfWeek[selectedPosition]);
+            mCalendar.setTimeInMillis(daysOfWeek[4]);
+            int year = mCalendar.get(Calendar.YEAR);
+            SchedulerFragment.monthTextView.setText(mCalendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year));
+            if (selectedPosition >= 0 && selectedPosition < 7) {
+                updateScheduleList(daysOfWeek[selectedPosition]);
+            }
+        } catch (NullPointerException e) {
+            Log.e(TAG, e.getMessage(), e);
         }
     }
 
@@ -138,7 +145,15 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         SchedulerFragment.listAdapter.setDate(timeInMillis);
-        List<BookingDetails> bookings = BookingDetails.listAll(BookingDetails.class);
+//        List<BookingDetails> bookings = BookingDetails.listAll(BookingDetails.class);
+//        List<BookingDetails> bookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", Long.toString(Utility.getUserId(getContext())));
+        List<BookingDetails> bookings = null;
+        String user_id = Long.toString(Utility.getUserId(getContext()));
+        if (Utility.getUserType(getContext()) == User.Type.CUSTOMER) {
+            bookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", user_id);
+        } else if (Utility.getUserType(getContext()) == User.Type.LAUNDRY_SHOP) {
+            bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", user_id);
+        }
         SchedulerFragment.allBookings.clear();
         for (BookingDetails booking: bookings) {
             calendar.setTimeInMillis(booking.getPickupDate());

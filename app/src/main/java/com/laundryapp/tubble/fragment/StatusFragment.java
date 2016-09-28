@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.BookingDetails.Status;
 import com.laundryapp.tubble.entities.LaundryShop;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -33,6 +35,7 @@ public class StatusFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private final String TAG = this.getClass().getName();
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -55,6 +58,7 @@ public class StatusFragment extends Fragment {
             laundryProcessedFee;
 
     private OnFragmentInteractionListener mListener;
+    private static Context mContext;
 
     public StatusFragment() {
         // Required empty public constructor
@@ -130,6 +134,7 @@ public class StatusFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mContext = context;
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -142,6 +147,15 @@ public class StatusFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+        } catch (NoSuchFieldException ex1) {
+            Log.e(TAG, ex1.getMessage(), ex1);
+        } catch (IllegalAccessException ex2) {
+            Log.e(TAG, ex2.getMessage(), ex2);
+        }
     }
 
     /**
@@ -173,28 +187,35 @@ public class StatusFragment extends Fragment {
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        List<BookingDetails> details = BookingDetails.listAll(BookingDetails.class);
-        int startMonth = calendar.get(Calendar.MONTH);
-        int startDay = calendar.get(Calendar.DAY_OF_MONTH);
-        int startYear = calendar.get(Calendar.YEAR);
+        List<BookingDetails> details = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", Long.toString(Utility.getUserId(mContext)));
+//        List<BookingDetails> details = BookingDetails.listAll(BookingDetails.class);
+//        int startMonth = calendar.get(Calendar.MONTH);
+//        int startDay = calendar.get(Calendar.DAY_OF_MONTH);
+//        int startYear = calendar.get(Calendar.YEAR);
+        long startTime = calendar.getTimeInMillis();
         calendar.add(Calendar.DATE, 7);
-        int endMonth = calendar.get(Calendar.MONTH);
-        int endDay = calendar.get(Calendar.DAY_OF_MONTH);
-        int endYear = calendar.get(Calendar.YEAR);
+//        int endMonth = calendar.get(Calendar.MONTH);
+//        int endDay = calendar.get(Calendar.DAY_OF_MONTH);
+//        int endYear = calendar.get(Calendar.YEAR);
+        long endTime = calendar.getTimeInMillis();
         boolean isLaundryExists = false;
         laundryListLayout.removeAllViews();
         BookingDetails nextLaundry = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
         long detail_id = -1;
+//        Log.d("Sarah", "Date start: " + startMonth + "/" + startDay + "/" + startYear);
+//        Log.d("Sarah", "Date end: " + endMonth + "/" + endDay + "/" + endYear);
 
         for (BookingDetails detail : details) {
             long returnDate = detail.getReturnDate();
-            calendar.setTimeInMillis(returnDate);
-            int detailMonth = calendar.get(Calendar.MONTH);
-            int detailDay = calendar.get(Calendar.DAY_OF_MONTH);
-            int detailYear = calendar.get(Calendar.YEAR);
-            if (((detailYear == startYear) || (detailYear == endYear)) && ((detailMonth == startMonth) ||
-                    (detailMonth == endMonth)) && ((startDay <= detailDay) && (detailDay <= endDay))) {
+//            calendar.setTimeInMillis(returnDate);
+//            int detailMonth = calendar.get(Calendar.MONTH);
+//            int detailDay = calendar.get(Calendar.DAY_OF_MONTH);
+//            int detailYear = calendar.get(Calendar.YEAR);
+//            Log.d("Sarah", "Date return: " + detailMonth + "/" + detailDay + "/" + detailYear);
+//            if (((detailYear == startYear) || (detailYear == endYear)) && ((detailMonth == startMonth) ||
+//                    (detailMonth == endMonth)) && ((startDay <= detailDay) && (detailDay <= endDay))) {
+            if ((startTime <= returnDate) && (returnDate <= endTime)) {
                 isLaundryExists = true;
                 /* Status List Item */
                 View statusListItemView = mInflater.inflate(R.layout.booking_status_list_item, null);
