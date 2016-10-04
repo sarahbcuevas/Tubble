@@ -8,14 +8,16 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -27,7 +29,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.entities.LaundryShop;
-import com.orm.query.Select;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,8 @@ import java.util.List;
  * Use the {@link FindFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FindFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener {
+public class FindFragment extends Fragment implements OnMapReadyCallback,
+        GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnInfoWindowClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -49,6 +51,9 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private FrameLayout mapLayout;
+    private LinearLayout infoLayout;
 
     private GoogleMap myMap;
     private MapView mMapView;
@@ -92,6 +97,9 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_find, container, false);
+
+        mapLayout = (FrameLayout) view.findViewById(R.id.map_layout);
+        infoLayout = (LinearLayout) view.findViewById(R.id.shop_info_layout);
 
         try {
             MapsInitializer.initialize(this.getActivity());
@@ -187,12 +195,13 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
         }
 
         // default position
-        double lat = 14.5589257;
-        double lng = 121.013967;
+        double lat = 14.6430239;
+        double lng = 121.0660785;
 
         LatLng change = new LatLng(lat, lng);
         myMap.moveCamera(CameraUpdateFactory.newLatLng(change));
         myMap.setOnMyLocationButtonClickListener(this);
+        myMap.setOnInfoWindowClickListener(this);
 
         setUpMarkers();
 
@@ -238,7 +247,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
 
         List<LaundryShop> shopList = LaundryShop.listAll(LaundryShop.class);
 
-        for (LaundryShop shop : shopList){
+        for (LaundryShop shop : shopList) {
             Log.e("Shops", shop.getName() + " " + shop.getAddress());
 
             double[] coords = shop.getLocationCoordinates();
@@ -251,13 +260,43 @@ public class FindFragment extends Fragment implements OnMapReadyCallback, Google
             markerOptionses.add(marker);
         }
 
-        for (MarkerOptions options : markerOptionses){
+        for (MarkerOptions options : markerOptionses) {
             mapMarkers.add(myMap.addMarker(options));
         }
     }
 
     @Override
     public boolean onMyLocationButtonClick() {
+        return false;
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Log.e("wew", "infoclick");
+        LaundryShop shop = LaundryShop.find(LaundryShop.class, "m_Name = ?", marker.getTitle()).get(0);
+
+        mapLayout.setVisibility(View.GONE);
+        infoLayout.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            if (infoLayout.getVisibility() == View.VISIBLE) {
+                infoLayout.setVisibility(View.GONE);
+                mapLayout.setVisibility(View.VISIBLE);
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    public boolean onBackPressed() {
+        if (infoLayout.getVisibility() == View.VISIBLE) {
+            infoLayout.setVisibility(View.GONE);
+            mapLayout.setVisibility(View.VISIBLE);
+            return true;
+        }
         return false;
     }
 

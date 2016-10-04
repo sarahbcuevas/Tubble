@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="250dp"
     android:layout_height="wrap_content">
 
     <TextView
@@ -8,28 +8,29 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:lines="2"
+        android:maxLines="2"
         android:text="Metropole Laundry Shop"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
+
+    <ImageButton
+        android:id="@+id/info_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/laundry_shop_name_text"
+        android:background="#ffffffff"
+        android:scaleType="fitXY"
+        android:src="@drawable/info" />
 
     <RatingBar
         android:id="@+id/laundry_rating"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/laundry_shop_name_text"
+        android:layout_height="23dp"
+        android:layout_below="@id/info_button"
+        android:layout_marginTop="13dp"
         android:isIndicator="true"
         android:numStars="5"
+        android:progressDrawable="@drawable/selector_rating"
         android:rating="2.5" />
-
-    <ImageButton
-        android:id="@+id/info_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignRight="@id/laundry_rating"
-        android:layout_marginLeft="10dp"
-        android:scaleType="fitXY"
-        android:background="#ffffffff"
-        android:src="@drawable/info" />
-
-
 </RelativeLayout>

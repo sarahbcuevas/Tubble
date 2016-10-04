@@ -17,4 +17,6 @@
     <string name="input_location">Please input your location.</string>
     <string name="input_no_of_clothes">Please input no. of clothes.</string>
     <string name="input_estimated_kilo">Please input estimated kilo.</string>
+
+    <string name="disclaimer">Disclaimer: Prices are averaged among all branches. For specific price, please contact the laundry shop.</string>
 </resources>
