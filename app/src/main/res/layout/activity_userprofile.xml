@@ -77,6 +77,14 @@
                 android:inputType="textEmailAddress" />
 
             <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/form_edittext_height"
+                android:gravity="center"
+                android:hint="password"
+                android:inputType="textPassword" />
+
+            <EditText
                 android:id="@+id/address"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/form_edittext_height"

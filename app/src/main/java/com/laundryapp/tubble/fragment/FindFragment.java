@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.entities.LaundryShop;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private final String TAG = this.getClass().getName();
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -136,6 +138,15 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+        } catch (NoSuchFieldException ex1) {
+            Log.e(TAG, ex1.getMessage(), ex1);
+        } catch (IllegalAccessException ex2) {
+            Log.e(TAG, ex2.getMessage(), ex2);
+        }
     }
 
     @Override

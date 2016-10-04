@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true" >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="280dp"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical" >
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="80dp"
+                android:src="@drawable/tubblelogo"/>
+            <EditText
+                android:id="@+id/mobile_number"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/form_edittext_height"
+                android:gravity="center"
+                android:inputType="number"
+                android:hint="mobile number" />
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/form_edittext_height"
+                android:gravity="center"
+                android:inputType="textPassword"
+                android:hint="password" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/login_button"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/form_button_height"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/tubble_yellow"
+                    android:layout_weight="1"
+                    android:text="Login" />
+                <Button
+                    android:id="@+id/signup_button"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/form_button_height"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="@android:color/white"
+                    android:background="@color/tubble_blue"
+                    android:layout_weight="1"
+                    android:text="Sign Up" />
+                <Button
+                    android:id="@+id/forgot_button"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/form_button_height"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/tubble_yellow"
+                    android:layout_weight="1"
+                    android:text="Forgot" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

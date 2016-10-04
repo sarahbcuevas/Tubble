@@ -1,6 +1,8 @@
 package com.laundryapp.tubble;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -24,16 +26,25 @@ public class StartUpActivity extends AppCompatActivity {
 
         Picasso.with(getApplicationContext()).load(R.drawable.start_up).into((ImageView) findViewById(R.id.start_up_image));
         setupDatabase();
-        List<User> users = User.listAll(User.class);
+
         final Intent nextActivity;
-        if (users.isEmpty()) {
-            nextActivity = new Intent(this, UserProfileActivity.class);
+        long userId = Utility.getUserId(this);
+        if (-1 == userId) {
+            nextActivity = new Intent(this, LoginActivity.class);
         } else {
             nextActivity = new Intent(this, MainActivity.class);
+            nextActivity.putExtra(MainActivity.USER_ID, userId);
         }
+//        List<User> users = User.listAll(User.class);
+//        if (users.isEmpty()) {
+
+//        } else {
+//        }
+//        final Intent nextActivity = new Intent(this, LoginActivity.class);
         (new Handler()).postDelayed(new Runnable() {
             @Override
             public void run() {
+//                Intent nextActivity = new Intent(StartUpActivity.this, LoginActivity.class);
                 startActivity(nextActivity);
             }
         }, 1500);
@@ -59,17 +70,17 @@ public class StartUpActivity extends AppCompatActivity {
         long shop_id = -1;
         if (shops.isEmpty()) {
             //Name, Address, Schedule, Contact, Rating
-            LaundryShop shop = new LaundryShop("Suds", "Ground Floor, 94 Xavier Ave, Quezon City, 1105 Metro Manila", "Daily: 8AM to 8PM", "(02) 375 1704", 4);
+            LaundryShop shop = new LaundryShop("Suds", "Ground Floor, 94 Xavier Ave, Quezon City, 1105 Metro Manila", "Daily: 8AM to 8PM", "(02) 375 1704", 4, "023751704", "password");
             shop.setLocationCoordinates(14.6341307d, 121.0721176d);
             shop_id = shop.save();
             LaundryShopService shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 35);
             shopService.save();
-            shop = new LaundryShop("Panda Cleaners", "F Dela Rosa Street, Quezon City, Manila", "Daily: 6AM to 10PM", "(02) 579 0002", 4);
+            shop = new LaundryShop("Panda Cleaners", "F Dela Rosa Street, Quezon City, Manila", "Daily: 6AM to 10PM", "(02) 579 0002", 4, "025790002", "password");
             shop.setLocationCoordinates(14.6403772d,121.0310285d);
             shop_id = shop.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 40);
             shopService.save();
-            shop = new LaundryShop("Metropole", "Gilmore Corner E. Rodriguez Sr. Avenue, Quezon City, New Manila, Quezon City, Metro Manila", "", "(02) 414 4587", 4);
+            shop = new LaundryShop("Metropole", "Gilmore Corner E. Rodriguez Sr. Avenue, Quezon City, New Manila, Quezon City, Metro Manila", "", "(02) 414 4587", 4, "024144587", "password");
             shop.setLocationCoordinates(14.6197947d, 121.0249749d);
             shop_id = shop.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 30);
@@ -82,7 +93,7 @@ public class StartUpActivity extends AppCompatActivity {
             shopService.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.DRY_CLEANING), 50);
             shopService.save();
-            shop = new LaundryShop("Quicklean", "107 Maginhawa Diliman, Quezon City, Manila", "Daily: 7AM to 10PM", "0917 517 1470 / (02) 505 5349 / (02) 434 2834", 4);
+            shop = new LaundryShop("Quicklean", "107 Maginhawa Diliman, Quezon City, Manila", "Daily: 7AM to 10PM", "0917 517 1470 / (02) 505 5349 / (02) 434 2834", 4, "024342834", "password");
             shop.setLocationCoordinates(14.6461237d, 121.0604149d);
             shop_id = shop.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 50);

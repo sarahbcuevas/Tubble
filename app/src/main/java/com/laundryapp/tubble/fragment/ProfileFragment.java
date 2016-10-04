@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.laundryapp.tubble.R;
+import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
+import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.squareup.picasso.Picasso;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +43,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private final String TAG = this.getClass().getName();
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -53,6 +58,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private LinearLayout noTrackLayout;
     private ListView trackListView;
     private Button trackHistoryButton;
+    private User.Type userType;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -83,6 +89,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        userType = Utility.getUserType(getContext());
     }
 
     @Override
@@ -98,10 +105,25 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         mFullName = (EditText) fragmentView.findViewById(R.id.full_name);
         mEmail = (EditText) fragmentView.findViewById(R.id.email);
         trackHistoryButton = (Button) fragmentView.findViewById(R.id.track_history_button);
-        User user = User.listAll(User.class).get(0);
-        mMobileNumber.setText(user.getMobileNumber());
-        mFullName.setText(user.getFullName());
-        mEmail.setText(user.getEmailAddress());
+
+        String mobileNumber = "", fullName = "";
+        List<BookingDetails> bookings = null;
+        if (User.Type.CUSTOMER == userType) {
+            User user = User.findById(User.class, Utility.getUserId(getContext()));
+            mobileNumber = user.getMobileNumber();
+            fullName = user.getFullName();
+            mEmail.setText(user.getEmailAddress());
+            mEmail.setVisibility(View.VISIBLE);
+            bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", Long.toString(Utility.getUserId(getContext())));
+        } else if (User.Type.LAUNDRY_SHOP == userType) {
+            LaundryShop shop = LaundryShop.findById(LaundryShop.class, Utility.getUserId(getContext()));
+            mobileNumber = shop.getContact();
+            fullName = shop.getName();
+            mEmail.setVisibility(View.GONE);
+            bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", Long.toString(Utility.getUserId(getContext())));
+        }
+        mMobileNumber.setText(mobileNumber);
+        mFullName.setText(fullName);
         mMobileNumber.setEnabled(false);
         mFullName.setEnabled(false);
         mEmail.setEnabled(false);
@@ -109,22 +131,21 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         trackLayout.setVisibility(View.GONE);
         trackHistoryButton.setOnClickListener(this);
         Picasso.with(getContext()).load(R.drawable.nolaundry).into((ImageView) fragmentView.findViewById(R.id.no_track_image));
-        List<BookingDetails> bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", String.valueOf(User.listAll(User.class).get(0).getId()));
-        ArrayAdapter<BookingDetails> adapter = new TrackHistoryAdapter(getContext(), bookings);
-        trackListView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+
+//        if (bookings.isEmpty()) {
+//            trackHistoryButton.setEnabled(false);
+//        } else {
+//            trackHistoryButton.setEnabled(true);
+            ArrayAdapter<BookingDetails> adapter = new TrackHistoryAdapter(getContext(), bookings);
+            trackListView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+//        }
+
         return fragmentView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     public boolean onBackPressed() {
-        if (trackLayout.getVisibility() == View.VISIBLE) {
+        if (trackLayout != null && trackLayout.getVisibility() == View.VISIBLE) {
             trackLayout.setVisibility(View.GONE);
             profileLayout.setVisibility(View.VISIBLE);
             return true;
@@ -147,6 +168,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+        } catch (NoSuchFieldException ex1) {
+            Log.e(TAG, ex1.getMessage(), ex1);
+        } catch (IllegalAccessException ex2) {
+            Log.e(TAG, ex2.getMessage(), ex2);
+        }
     }
 
     /**
@@ -179,8 +209,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         if (isVisible) {
             profileLayout.setVisibility(View.GONE);
             trackLayout.setVisibility(View.VISIBLE);
-            List<BookingDetails> bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", String.valueOf(User.listAll(User.class).get(0).getId()));
-            if (bookings.isEmpty()) {
+            List<BookingDetails> bookings = null;
+            if (Utility.getUserType(getContext()) == User.Type.CUSTOMER) {
+                bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", String.valueOf(Utility.getUserId(getContext())));
+            } else if (Utility.getUserType(getContext()) == User.Type.LAUNDRY_SHOP) {
+                bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", String.valueOf(Utility.getUserId(getContext())));
+            }
+
+            if (bookings == null || bookings.isEmpty()) {
                 noTrackLayout.setVisibility(View.VISIBLE);
                 trackListView.setVisibility(View.GONE);
             } else {
@@ -195,6 +231,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     class TrackHistoryAdapter extends ArrayAdapter<BookingDetails> {
         List<BookingDetails> bookings;
+        User.Type userType;
 
         private class ViewHolder {
             TextView laundryShop;
@@ -207,6 +244,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         public TrackHistoryAdapter(Context context, List<BookingDetails> bookings) {
             super(context, R.layout.track_list_item, bookings);
             this.bookings = bookings;
+            userType = Utility.getUserType(context);
         }
 
         @Override
@@ -228,7 +266,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            viewHolder.laundryShop.setText(details.getLaundryShop().getName());
+            if (User.Type.CUSTOMER == userType) {
+                viewHolder.laundryShop.setText(details.getLaundryShop().getName());
+            } else if (User.Type.LAUNDRY_SHOP == userType) {
+                viewHolder.laundryShop.setText(User.findById(User.class, details.getUserId()).getFullName());
+            }
+
             viewHolder.dateCreated.setText(details.getDateTimeCreated());
             viewHolder.serviceType.setText(details.getTypeName() + " - " + details.getLaundryServiceName());
             viewHolder.mode.setText(details.getModeName());
