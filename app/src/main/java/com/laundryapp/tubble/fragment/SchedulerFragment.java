@@ -682,16 +682,22 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     BookingDetails booking = new BookingDetails(mMode, mType, laundryShopService_id, laundryShop_id, mUserId, mLocation, mNotes, pickupMillis, returnMillis, Integer.parseInt(mNoOfClothes), Float.parseFloat(mEstimatedKilo));
-                    booking.save();
+//                    booking.save();
                     reset();
-                    calendarAdapter.updateCalendar();
-                    mListener.onAddOrDeleteLaundrySchedule();
-                    listAdapter.notifyDataSetChanged();
+                    Utility.sendLaundryRequestThruSms(getContext(), booking);
+//                    calendarAdapter.updateCalendar();
+//                    mListener.onAddOrDeleteLaundrySchedule();
+//                    listAdapter.notifyDataSetChanged();
                 }
             });
             messageDialog = builder.create();
             messageDialog.show();
         }
+    }
+
+    public static void updateScheduleListAndCalendar() {
+        calendarAdapter.updateCalendar();
+        listAdapter.notifyDataSetChanged();
     }
 
     public void updateDateTimeString() {
