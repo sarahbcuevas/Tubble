@@ -1,9 +1,18 @@
 package com.laundryapp.tubble.fragment;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +27,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.Utility;
@@ -26,9 +36,13 @@ import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,6 +58,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private final String TAG = this.getClass().getName();
+    private final static int IMG_RESULT = 1;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -59,6 +74,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private ListView trackListView;
     private Button trackHistoryButton;
     private User.Type userType;
+    private ImageView selectPhotoButton, takePhotoButton;
+    private CircleImageView userPhoto;
+    private String imageDecode;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -105,13 +123,17 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         mFullName = (EditText) fragmentView.findViewById(R.id.full_name);
         mEmail = (EditText) fragmentView.findViewById(R.id.email);
         trackHistoryButton = (Button) fragmentView.findViewById(R.id.track_history_button);
+        selectPhotoButton = (ImageView) fragmentView.findViewById(R.id.select_photo_button);
+        takePhotoButton = (ImageView) fragmentView.findViewById(R.id.take_photo_button);
+        userPhoto = (CircleImageView) fragmentView.findViewById(R.id.profile_image);
 
-        String mobileNumber = "", fullName = "";
+        String mobileNumber = "", fullName = "", photo = "";
         List<BookingDetails> bookings = null;
         if (User.Type.CUSTOMER == userType) {
             User user = User.findById(User.class, Utility.getUserId(getContext()));
             mobileNumber = user.getMobileNumber();
             fullName = user.getFullName();
+            photo = user.getUserPhoto();
             mEmail.setText(user.getEmailAddress());
             mEmail.setVisibility(View.VISIBLE);
             bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", Long.toString(Utility.getUserId(getContext())));
@@ -127,19 +149,29 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         mMobileNumber.setEnabled(false);
         mFullName.setEnabled(false);
         mEmail.setEnabled(false);
+        if (photo == null || photo.equals("")) {
+            userPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.userphoto));
+            userPhoto.setBorderWidth(0);
+        } else {
+            Bitmap bitmap = BitmapFactory.decodeFile(photo);
+            if (bitmap != null) {
+                userPhoto.setImageBitmap(bitmap);
+                userPhoto.setBorderWidth(20);
+            } else {
+                userPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.userphoto));
+                userPhoto.setBorderWidth(0);
+            }
+        }
         profileLayout.setVisibility(View.VISIBLE);
         trackLayout.setVisibility(View.GONE);
         trackHistoryButton.setOnClickListener(this);
+        selectPhotoButton.setOnClickListener(this);
+        takePhotoButton.setOnClickListener(this);
         Picasso.with(getContext()).load(R.drawable.nolaundry).into((ImageView) fragmentView.findViewById(R.id.no_track_image));
 
-//        if (bookings.isEmpty()) {
-//            trackHistoryButton.setEnabled(false);
-//        } else {
-//            trackHistoryButton.setEnabled(true);
-            ArrayAdapter<BookingDetails> adapter = new TrackHistoryAdapter(getContext(), bookings);
-            trackListView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-//        }
+        ArrayAdapter<BookingDetails> adapter = new TrackHistoryAdapter(getContext(), bookings);
+        trackListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
         return fragmentView;
     }
@@ -199,6 +231,32 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.track_history_button:
                 setTrackHistoryVisibility(true);
+                break;
+            case R.id.select_photo_button:
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, IMG_RESULT);
+                break;
+            case R.id.take_photo_button:
+                if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                        File photoFile = null;
+                        try {
+                            photoFile = Utility.createImageFile(getActivity());
+                            imageDecode = photoFile.getPath();
+                        } catch (IOException e) {
+                            Log.e(TAG, e.getMessage(), e);
+                        }
+
+                        if (photoFile != null) {
+                            Uri photoURI = FileProvider.getUriForFile(getContext(), "com.example.android.fileprovider", photoFile);
+                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                            startActivityForResult(takePictureIntent, Utility.CAPTURE_IMAGE_RESULT);
+                        }
+                    }
+                } else {
+                    Toast.makeText(getContext(), "No camera detected.", Toast.LENGTH_SHORT).show();
+                }
                 break;
             default:
                 break;
@@ -277,6 +335,35 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             viewHolder.mode.setText(details.getModeName());
             viewHolder.fee.setText("Fee: " + details.getFee());
             return convertView;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        try {
+            if (requestCode == IMG_RESULT && resultCode == Activity.RESULT_OK && data != null) {
+                Uri URI = data.getData();
+                String[] FILE = { MediaStore.Images.Media.DATA };
+                Cursor cursor = getContext().getContentResolver().query(URI, FILE, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(FILE[0]);
+                imageDecode = cursor.getString(columnIndex);
+                cursor.close();
+                userPhoto.setImageBitmap(BitmapFactory.decodeFile(imageDecode));
+                User user = User.findById(User.class, Utility.getUserId(getContext()));
+                user.setUserPhoto(imageDecode);
+                user.save();
+            } else if (requestCode == Utility.CAPTURE_IMAGE_RESULT && resultCode == Activity.RESULT_OK) {
+                Utility.savePicToGallery(getActivity(), imageDecode);
+                Utility.scaleImage(userPhoto, imageDecode);
+                User user = User.findById(User.class, Utility.getUserId(getContext()));
+                user.setUserPhoto(imageDecode);
+                user.save();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
         }
     }
 }

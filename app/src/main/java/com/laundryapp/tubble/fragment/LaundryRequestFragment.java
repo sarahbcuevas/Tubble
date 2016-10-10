@@ -125,14 +125,18 @@ public class LaundryRequestFragment extends Fragment {
 
                 @Override
                 public void onLeftCardExit(Object o) {
-//                    bookings.get(0).setStatus(BookingDetails.Status.REJECTED);
-                    Toast.makeText(getContext(), "Denied!", Toast.LENGTH_SHORT).show();
+                    if (!bookingsList.isEmpty()) {
+                        Utility.sendLaundryStatusThruSms(getContext(), bookingsList.get(0), BookingDetails.Status.REJECTED);
+                        Toast.makeText(getContext(), "Denied!", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 @Override
                 public void onRightCardExit(Object o) {
-//                    bookings.get(0).setStatus(BookingDetails.Status.ACCEPTED);
-                    Toast.makeText(getContext(), "Accepted!", Toast.LENGTH_SHORT).show();
+                    if (!bookingsList.isEmpty()) {
+                        Utility.sendLaundryStatusThruSms(getContext(), bookingsList.get(0), BookingDetails.Status.ACCEPTED);
+                        Toast.makeText(getContext(), "Accepted!", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 @Override

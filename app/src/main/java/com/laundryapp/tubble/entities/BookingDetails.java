@@ -109,7 +109,7 @@ public class BookingDetails extends SugarRecord {
 
     public Status getStatus() { return mStatus; }
 
-    public void setStatus (Status status) {
+    public void setStatus(Status status) {
         this.mStatus = status;
     }
 

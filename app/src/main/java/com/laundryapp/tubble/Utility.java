@@ -7,8 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -21,8 +28,14 @@ import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Utility {
 
@@ -34,6 +47,123 @@ public class Utility {
     private static String SENT = "sms_sent";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
+    private static final short PORT = 6734;
+    public final static int CAPTURE_IMAGE_RESULT = 2;
+
+    public static String takePhotoUsingCamera(Activity activity) {
+        String imageDecode = null;
+        if (activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile(activity);
+                    imageDecode = photoFile.getPath();
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                }
+
+                if (photoFile != null) {
+                    Uri photoURI = FileProvider.getUriForFile(activity, "com.example.android.fileprovider", photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    activity.startActivityForResult(takePictureIntent, CAPTURE_IMAGE_RESULT);
+                }
+            }
+        } else {
+            Toast.makeText(activity, "No camera detected.", Toast.LENGTH_SHORT).show();
+        }
+
+        return imageDecode;
+    }
+
+    public static File createImageFile(Activity activity) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        return image;
+    }
+
+    public static void scaleImage(CircleImageView mUserPhoto, String imageDecode) {
+        int targetW = mUserPhoto.getWidth();
+        int targetH = mUserPhoto.getHeight();
+
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imageDecode, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(imageDecode, bmOptions);
+        mUserPhoto.setImageBitmap(bitmap);
+        mUserPhoto.setBorderWidth(20);
+    }
+
+    public static void savePicToGallery(Activity activity, String imageDecode) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(imageDecode);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        activity.sendBroadcast(mediaScanIntent);
+    }
+
+    public static void sendLaundryStatusThruSms(Context context, final BookingDetails details, final BookingDetails.Status laundryStatus) {
+        String status = laundryStatus.name();
+        String mode = Integer.toString(details.getMode() == BookingDetails.Mode.PICKUP ? 1 : 2);
+        String type = Integer.toString(details.getType() == BookingDetails.Type.COMMERCIAL ? 1 : 2);
+        String laundryShopId = Long.toString(Utility.getUserId(context));
+        String serviceId = Long.toString(details.getLaundryServiceId());
+        String notes = details.getNotes().equals("") ? " " : details.getNotes();
+        String pickupDate = Long.toString(details.getPickupDate());
+        String returnDate = Long.toString(details.getReturnDate());
+        String noOfClothes = Integer.toString(details.getNoOfClothes());
+        String estimatedKilo = Float.toString(details.getEstimatedKilo());
+        String message = "status{" +
+                status + DELIMETER +
+                mode + DELIMETER +
+                type + DELIMETER +
+                laundryShopId + DELIMETER +
+                serviceId + DELIMETER +
+                notes + DELIMETER +
+                pickupDate + DELIMETER +
+                returnDate + DELIMETER +
+                noOfClothes + DELIMETER +
+                estimatedKilo + "}";
+
+        Log.d(TAG, "Message: " + message);
+        User user = User.findById(User.class, details.getUserId());
+        String phoneNo = user.getMobileNumber();
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
+            context.registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    switch (getResultCode()) {
+                        case Activity.RESULT_OK:
+                            details.setStatus(laundryStatus);
+                            details.save();
+                            Toast.makeText(context, "Laundry status updated.", Toast.LENGTH_SHORT).show();
+                            break;
+                        default:
+                            Toast.makeText(context, "Failed to change laundry request status. Please try again later.", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            }, new IntentFilter(SENT));
+            smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
+            Log.d(TAG, "Sending laundry status update...");
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
 
     public static void sendLaundryRequestThruSms(Context context, final BookingDetails details) {
         String message = "";
@@ -73,11 +203,11 @@ public class Utility {
 
         LaundryShop laundryShop = details.getLaundryShop();
 //        String phoneNo = laundryShop.getContact();
-        String phoneNo = "09989976459";
+//        String phoneNo = "09989976459";
+        String phoneNo = "09063931566";
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            short port = 6734;
             PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
             context.registerReceiver(new BroadcastReceiver() {
                 @Override
@@ -95,9 +225,9 @@ public class Utility {
                     }
                 }
             }, new IntentFilter(SENT));
-            smsManager.sendDataMessage(phoneNo, null, port, userInfo.getBytes(), sentIntent, null);
+            smsManager.sendDataMessage(phoneNo, null, PORT, userInfo.getBytes(), sentIntent, null);
             byte[] b = message.getBytes();
-            smsManager.sendDataMessage(phoneNo, null, port, b, sentIntent, null);
+            smsManager.sendDataMessage(phoneNo, null, PORT, b, sentIntent, null);
             Log.d(TAG, "Size of message: " + b.length);
             Log.d(TAG, "Send laundry request START...");
         } catch (Exception e) {
@@ -109,7 +239,7 @@ public class Utility {
         setUserId(context, -1);
         setUserType(context, null);
         Intent intent = new Intent(context, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
 
