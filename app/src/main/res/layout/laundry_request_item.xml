@@ -12,7 +12,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/white"
-                android:padding="15dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="15dp"
+                android:paddingLeft="15dp"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/customer_name"
@@ -55,32 +58,32 @@
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Summary:" android:textStyle="bold" android:textSize="16sp"/>
                     </TableRow>
                     <TableRow>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pick Up Time &amp; Date:" android:textSize="12sp"/>
-                        <TextView android:id="@+id/pickup_datetime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3:00PM July 3, 2016" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="12sp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pick Up Time &amp; Date:" android:textSize="11sp"/>
+                        <TextView android:id="@+id/pickup_datetime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3:00PM July 3, 2016" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="11sp"/>
                     </TableRow>
                     <TableRow>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pick Up Location:" android:textSize="12sp"/>
-                        <TextView android:id="@+id/pickup_location" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RM 201, 8989 Condominiums, Katipunan Ave." android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="12sp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pick Up Location:" android:textSize="11sp"/>
+                        <TextView android:id="@+id/pickup_location" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RM 201, 8989 Condominiums, Katipunan Ave." android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="11sp"/>
                     </TableRow>
-                    <TableRow android:layout_marginTop="10dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Delivery Time &amp; Date:" android:textSize="12sp"/>
-                        <TextView android:id="@+id/delivery_datetime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3:00PM July 4, 2016" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="12sp"/>
-                    </TableRow>
-                    <TableRow>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Delivery Location:" android:textSize="12sp"/>
-                        <TextView android:id="@+id/delivery_location" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RM 201, 8989 Condominiums, Katipunan Ave." android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="12sp"/>
-                    </TableRow>
-                    <TableRow android:layout_marginTop="10dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No. of Clothes:" android:textSize="12sp"/>
-                        <TextView android:id="@+id/no_of_clothes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="12sp"/>
+                    <TableRow android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Delivery Time &amp; Date:" android:textSize="11sp"/>
+                        <TextView android:id="@+id/delivery_datetime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3:00PM July 4, 2016" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="11sp"/>
                     </TableRow>
                     <TableRow>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Estimated Weight (kg):" android:textSize="12sp"/>
-                        <TextView android:id="@+id/estimated_kilo" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1.5kg" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="12sp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Delivery Location:" android:textSize="11sp"/>
+                        <TextView android:id="@+id/delivery_location" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RM 201, 8989 Condominiums, Katipunan Ave." android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="11sp"/>
+                    </TableRow>
+                    <TableRow android:layout_marginTop="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No. of Clothes:" android:textSize="11sp"/>
+                        <TextView android:id="@+id/no_of_clothes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="11sp"/>
                     </TableRow>
                     <TableRow>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Notes:" android:textSize="12sp"/>
-                        <TextView android:id="@+id/notes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Some of my clothes are thin." android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="12sp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Estimated Weight (kg):" android:textSize="11sp"/>
+                        <TextView android:id="@+id/estimated_kilo" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1.5kg" android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="11sp"/>
+                    </TableRow>
+                    <TableRow>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Notes:" android:textSize="11sp"/>
+                        <TextView android:id="@+id/notes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Some of my clothes are thin." android:textStyle="bold" android:textColor="@color/tubble_blue" android:textSize="11sp"/>
                     </TableRow>
                 </TableLayout>
             </LinearLayout>

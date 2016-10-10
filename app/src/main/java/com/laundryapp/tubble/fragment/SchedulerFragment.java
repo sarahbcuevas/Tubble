@@ -663,13 +663,16 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                     "Pickup Date/Time: " + pick + "\n" +
                     "Return Date/Time: " + ret + "\n" +
                     "No. of clothes: " + mNoOfClothes + "\n" +
-                    "Estimated kilo: " + mEstimatedKilo + "\n" +
+                    "Estimated weight (kg): " + mEstimatedKilo + "kg\n" +
                     "Notes: " + mNotes + "\n" +
                     "Estimated fee: " + estimatedFee;
 
+            View view = View.inflate(getContext(), R.layout.confirm_dialog_view, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Confirm");
-            builder.setMessage(message);
+            ((TextView) view.findViewById(R.id.message)).setText(message);
+            builder.setView(view);
+//            builder.setMessage(message);
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {

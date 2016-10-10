@@ -15,22 +15,33 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:text="@string/tips_main" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textStyle="italic"
+        android:textSize="11sp"
+        android:gravity="center"
+        android:text="@string/disclaimer"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="Know more about us!"
         android:gravity="center"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:textColor="@color/tubble_blue"/>
 
     <ImageButton
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_gravity="center"
         android:background="@drawable/web_copy"/>
 </LinearLayout>

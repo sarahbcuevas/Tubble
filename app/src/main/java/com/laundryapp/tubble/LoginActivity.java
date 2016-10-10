@@ -34,10 +34,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         password = (EditText) findViewById(R.id.password);
         loginButton = (Button) findViewById(R.id.login_button);
         signupButton = (Button) findViewById(R.id.signup_button);
-        forgotButton = (Button) findViewById(R.id.forgot_button);
+//        forgotButton = (Button) findViewById(R.id.forgot_button);
         loginButton.setOnClickListener(this);
         signupButton.setOnClickListener(this);
-        forgotButton.setOnClickListener(this);
+//        forgotButton.setOnClickListener(this);
     }
 
     @Override
@@ -76,8 +76,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Intent signupActivity = new Intent(this, UserProfileActivity.class);
                 startActivity(signupActivity);
                 break;
-            case R.id.forgot_button:
-                break;
+//            case R.id.forgot_button:
+//                break;
             default:
                 break;
         }

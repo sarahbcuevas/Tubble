@@ -55,15 +55,15 @@
                     android:background="@color/tubble_blue"
                     android:layout_weight="1"
                     android:text="Sign Up" />
-                <Button
-                    android:id="@+id/forgot_button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/form_button_height"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@color/tubble_yellow"
-                    android:layout_weight="1"
-                    android:text="Forgot" />
+                <!--<Button-->
+                    <!--android:id="@+id/forgot_button"-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="@dimen/form_button_height"-->
+                    <!--android:layout_marginLeft="10dp"-->
+                    <!--android:layout_marginTop="10dp"-->
+                    <!--android:background="@color/tubble_yellow"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:text="Forgot" />-->
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
