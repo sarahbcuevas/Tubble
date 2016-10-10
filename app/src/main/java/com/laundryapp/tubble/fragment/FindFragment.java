@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -283,32 +282,16 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Log.e("wew", "infoclick");
         LaundryShop shop = LaundryShop.find(LaundryShop.class, "m_Name = ?", marker.getTitle()).get(0);
 
         mapLayout.setVisibility(View.GONE);
         infoLayout.setVisibility(View.VISIBLE);
-    }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-            if (infoLayout.getVisibility() == View.VISIBLE) {
-                infoLayout.setVisibility(View.GONE);
-                mapLayout.setVisibility(View.VISIBLE);
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+        TextView shopNameText = (TextView) infoLayout.findViewById(R.id.shop_name);
+        RatingBar laundryRating = (RatingBar) infoLayout.findViewById(R.id.laundry_rating);
 
-    public boolean onBackPressed() {
-        if (infoLayout.getVisibility() == View.VISIBLE) {
-            infoLayout.setVisibility(View.GONE);
-            mapLayout.setVisibility(View.VISIBLE);
-            return true;
-        }
-        return false;
+        shopNameText.setText(shop.getName());
+        laundryRating.setRating(shop.getRating());
     }
 
     /**

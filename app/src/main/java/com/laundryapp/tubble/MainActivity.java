@@ -1,27 +1,23 @@
 package com.laundryapp.tubble;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Status;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.fragment.FindFragment;
@@ -30,9 +26,12 @@ import com.laundryapp.tubble.fragment.ProfileFragment;
 import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
 import com.laundryapp.tubble.fragment.TipsFragment;
-import com.squareup.picasso.Picasso;
 
-public class MainActivity extends FragmentActivity implements FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener, TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements
+        SearchView.OnQueryTextListener,
+        FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener,
+        ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener,
+        TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener {
 
     private final String TAG = this.getClass().getName();
     private TabPagerAdapter mTabPagerAdapter;
@@ -60,15 +59,8 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
             LaundryShop shop = LaundryShop.findById(LaundryShop.class, user_id);
         }
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setActionBar(mToolbar);
-//        ActionBar actionBar = getActionBar();
-//        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-//        actionBar.setCustomView(R.layout.toolbar);
-//        actionBar.show();
-//        Log.d("Sarah", "Action bar is showing? " + actionBar.isShowing());
-//        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        Picasso.with(getApplicationContext()).load(R.drawable.tubblelogo).into((ImageView) mToolbar.findViewById(R.id.tubble_logo));
+//        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+//        mToolbar.setTitle("");
 //        setActionBar(mToolbar);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -142,6 +134,11 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(this);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -151,9 +148,23 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
             case R.id.action_logout:
                 Utility.logout(this);
                 return true;
+            case R.id.search:
+                SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+                searchView.setOnQueryTextListener(this);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
     }
 
     @Override
