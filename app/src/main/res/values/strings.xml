@@ -27,4 +27,6 @@
     <string name="disclaimer">Disclaimer: Prices are averaged among all branches. For specific price, please contact the laundry shop.</string>
     <string name="laundry_processed_new">Your laundry is\nwaiting to be accepted...</string>
     <string name="laundry_processed_accepted">Your laundry is\nbeing processed...</string>
+
+    <string name="disclaimer">Disclaimer:\nTubble does not hold responsibility over any damages incurred and loss of items. In case of any missing or damaged items, please contact your laundry service provider.</string>
 </resources>

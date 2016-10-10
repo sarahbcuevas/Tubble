@@ -2,6 +2,7 @@ package com.laundryapp.tubble;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,6 +14,10 @@ import android.widget.Toast;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -29,10 +34,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         password = (EditText) findViewById(R.id.password);
         loginButton = (Button) findViewById(R.id.login_button);
         signupButton = (Button) findViewById(R.id.signup_button);
-        forgotButton = (Button) findViewById(R.id.forgot_button);
+//        forgotButton = (Button) findViewById(R.id.forgot_button);
         loginButton.setOnClickListener(this);
         signupButton.setOnClickListener(this);
-        forgotButton.setOnClickListener(this);
+//        forgotButton.setOnClickListener(this);
     }
 
     @Override
@@ -71,8 +76,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Intent signupActivity = new Intent(this, UserProfileActivity.class);
                 startActivity(signupActivity);
                 break;
-            case R.id.forgot_button:
-                break;
+//            case R.id.forgot_button:
+//                break;
             default:
                 break;
         }

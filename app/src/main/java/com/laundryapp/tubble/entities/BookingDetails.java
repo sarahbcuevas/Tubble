@@ -6,6 +6,7 @@ import com.laundryapp.tubble.fragment.DatePickerFragment.Date;
 import com.laundryapp.tubble.fragment.TimePickerFragment.Time;
 import com.orm.SugarRecord;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -62,8 +63,16 @@ public class BookingDetails extends SugarRecord {
         return format.format(calendar.getTime());
     }
 
+    public Type getType() {
+        return mType;
+    }
+
     public String getTypeName() {
         return mType == Type.COMMERCIAL ? "Commercial" : "Personal";
+    }
+
+    public long getLaundryServiceId() {
+        return mServiceId;
     }
 
     public String getLaundryServiceName() {
@@ -100,7 +109,7 @@ public class BookingDetails extends SugarRecord {
 
     public Status getStatus() { return mStatus; }
 
-    public void setStatus (Status status) {
+    public void setStatus(Status status) {
         this.mStatus = status;
     }
 
