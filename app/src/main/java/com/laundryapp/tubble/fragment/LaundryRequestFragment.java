@@ -22,6 +22,7 @@ import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class LaundryRequestFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private final String TAG = this.getClass().getName();
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -185,6 +187,15 @@ public class LaundryRequestFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+        } catch (NoSuchFieldException ex1) {
+            Log.e(TAG, ex1.getMessage(), ex1);
+        } catch (IllegalAccessException ex2) {
+            Log.e(TAG, ex2.getMessage(), ex2);
+        }
     }
 
     /**

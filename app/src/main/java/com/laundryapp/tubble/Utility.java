@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -308,7 +309,7 @@ public class Utility {
 //        Log.d(TAG, "Message size: " + messages.get(index).getBytes().length);
 //    }
 
-    public static String getTimeDifference(long startDate, long endDate) {
+    public static String getTimeDifference(Context context, long startDate, long endDate) {
         String differenceStr = "";
         long difference = endDate - startDate;
 
@@ -330,10 +331,13 @@ public class Utility {
         long elapsedMinutes = difference / minutesInMilli;
         difference = difference % minutesInMilli;
 
+        Resources res = context.getResources();
+
         if (elapsedDays > 0) {
-            differenceStr += elapsedDays + " days ";
+            differenceStr += elapsedDays + " " + res.getQuantityString(R.plurals.plural_day, (int) elapsedDays) + " ";
         }
-        differenceStr += elapsedHours + " hrs " + elapsedMinutes + " mins";
+        differenceStr += elapsedHours + " " + res.getQuantityString(R.plurals.plural_hour, (int) elapsedHours) + " " +
+                elapsedMinutes + " " + res.getQuantityString(R.plurals.plural_minute, (int) elapsedMinutes);
 
         return differenceStr;
     }

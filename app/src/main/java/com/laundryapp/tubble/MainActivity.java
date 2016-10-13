@@ -95,7 +95,7 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
                 if (mTabLayout.getSelectedTabPosition() == 2) { // Status Fragment
-                    if (StatusFragment.getCheckStatusFromScheduler()) {
+                    if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
 
                     } else {
                         StatusFragment.updateLaundryList();
@@ -190,9 +190,13 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
 //            onBackPressed = ((SchedulerFragment) mTabPagerAdapter.getItem(1)).onBackPressed();
             onBackPressed = SchedulerFragment.onBackPressed();
         } else if (mViewPager.getCurrentItem() == 2) { // Status Fragment
-            if (StatusFragment.getCheckStatusFromScheduler()) {
-                StatusFragment.setCheckStatusFromScheduler(false);
+            if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
+                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
                 mViewPager.setCurrentItem(1);   // go back to Scheduler Fragment
+                onBackPressed = true;
+            } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {
+                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+                StatusFragment.updateLaundryList();
                 onBackPressed = true;
             }
         } else if (mViewPager.getCurrentItem() == 4) {  // Profile Fragment
@@ -211,13 +215,15 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
 
     @Override
     public void onCheckBookingStatus(long id) {
-        ((StatusFragment) mTabPagerAdapter.getItem(2)).onCheckBookingStatus(id);
+//        ((StatusFragment) mTabPagerAdapter.getItem(2)).onCheckBookingStatus(id);
+        StatusFragment.onCheckBookingStatus(id, StatusFragment.SCHEDULER);
         mViewPager.setCurrentItem(2);
     }
 
     @Override
     public void onAddOrDeleteLaundrySchedule() {
-        ((StatusFragment) mTabPagerAdapter.getItem(2)).updateLaundryList();
+//        ((StatusFragment) mTabPagerAdapter.getItem(2)).updateLaundryList();
+        StatusFragment.updateLaundryList();
     }
 }
 

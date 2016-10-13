@@ -27,4 +27,19 @@
     <string name="laundry_processed_accepted">Your laundry is\nbeing processed...</string>
 
     <string name="disclaimer">Disclaimer:\nTubble does not hold responsibility over any damages incurred and loss of items. In case of any missing or damaged items, please contact your laundry service provider.</string>
+
+    <plurals name="plural_day">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+
+    <plurals name="plural_hour">
+        <item quantity="one">hr</item>
+        <item quantity="other">hrs</item>
+    </plurals>
+
+    <plurals name="plural_minute">
+        <item quantity="one">min</item>
+        <item quantity="other">mins</item>
+    </plurals>
 </resources>

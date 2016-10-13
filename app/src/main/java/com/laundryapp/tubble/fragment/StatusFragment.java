@@ -16,7 +16,6 @@ import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.BookingDetails.Status;
-import com.laundryapp.tubble.entities.LaundryShop;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -35,14 +34,17 @@ public class StatusFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private final String TAG = this.getClass().getName();
+    private final static String TAG = "StatusFragment";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     // for handling back button press; must return to Scheduler if true, else, return to status list.
-    private static boolean isCheckStatusFromScheduler = false;
+    private static int fragmentCaller = 0;
+    public static final int DEFAULT = 0;
+    public static final int SCHEDULER = 1;
+    public static final int STATUS_LIST = 2;
 
     View fragmentView;
     static LinearLayout noLaundryLayout, laundryProcessedLayout, laundryListLayout;
@@ -116,7 +118,7 @@ public class StatusFragment extends Fragment {
         laundryProcessedDelivery = (TextView) laundryProcessedLayout.findViewById(R.id.delivery_text);
         laundryProcessedFee = (TextView) laundryProcessedLayout.findViewById(R.id.fee);
 
-        if (getCheckStatusFromScheduler()) {
+        if (getCheckStatusFromScheduler() == SCHEDULER) {
             // execute onCheckBookingStatus(id)
         } else {
             updateLaundryList();
@@ -129,7 +131,7 @@ public class StatusFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (!isVisibleToUser) {
-            setCheckStatusFromScheduler(false);
+            setCheckStatusFromScheduler(DEFAULT);
         }
     }
 
@@ -182,8 +184,8 @@ public class StatusFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public void onCheckBookingStatus(long id) {
-        setCheckStatusFromScheduler(true);
+    public static void onCheckBookingStatus(long id, int caller) {
+        setCheckStatusFromScheduler(caller);
         noLaundryLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.VISIBLE);
@@ -196,45 +198,38 @@ public class StatusFragment extends Fragment {
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         List<BookingDetails> details = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", Long.toString(Utility.getUserId(mContext)));
-//        List<BookingDetails> details = BookingDetails.listAll(BookingDetails.class);
-//        int startMonth = calendar.get(Calendar.MONTH);
-//        int startDay = calendar.get(Calendar.DAY_OF_MONTH);
-//        int startYear = calendar.get(Calendar.YEAR);
         long startTime = calendar.getTimeInMillis();
         calendar.add(Calendar.DATE, 7);
-//        int endMonth = calendar.get(Calendar.MONTH);
-//        int endDay = calendar.get(Calendar.DAY_OF_MONTH);
-//        int endYear = calendar.get(Calendar.YEAR);
         long endTime = calendar.getTimeInMillis();
         boolean isLaundryExists = false;
         laundryListLayout.removeAllViews();
         BookingDetails nextLaundry = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
         long detail_id = -1;
-//        Log.d("Sarah", "Date start: " + startMonth + "/" + startDay + "/" + startYear);
-//        Log.d("Sarah", "Date end: " + endMonth + "/" + endDay + "/" + endYear);
 
         for (BookingDetails detail : details) {
             long returnDate = detail.getReturnDate();
-//            calendar.setTimeInMillis(returnDate);
-//            int detailMonth = calendar.get(Calendar.MONTH);
-//            int detailDay = calendar.get(Calendar.DAY_OF_MONTH);
-//            int detailYear = calendar.get(Calendar.YEAR);
-//            Log.d("Sarah", "Date return: " + detailMonth + "/" + detailDay + "/" + detailYear);
-//            if (((detailYear == startYear) || (detailYear == endYear)) && ((detailMonth == startMonth) ||
-//                    (detailMonth == endMonth)) && ((startDay <= detailDay) && (detailDay <= endDay))) {
             if ((startTime <= returnDate) && (returnDate <= endTime)) {
                 isLaundryExists = true;
                 /* Status List Item */
                 View statusListItemView = mInflater.inflate(R.layout.booking_status_list_item, null);
                 TextView statusLaundryShop = (TextView) statusListItemView.findViewById(R.id.laundry_shop);
+                TextView statusLaundryShopId = (TextView) statusListItemView.findViewById(R.id.laundry_shop_id);
                 TextView statusFee = (TextView) statusListItemView.findViewById(R.id.fee);
                 TextView statusTimeRemaining = (TextView) statusListItemView.findViewById(R.id.time_remaining);
                 statusLaundryShop.setText(detail.getLaundryShop().getName());
+                statusLaundryShopId.setText(Long.toString(detail.getId()));
                 statusFee.setText("Fee: " + detail.getFee());
-                statusTimeRemaining.setText(Utility.getTimeDifference(System.currentTimeMillis(), returnDate));
-                laundryListLayout.addView(statusListItemView);
+                statusTimeRemaining.setText(Utility.getTimeDifference(mContext, System.currentTimeMillis(), returnDate));
                 detail_id = detail.getId();
+                statusListItemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        long id = Long.parseLong(((TextView) view.findViewById(R.id.laundry_shop_id)).getText().toString());
+                        onCheckBookingStatus(id, StatusFragment.STATUS_LIST);
+                    }
+                });
+                laundryListLayout.addView(statusListItemView);
                 // add to list
             } else if (returnDate > System.currentTimeMillis()) {
                 if ((nextLaundry == null) || (nextLaundry.getReturnDate() > returnDate)) {
@@ -285,7 +280,7 @@ public class StatusFragment extends Fragment {
                 laundryProcessedStatus.setText(R.string.laundry_processed_accepted);
             }
 
-            laundryProcessedTime.setText(Utility.getTimeDifference(dateCreated, deliveryDate));
+            laundryProcessedTime.setText(Utility.getTimeDifference(mContext, dateCreated, deliveryDate));
             laundryProcessedShop.setText(laundryShop);
             laundryProcessedService.setText(laundryService);
             laundryProcessedPickup.setText(dateFormat.format(pickupDate));
@@ -294,11 +289,11 @@ public class StatusFragment extends Fragment {
         }
     }
 
-    public static void setCheckStatusFromScheduler (boolean status) {
-        isCheckStatusFromScheduler = status;
+    public static void setCheckStatusFromScheduler (int status) {
+        fragmentCaller = status;
     }
 
-    public static boolean getCheckStatusFromScheduler() {
-        return isCheckStatusFromScheduler;
+    public static int getCheckStatusFromScheduler() {
+        return fragmentCaller;
     }
 }
