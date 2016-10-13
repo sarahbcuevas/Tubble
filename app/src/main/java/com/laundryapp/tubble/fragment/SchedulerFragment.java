@@ -1,5 +1,6 @@
 package com.laundryapp.tubble.fragment;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.Context;
@@ -78,12 +79,12 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     private static final String RETURN_TIME_TAG = "returnTimePicker";
     private static final String RETURN_DATE_TAG = "returnDatePicker";
     private Calendar mCalendar;
-    private View fragmentView;
+    private static View fragmentView;
     protected static TextView monthTextView;
     protected static TextView noScheduleText;
     private FrameLayout leftButton, rightButton;
     private LinearLayout modeLayout, typeLayout, locationLayout, shopLayout, serviceLayout, summaryLayout;
-    private Switch modeToggle, typeToggle;
+    private static Switch modeToggle, typeToggle;
     private LinearLayout modeToggleLayout, typeToggleLayout, locationToggleLayout, summaryToggleLayout, confirmButton;
     private TextView modeText, typeText, locationText, shopText, serviceText, summaryText;
     //    private TextView[] days;
@@ -91,20 +92,21 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     protected static List<BookingDetails> allBookings;
     protected static ScheduleListAdapter listAdapter;
     private ImageButton bookButton;
-    private LinearLayout schedulerLayout, bookingLayout;
-    private CheckBox locationCheckbox;
-    private EditText locationEdittext, notesEdittext, noOfClothesEdittext, estimatedKiloEdittext;
+    private static LinearLayout schedulerLayout, bookingLayout;
+    private static CheckBox locationCheckbox;
+    private static EditText locationEdittext, notesEdittext, noOfClothesEdittext, estimatedKiloEdittext;
     private Button pickupDateButton, pickupTimeButton, returnDateButton, returnTimeButton;
     private Dialog shopDialog, serviceDialog, messageDialog;
-    private long laundryShop_id = -1, laundryShopService_id = -1;
+    private static long laundryShop_id = -1, laundryShopService_id = -1;
     List<LaundryShop> shops;
     List<LaundryShopService> services = new ArrayList<LaundryShopService>();
     private Date pickupDate, returnDate;
     private Time pickupTime, returnTime;
-    private ArrayAdapter<String> serviceAdapter, shopAdapter;
+    private static ArrayAdapter<String> serviceAdapter, shopAdapter;
     private static CalendarWeekViewAdapter calendarAdapter;
     static ViewPager calendarPager;
     private static FragmentManager fm;
+    private static Context mContext;
 
     OnFragmentInteractionListener mListener;
 
@@ -323,7 +325,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         }
     }
 
-    public boolean onBackPressed() {
+    public static boolean onBackPressed() {
         if (bookingLayout != null && bookingLayout.getVisibility() == View.VISIBLE) {
             bookingLayout.setVisibility(View.GONE);
             schedulerLayout.setVisibility(View.VISIBLE);
@@ -337,6 +339,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mContext = context;
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -730,7 +733,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         returnTime.setTime(hour, minute);
     }
 
-    public void reset() {
+    public static void reset() {
         try {
             bookingLayout.setVisibility(View.GONE);
             schedulerLayout.setVisibility(View.VISIBLE);
@@ -746,7 +749,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             notesEdittext.setText("");
             noOfClothesEdittext.setText("");
             estimatedKiloEdittext.setText("");
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(fragmentView.getWindowToken(), 0);
         } catch (NullPointerException ex) {
             Log.e(TAG, ex.getMessage(), ex);

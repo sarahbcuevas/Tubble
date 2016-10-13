@@ -94,6 +94,13 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
+                if (mTabLayout.getSelectedTabPosition() == 2) { // Status Fragment
+                    if (StatusFragment.getCheckStatusFromScheduler()) {
+
+                    } else {
+                        StatusFragment.updateLaundryList();
+                    }
+                }
 //                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof StatusFragment) {
 //                    StatusFragment.updateLaundryList();
 //                }
@@ -180,9 +187,16 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
     public void onBackPressed() {
         boolean onBackPressed = false;
         if (mViewPager.getCurrentItem() == 1) { // Scheduler Fragment
-            onBackPressed = ((SchedulerFragment) mTabPagerAdapter.getItem(1)).onBackPressed();
+//            onBackPressed = ((SchedulerFragment) mTabPagerAdapter.getItem(1)).onBackPressed();
+            onBackPressed = SchedulerFragment.onBackPressed();
+        } else if (mViewPager.getCurrentItem() == 2) { // Status Fragment
+            if (StatusFragment.getCheckStatusFromScheduler()) {
+                StatusFragment.setCheckStatusFromScheduler(false);
+                mViewPager.setCurrentItem(1);   // go back to Scheduler Fragment
+                onBackPressed = true;
+            }
         } else if (mViewPager.getCurrentItem() == 4) {  // Profile Fragment
-            onBackPressed = ((ProfileFragment) mTabPagerAdapter.getItem(4)).onBackPressed();
+            onBackPressed = ProfileFragment.onBackPressed();
         }
 
         if (!onBackPressed) {
@@ -233,12 +247,6 @@ class TabPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case 0:
-                if (User.Type.CUSTOMER == userType) {
-                    return new FindFragment();
-                } else if (User.Type.LAUNDRY_SHOP == userType) {
-                    return new LaundryRequestFragment();
-                }
             case 1:
                 return new SchedulerFragment();
             case 2:
@@ -247,8 +255,15 @@ class TabPagerAdapter extends FragmentPagerAdapter {
                 return new TipsFragment();
             case 4:
                 return new ProfileFragment();
-            default:
-                return null;
+            case 0:
+            default:    // for instances that there is no tab selected, return the 1st tab by default
+                if (User.Type.CUSTOMER == userType) {
+                    return new FindFragment();
+                } else if (User.Type.LAUNDRY_SHOP == userType) {
+                    return new LaundryRequestFragment();
+                } else {
+                    return null;
+                }
         }
     }
 

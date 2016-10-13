@@ -57,7 +57,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private final String TAG = this.getClass().getName();
+    private final static String TAG = "ProfileFragment";
     private final static int IMG_RESULT = 1;
 
     // TODO: Rename and change types of parameters
@@ -68,8 +68,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private View fragmentView;
     private EditText mMobileNumber, mFullName, mEmail;
-    private ScrollView profileLayout;
-    private RelativeLayout trackLayout;
+    private static ScrollView profileLayout;
+    private static RelativeLayout trackLayout;
     private LinearLayout noTrackLayout;
     private ListView trackListView;
     private Button trackHistoryButton;
@@ -176,7 +176,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         return fragmentView;
     }
 
-    public boolean onBackPressed() {
+    public static boolean onBackPressed() {
         if (trackLayout != null && trackLayout.getVisibility() == View.VISIBLE) {
             trackLayout.setVisibility(View.GONE);
             profileLayout.setVisibility(View.VISIBLE);

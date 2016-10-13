@@ -41,7 +41,8 @@ public class StatusFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    boolean isCheckBookingStatus = false;
+    // for handling back button press; must return to Scheduler if true, else, return to status list.
+    private static boolean isCheckStatusFromScheduler = false;
 
     View fragmentView;
     static LinearLayout noLaundryLayout, laundryProcessedLayout, laundryListLayout;
@@ -115,13 +116,21 @@ public class StatusFragment extends Fragment {
         laundryProcessedDelivery = (TextView) laundryProcessedLayout.findViewById(R.id.delivery_text);
         laundryProcessedFee = (TextView) laundryProcessedLayout.findViewById(R.id.fee);
 
-        if (isCheckBookingStatus) {
-
+        if (getCheckStatusFromScheduler()) {
+            // execute onCheckBookingStatus(id)
         } else {
             updateLaundryList();
         }
 
         return fragmentView;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (!isVisibleToUser) {
+            setCheckStatusFromScheduler(false);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -174,12 +183,11 @@ public class StatusFragment extends Fragment {
     }
 
     public void onCheckBookingStatus(long id) {
-        isCheckBookingStatus = true;
+        setCheckStatusFromScheduler(true);
         noLaundryLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.VISIBLE);
         updateLaundryProcessedLayout(id);
-        isCheckBookingStatus = false;
     }
 
     public static void updateLaundryList() {
@@ -284,5 +292,13 @@ public class StatusFragment extends Fragment {
             laundryProcessedDelivery.setText(dateFormat.format(deliveryDate));
             laundryProcessedFee.setText(Float.toString(fee));
         }
+    }
+
+    public static void setCheckStatusFromScheduler (boolean status) {
+        isCheckStatusFromScheduler = status;
+    }
+
+    public static boolean getCheckStatusFromScheduler() {
+        return isCheckStatusFromScheduler;
     }
 }
