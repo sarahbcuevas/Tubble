@@ -5,12 +5,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toolbar;
@@ -27,8 +25,7 @@ import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
 import com.laundryapp.tubble.fragment.TipsFragment;
 
-public class MainActivity extends AppCompatActivity implements
-        SearchView.OnQueryTextListener,
+public class MainActivity extends FragmentActivity implements
         FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener,
         TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener {
@@ -37,6 +34,8 @@ public class MainActivity extends AppCompatActivity implements
     private TabPagerAdapter mTabPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
+
+    private MenuItem menuSearch, menuLogout;
 
     public static final String USER_ID = "user_id";
 
@@ -59,9 +58,9 @@ public class MainActivity extends AppCompatActivity implements
             LaundryShop shop = LaundryShop.findById(LaundryShop.class, user_id);
         }
 
-//        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        mToolbar.setTitle("");
-//        setActionBar(mToolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle("");
+        setActionBar(mToolbar);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -93,12 +92,7 @@ public class MainActivity extends AppCompatActivity implements
                         StatusFragment.updateLaundryList();
                     }
                 }
-//                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof StatusFragment) {
-//                    StatusFragment.updateLaundryList();
-//                }
-//                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof SchedulerFragment) {
-//                    SchedulerFragment.updateCalendarAdapter();
-//                }
+                updateOptionsMenu();
             }
 
             @Override
@@ -141,12 +135,16 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        MenuItem searchItem = menu.findItem(R.id.search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchView.setOnQueryTextListener(this);
-
+        menuSearch = menu.findItem(R.id.action_search);
+        menuLogout = menu.findItem(R.id.action_logout);
+        updateOptionsMenu();
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void updateOptionsMenu() {
+        int currentTab = mViewPager.getCurrentItem();
+        menuSearch.setVisible(currentTab == 0);     // Find Fragment
+        menuLogout.setVisible(currentTab == 4);     // Profile Fragment
     }
 
     @Override
@@ -155,23 +153,11 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_logout:
                 Utility.logout(this);
                 return true;
-            case R.id.search:
-                SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
-                searchView.setOnQueryTextListener(this);
+            case R.id.action_search:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
     }
 
     @Override
