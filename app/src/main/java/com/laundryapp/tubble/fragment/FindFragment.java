@@ -42,7 +42,7 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class FindFragment extends Fragment implements OnMapReadyCallback,
-        GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -210,7 +210,6 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
         LatLng change = new LatLng(lat, lng);
         myMap.moveCamera(CameraUpdateFactory.newLatLng(change));
-        myMap.setOnMyLocationButtonClickListener(this);
         myMap.setOnInfoWindowClickListener(this);
 
         setUpMarkers();
@@ -273,11 +272,6 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
         for (MarkerOptions options : markerOptionses) {
             mapMarkers.add(myMap.addMarker(options));
         }
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        return false;
     }
 
     @Override
