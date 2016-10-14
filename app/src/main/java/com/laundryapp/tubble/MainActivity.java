@@ -215,9 +215,14 @@ public class MainActivity extends FragmentActivity implements FindFragment.OnFra
 
     @Override
     public void onCheckBookingStatus(long id) {
-//        ((StatusFragment) mTabPagerAdapter.getItem(2)).onCheckBookingStatus(id);
         StatusFragment.onCheckBookingStatus(id, StatusFragment.SCHEDULER);
         mViewPager.setCurrentItem(2);
+    }
+
+    @Override
+    public void showCreateBookingPage() {
+        SchedulerFragment.setCreateBookingVisible();
+        mViewPager.setCurrentItem(1);
     }
 
     @Override

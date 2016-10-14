@@ -28,6 +28,12 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <receiver android:name=".receivers.SendLaundryRequestReceiver">
+            <intent-filter>
+                <action android:name="com.laundryapp.tubble.SMS_SENT" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name=".SmsReceiver"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter android:priority="999">

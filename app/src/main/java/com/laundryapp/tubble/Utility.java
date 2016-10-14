@@ -27,6 +27,7 @@ import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.User.Type;
 import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
+import com.laundryapp.tubble.receivers.SendLaundryRequestReceiver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,7 +46,7 @@ public class Utility {
     private static final String USER_ID = "userId";
     private static final String USER_TYPE = "userType";
     private static final String DELIVERED = "sms_delivered";
-    private static String SENT = "sms_sent";
+    public static String SENT = "com.laundryapp.tubble.SMS_SENT";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
@@ -140,6 +141,8 @@ public class Utility {
         Log.d(TAG, "Message: " + message);
         User user = User.findById(User.class, details.getUserId());
         String phoneNo = user.getMobileNumber();
+//        String phoneNo = "09989976459"; // personal number
+//        String phoneNo = "09391157355";
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
@@ -204,28 +207,36 @@ public class Utility {
 
         LaundryShop laundryShop = details.getLaundryShop();
 //        String phoneNo = laundryShop.getContact();
-//        String phoneNo = "09989976459";
-        String phoneNo = "09063931566";
+//        String phoneNo = "09989976459";   // personal number
+//        String phoneNo = "09063931566";   // lyssa
+        String phoneNo = "09391157355";
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
             PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
-            context.registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            details.save();
-                            SchedulerFragment.updateScheduleListAndCalendar();
-                            StatusFragment.updateLaundryList();
-                            Log.d(TAG, "Laundry request has been sent.");
-                            break;
-                        default:
-                            Log.d(TAG, "Laundry request was not sent.");
-                            break;
-                    }
-                }
-            }, new IntentFilter(SENT));
+//            context.registerReceiver(new BroadcastReceiver() {
+//                @Override
+//                public void onReceive(Context context, Intent intent) {
+//                    switch (getResultCode()) {
+//                        case Activity.RESULT_OK:
+//                            details.save();
+//                            SchedulerFragment.updateScheduleListAndCalendar();
+//                            StatusFragment.updateLaundryList();
+//                            Toast.makeText(context, "Laundry request has been sent.", Toast.LENGTH_SHORT).show();
+//                            Log.d(TAG, "Laundry request has been sent.");
+//                            break;
+//                        case SmsManager.RESULT_ERROR_NO_SERVICE:
+//                            Toast.makeText(context, "Error sending laundry request: No service available", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+//                            Toast.makeText(context, "Sending laundry request failed. Please try again later.", Toast.LENGTH_SHORT).show();
+//                        default:
+//                            Log.d(TAG, "Laundry request was not sent.");
+//                            break;
+//                    }
+//                }
+//            }, new IntentFilter(SENT));
+            SendLaundryRequestReceiver.setBookingDetailsWaitingResponse(details);
             smsManager.sendDataMessage(phoneNo, null, PORT, userInfo.getBytes(), sentIntent, null);
             byte[] b = message.getBytes();
             smsManager.sendDataMessage(phoneNo, null, PORT, b, sentIntent, null);

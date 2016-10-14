@@ -1,21 +1,30 @@
 package com.laundryapp.tubble.fragment;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.BookingDetails.Status;
+import com.laundryapp.tubble.entities.LaundryShop;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -30,7 +39,7 @@ import java.util.List;
  * Use the {@link StatusFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StatusFragment extends Fragment {
+public class StatusFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -54,14 +63,20 @@ public class StatusFragment extends Fragment {
     TextView noLaundryShopText, noLaundryPickup, noLaundryDelivery;
     static RelativeLayout nextScheduleLayout;
     static TextView nextLaundryShop, nextPickup, nextReturn;
+    private ImageView nextAddButton, nextCancelButton;
 
     /* Laundry Processed */
     static TextView laundryProcessedStatus, laundryProcessedTime, laundryProcessedShop,
             laundryProcessedService, laundryProcessedPickup, laundryProcessedDelivery,
             laundryProcessedFee;
+    private static ImageView laundryProcessedCallButton, laundryProcessedCancelButton;
 
     private OnFragmentInteractionListener mListener;
     private static Context mContext;
+
+    private static long selectedBookingId = -1;
+
+    private Dialog dialog;
 
     public StatusFragment() {
         // Required empty public constructor
@@ -108,6 +123,8 @@ public class StatusFragment extends Fragment {
         nextLaundryShop = (TextView) nextScheduleLayout.findViewById(R.id.laundry_shop_text);
         nextPickup = (TextView) nextScheduleLayout.findViewById(R.id.pick_up_text);
         nextReturn = (TextView) nextScheduleLayout.findViewById(R.id.delivery_text);
+        nextAddButton = (ImageView) nextScheduleLayout.findViewById(R.id.add_button);
+        nextCancelButton = (ImageView) nextScheduleLayout.findViewById(R.id.cancel_button);
 
         /* Laundry Processed */
         laundryProcessedStatus = (TextView) laundryProcessedLayout.findViewById(R.id.status);
@@ -117,6 +134,13 @@ public class StatusFragment extends Fragment {
         laundryProcessedPickup = (TextView) laundryProcessedLayout.findViewById(R.id.pick_up_text);
         laundryProcessedDelivery = (TextView) laundryProcessedLayout.findViewById(R.id.delivery_text);
         laundryProcessedFee = (TextView) laundryProcessedLayout.findViewById(R.id.fee);
+        laundryProcessedCallButton = (ImageView) laundryProcessedLayout.findViewById(R.id.call_button);
+        laundryProcessedCancelButton = (ImageView) laundryProcessedLayout.findViewById(R.id.cancel_button);
+
+        nextAddButton.setOnClickListener(this);
+        nextCancelButton.setOnClickListener(this);
+        laundryProcessedCallButton.setOnClickListener(this);
+        laundryProcessedCancelButton.setOnClickListener(this);
 
         if (getCheckStatusFromScheduler() == SCHEDULER) {
             // execute onCheckBookingStatus(id)
@@ -132,13 +156,6 @@ public class StatusFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
         if (!isVisibleToUser) {
             setCheckStatusFromScheduler(DEFAULT);
-        }
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
         }
     }
 
@@ -180,8 +197,8 @@ public class StatusFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void showCreateBookingPage();
+
     }
 
     public static void onCheckBookingStatus(long id, int caller) {
@@ -258,11 +275,13 @@ public class StatusFragment extends Fragment {
                 nextLaundryShop.setText(nextLaundry.getLaundryShop().getName());
                 nextPickup.setText("Pick up: " + dateFormat.format(nextLaundry.getPickupDate()));
                 nextReturn.setText("Delivery: " + dateFormat.format(nextLaundry.getReturnDate()));
+                selectedBookingId = nextLaundry.getId();
             }
         }
     }
 
     private static void updateLaundryProcessedLayout(long id) {
+        selectedBookingId = id;
         BookingDetails details = BookingDetails.findById(BookingDetails.class, id);
         if (details != null) {
             Status status = details.getStatus();
@@ -286,6 +305,78 @@ public class StatusFragment extends Fragment {
             laundryProcessedPickup.setText(dateFormat.format(pickupDate));
             laundryProcessedDelivery.setText(dateFormat.format(deliveryDate));
             laundryProcessedFee.setText(Float.toString(fee));
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        AlertDialog.Builder builder;
+        switch (view.getId()) {
+            case R.id.add_button:
+                mListener.showCreateBookingPage();
+                break;
+            case R.id.cancel_button:
+                builder = new AlertDialog.Builder(mContext);
+                builder.setTitle("Cancel");
+                builder.setMessage("Are you sure you want to cancel your laundry schedule?");
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        BookingDetails details = BookingDetails.findById(BookingDetails.class, selectedBookingId);
+                        if (details != null) {
+                            boolean isDeleted = details.delete();
+                            if (isDeleted) {
+//                              details.delete();
+                                updateLaundryList();
+                                SchedulerFragment.updateScheduleListAndCalendar();
+                            }
+                        }
+                        dialog.dismiss();
+                    }
+                });
+                dialog = builder.create();
+                dialog.show();
+                break;
+            case R.id.call_button:
+                BookingDetails details = BookingDetails.findById(BookingDetails.class, selectedBookingId);
+                if (details != null) {
+                    LaundryShop shop = details.getLaundryShop();
+                    final String[] contacts = shop.getContact().split("/");
+                    for (int i = 0; i < contacts.length; i++) {
+                        contacts[i] = contacts[i].replace("(", "").replace(")", "").replace(" ", "").replace("-", "").replace(".", "").trim();
+                    }
+
+                    ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, contacts);
+                    final Intent intent = new Intent(Intent.ACTION_DIAL);
+                    if (contacts.length > 1) {
+                        builder = new AlertDialog.Builder(mContext);
+                        builder.setTitle("Contact");
+                        builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                intent.setData(Uri.parse("tel:" + contacts[i]));
+                                startActivity(intent);
+                                dialog.dismiss();
+                            }
+                        });
+                        dialog = builder.create();
+                        dialog.show();
+                    } else if (contacts.length == 1) {
+                        intent.setData(Uri.parse("tel:" + contacts[0]));
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(mContext, "No contact number available.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 

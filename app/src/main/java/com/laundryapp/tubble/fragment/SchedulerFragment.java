@@ -83,11 +83,10 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     protected static TextView monthTextView;
     protected static TextView noScheduleText;
     private FrameLayout leftButton, rightButton;
-    private LinearLayout modeLayout, typeLayout, locationLayout, shopLayout, serviceLayout, summaryLayout;
+    private static LinearLayout modeLayout, typeLayout, locationLayout, shopLayout, serviceLayout, summaryLayout;
     private static Switch modeToggle, typeToggle;
-    private LinearLayout modeToggleLayout, typeToggleLayout, locationToggleLayout, summaryToggleLayout, confirmButton;
-    private TextView modeText, typeText, locationText, shopText, serviceText, summaryText;
-    //    private TextView[] days;
+    private static LinearLayout modeToggleLayout, typeToggleLayout, locationToggleLayout, summaryToggleLayout, confirmButton;
+    private static TextView modeText, typeText, locationText, shopText, serviceText, summaryText;
     protected static ListView listView;
     protected static List<BookingDetails> allBookings;
     protected static ScheduleListAdapter listAdapter;
@@ -95,13 +94,13 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     private static LinearLayout schedulerLayout, bookingLayout;
     private static CheckBox locationCheckbox;
     private static EditText locationEdittext, notesEdittext, noOfClothesEdittext, estimatedKiloEdittext;
-    private Button pickupDateButton, pickupTimeButton, returnDateButton, returnTimeButton;
+    private static Button pickupDateButton, pickupTimeButton, returnDateButton, returnTimeButton;
     private Dialog shopDialog, serviceDialog, messageDialog;
     private static long laundryShop_id = -1, laundryShopService_id = -1;
     List<LaundryShop> shops;
     List<LaundryShopService> services = new ArrayList<LaundryShopService>();
-    private Date pickupDate, returnDate;
-    private Time pickupTime, returnTime;
+    private static Date pickupDate, returnDate;
+    private static Time pickupTime, returnTime;
     private static ArrayAdapter<String> serviceAdapter, shopAdapter;
     private static CalendarWeekViewAdapter calendarAdapter;
     static ViewPager calendarPager;
@@ -219,17 +218,11 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 
         updateDateTimeString();
 
-//        for (TextView day : days) {
-//            day.setOnClickListener(this);
-//        }
         bookButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    schedulerLayout.setVisibility(View.GONE);
-                    bookingLayout.setVisibility(View.VISIBLE);
-                    updateDateTimeString();
-                    updateBookingSelectedItem(R.id.mode);
+                    setCreateBookingVisible();
                     return true;
                 }
                 return false;
@@ -258,28 +251,27 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         return fragmentView;
     }
 
+    public static void setCreateBookingVisible() {
+        schedulerLayout.setVisibility(View.GONE);
+        bookingLayout.setVisibility(View.VISIBLE);
+        updateDateTimeString();
+        updateBookingSelectedItem(R.id.mode);
+    }
+
     public static void updateCalendarAdapter() {
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setFirstDayOfWeek(Calendar.MONDAY);
-//        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-//        int year = calendar.get(Calendar.YEAR);
-//        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-//
-//        long[] days = new long[7];
-//        for (int i = 0; i < 7; i++) {
-//            days[i] = calendar.getTimeInMillis();
-//            calendar.add(Calendar.DAY_OF_MONTH, 1);
-//        }
         if (null == calendarAdapter) {
             calendarAdapter = new CalendarWeekViewAdapter(fm);
         }
-//        DaysOfWeek(days);
-        calendarPager.setAdapter(calendarAdapter);
-        calendarPager.setCurrentItem(5000);
-        calendarPager.setOffscreenPageLimit(0);
-        calendarAdapter.getDaysOfWeek(5000);
-//        monthTextView.setText(monthString);
-        calendarAdapter.notifyDataSetChanged();
+
+        try {
+            calendarPager.setAdapter(calendarAdapter);
+            calendarPager.setCurrentItem(5000);
+            calendarPager.setOffscreenPageLimit(0);
+            calendarAdapter.getDaysOfWeek(5000);
+            calendarAdapter.notifyDataSetChanged();
+        } catch (IllegalStateException e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
     }
 
     public void updateScheduleList(long timeInMillis) {
@@ -361,6 +353,16 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         updateCalendarAdapter();
         updateScheduleList(System.currentTimeMillis());
         calendarAdapter.updateCalendar();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isVisibleToUser) {
+            Log.d(TAG, "update schedule list");
+            updateScheduleList(System.currentTimeMillis());
+        }
     }
 
     @Override
@@ -514,11 +516,11 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         }
     }
 
-    public void updateBookingSelectedItem(int resId) {
-        int selectedBackground = ContextCompat.getColor(getContext(), R.color.booking_field_background_blue);
-        int deselectedBackground = ContextCompat.getColor(getContext(), R.color.booking_field_background_gray);
-        int selectedText = ContextCompat.getColor(getContext(), R.color.booking_field_text_selected);
-        int deselectedText = ContextCompat.getColor(getContext(), R.color.booking_field_text_deselected);
+    public static void updateBookingSelectedItem(int resId) {
+        int selectedBackground = ContextCompat.getColor(mContext, R.color.booking_field_background_blue);
+        int deselectedBackground = ContextCompat.getColor(mContext, R.color.booking_field_background_gray);
+        int selectedText = ContextCompat.getColor(mContext, R.color.booking_field_text_selected);
+        int deselectedText = ContextCompat.getColor(mContext, R.color.booking_field_text_deselected);
         modeLayout.setBackgroundColor(resId == R.id.mode ? selectedBackground : deselectedBackground);
         modeText.setTextColor(resId == R.id.mode ? selectedText : deselectedText);
         typeLayout.setBackgroundColor(resId == R.id.type ? selectedBackground : deselectedBackground);
@@ -706,7 +708,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         listAdapter.notifyDataSetChanged();
     }
 
-    public void updateDateTimeString() {
+    public static void updateDateTimeString() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("EEE, MM/dd/yyyy");
         String dateString = format.format(calendar.getTime());
@@ -863,7 +865,6 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
         fragment.setArguments(args);
         return fragment;
     }
-
 }
 
 class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
@@ -940,14 +941,11 @@ class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        boolean isDeleted = BookingDetails.delete(details);
+//                        boolean isDeleted = BookingDetails.delete(details);
+                        boolean isDeleted = details.delete();
                         if (isDeleted) {
                             bookings.remove(position);
                             notifyDataSetChanged();
-                            if (bookings.isEmpty()) {
-                                SchedulerFragment.noScheduleText.setVisibility(View.VISIBLE);
-                                SchedulerFragment.listView.setVisibility(View.GONE);
-                            }
                             ((SchedulerFragment.OnFragmentInteractionListener) context).onAddOrDeleteLaundrySchedule();
                         }
                     }
@@ -963,5 +961,14 @@ class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
             }
         });
         return convertView;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        if (bookings.isEmpty()) {
+            SchedulerFragment.noScheduleText.setVisibility(View.VISIBLE);
+            SchedulerFragment.listView.setVisibility(View.GONE);
+        }
     }
 }
