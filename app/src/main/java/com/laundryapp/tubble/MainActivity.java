@@ -86,6 +86,13 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
+                if (mTabLayout.getSelectedTabPosition() == 2) { // Status Fragment
+                    if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
+
+                    } else {
+                        StatusFragment.updateLaundryList();
+                    }
+                }
 //                if (mTabPagerAdapter.getItem(mTabLayout.getSelectedTabPosition()) instanceof StatusFragment) {
 //                    StatusFragment.updateLaundryList();
 //                }
@@ -191,9 +198,20 @@ public class MainActivity extends AppCompatActivity implements
     public void onBackPressed() {
         boolean onBackPressed = false;
         if (mViewPager.getCurrentItem() == 1) { // Scheduler Fragment
-            onBackPressed = ((SchedulerFragment) mTabPagerAdapter.getItem(1)).onBackPressed();
+//            onBackPressed = ((SchedulerFragment) mTabPagerAdapter.getItem(1)).onBackPressed();
+            onBackPressed = SchedulerFragment.onBackPressed();
+        } else if (mViewPager.getCurrentItem() == 2) { // Status Fragment
+            if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
+                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+                mViewPager.setCurrentItem(1);   // go back to Scheduler Fragment
+                onBackPressed = true;
+            } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {
+                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+                StatusFragment.updateLaundryList();
+                onBackPressed = true;
+            }
         } else if (mViewPager.getCurrentItem() == 4) {  // Profile Fragment
-            onBackPressed = ((ProfileFragment) mTabPagerAdapter.getItem(4)).onBackPressed();
+            onBackPressed = ProfileFragment.onBackPressed();
         }
 
         if (!onBackPressed) {
@@ -208,13 +226,20 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onCheckBookingStatus(long id) {
-        ((StatusFragment) mTabPagerAdapter.getItem(2)).onCheckBookingStatus(id);
+        StatusFragment.onCheckBookingStatus(id, StatusFragment.SCHEDULER);
         mViewPager.setCurrentItem(2);
     }
 
     @Override
+    public void showCreateBookingPage() {
+        SchedulerFragment.setCreateBookingVisible();
+        mViewPager.setCurrentItem(1);
+    }
+
+    @Override
     public void onAddOrDeleteLaundrySchedule() {
-        ((StatusFragment) mTabPagerAdapter.getItem(2)).updateLaundryList();
+//        ((StatusFragment) mTabPagerAdapter.getItem(2)).updateLaundryList();
+        StatusFragment.updateLaundryList();
     }
 }
 
@@ -244,12 +269,6 @@ class TabPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case 0:
-                if (User.Type.CUSTOMER == userType) {
-                    return new FindFragment();
-                } else if (User.Type.LAUNDRY_SHOP == userType) {
-                    return new LaundryRequestFragment();
-                }
             case 1:
                 return new SchedulerFragment();
             case 2:
@@ -258,8 +277,15 @@ class TabPagerAdapter extends FragmentPagerAdapter {
                 return new TipsFragment();
             case 4:
                 return new ProfileFragment();
-            default:
-                return null;
+            case 0:
+            default:    // for instances that there is no tab selected, return the 1st tab by default
+                if (User.Type.CUSTOMER == userType) {
+                    return new FindFragment();
+                } else if (User.Type.LAUNDRY_SHOP == userType) {
+                    return new LaundryRequestFragment();
+                } else {
+                    return null;
+                }
         }
     }
 

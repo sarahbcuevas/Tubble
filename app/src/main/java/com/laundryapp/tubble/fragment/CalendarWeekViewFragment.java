@@ -18,6 +18,7 @@ import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.User;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -180,6 +181,21 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
             SchedulerFragment.listAdapter = new ScheduleListAdapter(getContext(), SchedulerFragment.allBookings);
             SchedulerFragment.listView.setAdapter(SchedulerFragment.listAdapter);
             SchedulerFragment.listAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+        } catch (NoSuchFieldException ex1) {
+            Log.e(TAG, ex1.getMessage(), ex1);
+        } catch (IllegalAccessException ex2) {
+            Log.e(TAG, ex2.getMessage(), ex2);
         }
     }
 }

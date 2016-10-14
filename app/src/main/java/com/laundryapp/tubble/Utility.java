@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -24,15 +24,12 @@ import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.User.Type;
-import com.laundryapp.tubble.fragment.SchedulerFragment;
-import com.laundryapp.tubble.fragment.StatusFragment;
+import com.laundryapp.tubble.receivers.SendLaundryRequestReceiver;
+import com.laundryapp.tubble.receivers.SendLaundryStatusReceiver;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -44,7 +41,8 @@ public class Utility {
     private static final String USER_ID = "userId";
     private static final String USER_TYPE = "userType";
     private static final String DELIVERED = "sms_delivered";
-    private static String SENT = "sms_sent";
+    private static String SENT = "com.laundryapp.tubble.SMS_SENT";
+    private static String STATUS_SENT = "com.laundryapp.tubble.STATUS_SENT";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
@@ -139,25 +137,28 @@ public class Utility {
         Log.d(TAG, "Message: " + message);
         User user = User.findById(User.class, details.getUserId());
         String phoneNo = user.getMobileNumber();
+//        String phoneNo = "09989976459"; // personal number
+//        String phoneNo = "09391157355";
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
-            context.registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            details.setStatus(laundryStatus);
-                            details.save();
-                            Toast.makeText(context, "Laundry status updated.", Toast.LENGTH_SHORT).show();
-                            break;
-                        default:
-                            Toast.makeText(context, "Failed to change laundry request status. Please try again later.", Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                }
-            }, new IntentFilter(SENT));
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(STATUS_SENT), 0);
+//            context.registerReceiver(new BroadcastReceiver() {
+//                @Override
+//                public void onReceive(Context context, Intent intent) {
+//                    switch (getResultCode()) {
+//                        case Activity.RESULT_OK:
+//                            details.setStatus(laundryStatus);
+//                            details.save();
+//                            Toast.makeText(context, "Laundry status updated.", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        default:
+//                            Toast.makeText(context, "Failed to change laundry request status. Please try again later.", Toast.LENGTH_SHORT).show();
+//                            break;
+//                    }
+//                }
+//            }, new IntentFilter(SENT));
+            SendLaundryStatusReceiver.setBookingDetailsWaitingResponse(details, laundryStatus);
             smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
             Log.d(TAG, "Sending laundry status update...");
         } catch (Exception e) {
@@ -203,28 +204,36 @@ public class Utility {
 
         LaundryShop laundryShop = details.getLaundryShop();
 //        String phoneNo = laundryShop.getContact();
-//        String phoneNo = "09989976459";
-        String phoneNo = "09063931566";
+//        String phoneNo = "09989976459";   // personal number
+//        String phoneNo = "09063931566";   // lyssa
+        String phoneNo = "09391157355";
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
             PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
-            context.registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            details.save();
-                            SchedulerFragment.updateScheduleListAndCalendar();
-                            StatusFragment.updateLaundryList();
-                            Log.d(TAG, "Laundry request has been sent.");
-                            break;
-                        default:
-                            Log.d(TAG, "Laundry request was not sent.");
-                            break;
-                    }
-                }
-            }, new IntentFilter(SENT));
+//            context.registerReceiver(new BroadcastReceiver() {
+//                @Override
+//                public void onReceive(Context context, Intent intent) {
+//                    switch (getResultCode()) {
+//                        case Activity.RESULT_OK:
+//                            details.save();
+//                            SchedulerFragment.updateScheduleListAndCalendar();
+//                            StatusFragment.updateLaundryList();
+//                            Toast.makeText(context, "Laundry request has been sent.", Toast.LENGTH_SHORT).show();
+//                            Log.d(TAG, "Laundry request has been sent.");
+//                            break;
+//                        case SmsManager.RESULT_ERROR_NO_SERVICE:
+//                            Toast.makeText(context, "Error sending laundry request: No service available", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+//                            Toast.makeText(context, "Sending laundry request failed. Please try again later.", Toast.LENGTH_SHORT).show();
+//                        default:
+//                            Log.d(TAG, "Laundry request was not sent.");
+//                            break;
+//                    }
+//                }
+//            }, new IntentFilter(SENT));
+            SendLaundryRequestReceiver.setBookingDetailsWaitingResponse(details);
             smsManager.sendDataMessage(phoneNo, null, PORT, userInfo.getBytes(), sentIntent, null);
             byte[] b = message.getBytes();
             smsManager.sendDataMessage(phoneNo, null, PORT, b, sentIntent, null);
@@ -308,7 +317,7 @@ public class Utility {
 //        Log.d(TAG, "Message size: " + messages.get(index).getBytes().length);
 //    }
 
-    public static String getTimeDifference(long startDate, long endDate) {
+    public static String getTimeDifference(Context context, long startDate, long endDate) {
         String differenceStr = "";
         long difference = endDate - startDate;
 
@@ -330,10 +339,13 @@ public class Utility {
         long elapsedMinutes = difference / minutesInMilli;
         difference = difference % minutesInMilli;
 
+        Resources res = context.getResources();
+
         if (elapsedDays > 0) {
-            differenceStr += elapsedDays + " days ";
+            differenceStr += elapsedDays + " " + res.getQuantityString(R.plurals.plural_day, (int) elapsedDays) + " ";
         }
-        differenceStr += elapsedHours + " hrs " + elapsedMinutes + " mins";
+        differenceStr += elapsedHours + " " + res.getQuantityString(R.plurals.plural_hour, (int) elapsedHours) + " " +
+                elapsedMinutes + " " + res.getQuantityString(R.plurals.plural_minute, (int) elapsedMinutes);
 
         return differenceStr;
     }

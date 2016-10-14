@@ -84,12 +84,14 @@
                         </LinearLayout>
                     </RelativeLayout>
                     <ImageView
+                        android:id="@+id/add_button"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_alignParentRight="true"
                         android:layout_marginRight="20dp"
                         android:src="@drawable/add"/>
                     <ImageView
+                        android:id="@+id/cancel_button"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_alignParentRight="true"
@@ -106,7 +108,7 @@
                 android:layout_gravity="center"
                 android:paddingTop="15dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
                 <TextView
                     android:id="@+id/status"
                     android:layout_width="match_parent"
@@ -200,12 +202,14 @@
                         </LinearLayout>
                     </RelativeLayout>
                     <ImageView
+                        android:id="@+id/call_button"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_alignParentRight="true"
                         android:layout_marginRight="20dp"
-                        android:src="@drawable/add"/>
+                        android:src="@drawable/call"/>
                     <ImageView
+                        android:id="@+id/cancel_button"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_alignParentRight="true"

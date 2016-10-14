@@ -30,6 +30,11 @@
                     android:text="Metropole Katipunan"
                     android:textStyle="bold" />
                 <TextView
+                    android:id="@+id/laundry_shop_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
+                <TextView
                     android:id="@+id/fee"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
