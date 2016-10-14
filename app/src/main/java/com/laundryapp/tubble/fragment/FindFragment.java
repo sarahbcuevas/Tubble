@@ -205,8 +205,8 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
         }
 
         // default position
-        double lat = 14.6430239;
-        double lng = 121.0660785;
+        double lat = 14.6378445;
+        double lng = 121.0742335;
 
         LatLng change = new LatLng(lat, lng);
         myMap.moveCamera(CameraUpdateFactory.newLatLng(change));

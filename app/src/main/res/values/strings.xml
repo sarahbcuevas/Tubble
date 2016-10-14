@@ -24,7 +24,6 @@
     <string name="input_no_of_clothes">Please input no. of clothes.</string>
     <string name="input_estimated_kilo">Please input estimated kilo.</string>
 
-    <string name="disclaimer">Disclaimer: Prices are averaged among all branches. For specific price, please contact the laundry shop.</string>
     <string name="laundry_processed_new">Your laundry is\nwaiting to be accepted...</string>
     <string name="laundry_processed_accepted">Your laundry is\nbeing processed...</string>
 
