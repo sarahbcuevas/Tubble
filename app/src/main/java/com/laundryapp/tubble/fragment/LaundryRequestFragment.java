@@ -40,7 +40,7 @@ public class LaundryRequestFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private final String TAG = this.getClass().getName();
+    private static final String TAG = "LaundryRequestFragment";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -93,7 +93,21 @@ public class LaundryRequestFragment extends Fragment {
         laundryRequestFragmentLayout = inflater.inflate(R.layout.fragment_laundry_request, container, false);
         laundryRequestLayout = (LinearLayout) laundryRequestFragmentLayout.findViewById(R.id.laundry_request_layout);
         noLaundryRequestLayout = (LinearLayout) laundryRequestFragmentLayout.findViewById(R.id.no_laundry_request);
-        LaundryShop laundryShop = LaundryShop.findById(LaundryShop.class, Utility.getUserId(getContext()));
+
+        updateBookingsList(getContext());
+
+        return laundryRequestFragmentLayout;
+    }
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    public static void updateBookingsList(final Context context) {
+        LaundryShop laundryShop = LaundryShop.findById(LaundryShop.class, Utility.getUserId(context));
         bookingsList = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ? and m_Status = ?", laundryShop.getId().toString(), BookingDetails.Status.NEW.toString());
 
         laundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.GONE : View.VISIBLE);
@@ -107,15 +121,18 @@ public class LaundryRequestFragment extends Fragment {
 //                array.add(booking.getCustomerName());
 //            }
 //            flingAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, array);
-            flingAdapter = new FlingContainerAdapter(getContext(), bookingsList);
+            flingAdapter = new FlingContainerAdapter(context, bookingsList);
             Log.d("Sarah", "flingAdapter = " + flingAdapter);
             Log.d("Sarah", "flingAdapter size: " + flingAdapter.getCount());
             flingContainer.setAdapter(flingAdapter);
             Log.d("Sarah", "flingAdapter size: " + flingContainer.getAdapter().getCount());
             flingContainer.setFlingListener(new SwipeFlingAdapterView.onFlingListener() {
+                BookingDetails details;
+
                 @Override
                 public void removeFirstObjectInAdapter() {
                     if (!bookingsList.isEmpty()) {
+                        details = bookingsList.get(0);
                         bookingsList.remove(0);
                         flingAdapter.notifyDataSetChanged();
                         if (bookingsList.isEmpty()) {
@@ -127,17 +144,19 @@ public class LaundryRequestFragment extends Fragment {
 
                 @Override
                 public void onLeftCardExit(Object o) {
-                    if (!bookingsList.isEmpty()) {
-                        Utility.sendLaundryStatusThruSms(getContext(), bookingsList.get(0), BookingDetails.Status.REJECTED);
-                        Toast.makeText(getContext(), "Denied!", Toast.LENGTH_SHORT).show();
+                    if (details != null) {
+                        Utility.sendLaundryStatusThruSms(context, details, BookingDetails.Status.REJECTED);
+                        Toast.makeText(context, "Denied!", Toast.LENGTH_SHORT).show();
+                        details = null;
                     }
                 }
 
                 @Override
                 public void onRightCardExit(Object o) {
-                    if (!bookingsList.isEmpty()) {
-                        Utility.sendLaundryStatusThruSms(getContext(), bookingsList.get(0), BookingDetails.Status.ACCEPTED);
-                        Toast.makeText(getContext(), "Accepted!", Toast.LENGTH_SHORT).show();
+                    if (details != null) {
+                        Utility.sendLaundryStatusThruSms(context, details, BookingDetails.Status.ACCEPTED);
+                        Toast.makeText(context, "Accepted!", Toast.LENGTH_SHORT).show();
+                        details = null;
                     }
                 }
 
@@ -152,24 +171,16 @@ public class LaundryRequestFragment extends Fragment {
                 }
             });
         }
-
-        return laundryRequestFragmentLayout;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    public static void updateBookingsList(Context context) {
-        bookingsList = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(context)), BookingDetails.Status.NEW.toString());
-        flingAdapter.setBookings(bookingsList);
-        flingContainer.setAdapter(flingAdapter);
-        flingContainer.setVisibility(View.VISIBLE);
-        noLaundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.VISIBLE : View.GONE);
-        laundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.GONE : View.VISIBLE);
+//        try {
+//            bookingsList = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(context)), BookingDetails.Status.NEW.toString());
+//            flingAdapter.setBookings(bookingsList);
+//            flingContainer.setAdapter(flingAdapter);
+//            flingContainer.setVisibility(View.VISIBLE);
+//            noLaundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.VISIBLE : View.GONE);
+//            laundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.GONE : View.VISIBLE);
+//        } catch(Exception e) {
+//            Log.e(TAG, e.getMessage(), e);
+//        }
     }
 
     @Override

@@ -12,7 +12,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -25,16 +24,12 @@ import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.User.Type;
-import com.laundryapp.tubble.fragment.SchedulerFragment;
-import com.laundryapp.tubble.fragment.StatusFragment;
 import com.laundryapp.tubble.receivers.SendLaundryRequestReceiver;
+import com.laundryapp.tubble.receivers.SendLaundryStatusReceiver;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -46,7 +41,8 @@ public class Utility {
     private static final String USER_ID = "userId";
     private static final String USER_TYPE = "userType";
     private static final String DELIVERED = "sms_delivered";
-    public static String SENT = "com.laundryapp.tubble.SMS_SENT";
+    private static String SENT = "com.laundryapp.tubble.SMS_SENT";
+    private static String STATUS_SENT = "com.laundryapp.tubble.STATUS_SENT";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
@@ -146,22 +142,23 @@ public class Utility {
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
-            context.registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            details.setStatus(laundryStatus);
-                            details.save();
-                            Toast.makeText(context, "Laundry status updated.", Toast.LENGTH_SHORT).show();
-                            break;
-                        default:
-                            Toast.makeText(context, "Failed to change laundry request status. Please try again later.", Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                }
-            }, new IntentFilter(SENT));
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(STATUS_SENT), 0);
+//            context.registerReceiver(new BroadcastReceiver() {
+//                @Override
+//                public void onReceive(Context context, Intent intent) {
+//                    switch (getResultCode()) {
+//                        case Activity.RESULT_OK:
+//                            details.setStatus(laundryStatus);
+//                            details.save();
+//                            Toast.makeText(context, "Laundry status updated.", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        default:
+//                            Toast.makeText(context, "Failed to change laundry request status. Please try again later.", Toast.LENGTH_SHORT).show();
+//                            break;
+//                    }
+//                }
+//            }, new IntentFilter(SENT));
+            SendLaundryStatusReceiver.setBookingDetailsWaitingResponse(details, laundryStatus);
             smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
             Log.d(TAG, "Sending laundry status update...");
         } catch (Exception e) {

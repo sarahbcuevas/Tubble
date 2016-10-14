@@ -28,13 +28,19 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <receiver android:name=".receivers.SendLaundryStatusReceiver">
+            <intent-filter>
+                <action android:name="com.laundryapp.tubble.STATUS_SENT" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name=".receivers.SendLaundryRequestReceiver">
             <intent-filter>
                 <action android:name="com.laundryapp.tubble.SMS_SENT" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".SmsReceiver"
+        <receiver android:name=".receivers.SmsReceiver"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter android:priority="999">
                 <!--<action android:name="android.provider.Telephony.DATA_SMS_RECEIVED" />-->

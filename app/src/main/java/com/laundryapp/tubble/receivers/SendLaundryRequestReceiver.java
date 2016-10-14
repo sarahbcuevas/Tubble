@@ -16,7 +16,6 @@ import com.laundryapp.tubble.fragment.StatusFragment;
 public class SendLaundryRequestReceiver extends BroadcastReceiver {
 
     private final String TAG = this.getClass().getName();
-    final SmsManager smsManager = SmsManager.getDefault();
     private static BookingDetails details = null;
 
     @Override
@@ -37,6 +36,7 @@ public class SendLaundryRequestReceiver extends BroadcastReceiver {
                 break;
             case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                 Toast.makeText(context, "Sending laundry request failed. Please try again later.", Toast.LENGTH_SHORT).show();
+                break;
             default:
                 Log.d(TAG, "Laundry request was not sent.");
                 break;

@@ -1,4 +1,4 @@
-package com.laundryapp.tubble;
+package com.laundryapp.tubble.receivers;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -9,9 +9,11 @@ import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
+import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.fragment.LaundryRequestFragment;
+import com.laundryapp.tubble.fragment.StatusFragment;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
@@ -56,8 +58,8 @@ public class SmsReceiver extends BroadcastReceiver {
             message = message.substring("laundry{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
             User user = User.find(User.class, "m_Mobile_Number = ?", subStr[0]).get(0);
-            BookingDetails.Mode mode = subStr[1] == "1" ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY;
-            BookingDetails.Type type = subStr[2] == "1" ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL;
+            BookingDetails.Mode mode = (subStr[1].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
+            BookingDetails.Type type = (subStr[2].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
             BookingDetails booking = new BookingDetails(mode, type, Long.parseLong(subStr[4]), Utility.getUserId(context), user.getId(), user.getAddress(), subStr[5], Long.parseLong(subStr[6]), Long.parseLong(subStr[7]), Integer.parseInt(subStr[8]), Float.parseFloat(subStr[9]));
             booking.save();
             LaundryRequestFragment.updateBookingsList(context);
@@ -65,17 +67,27 @@ public class SmsReceiver extends BroadcastReceiver {
             message = message.substring("status{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
             BookingDetails.Status status = null;
-            if (subStr[0].equals(BookingDetails.Status.ACCEPTED)) {
+            if (subStr[0].equals(BookingDetails.Status.ACCEPTED.name())) {
                 status = BookingDetails.Status.ACCEPTED;
-            } else if (subStr[0].equals(BookingDetails.Status.REJECTED)) {
+            } else if (subStr[0].equals(BookingDetails.Status.REJECTED.name())) {
                 status = BookingDetails.Status.REJECTED;
-            } else if (subStr[0].equals(BookingDetails.Status.COMPLETED)) {
+            } else if (subStr[0].equals(BookingDetails.Status.COMPLETED.name())) {
                 status = BookingDetails.Status.COMPLETED;
             }
 
-            BookingDetails.Mode mode = subStr[1] == "1" ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY;
-            BookingDetails.Type type = subStr[2] == "1" ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL;
+            BookingDetails.Mode mode = (subStr[1].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
+            BookingDetails.Type type = (subStr[2].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
             String notes = subStr[5];
+
+            Log.d(TAG, "Mode: " + mode);
+            Log.d(TAG, "Type: " + type);
+            Log.d(TAG, "Laundry shop id: " + subStr[3]);
+            Log.d(TAG, "Service id: " + subStr[4]);
+            Log.d(TAG, "Notes: " + subStr[5]);
+            Log.d(TAG, "Pickup date: " + subStr[6]);
+            Log.d(TAG, "Return date: " + subStr[7]);
+            Log.d(TAG, "No. of clothes: " + subStr[8]);
+            Log.d(TAG, "Estimated kilo: " + subStr[9]);
 
             List<BookingDetails> booking;
             if (notes.equals("") || notes.equals(" ")) {
@@ -90,9 +102,11 @@ public class SmsReceiver extends BroadcastReceiver {
                         subStr[3], subStr[4], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
             }
 
+            Log.d(TAG, "booking found: " + booking.size());
             if (!booking.isEmpty()) {
                 booking.get(0).setStatus(status);
                 booking.get(0).save();
+                StatusFragment.updateLaundryList();
             }
         }
     }

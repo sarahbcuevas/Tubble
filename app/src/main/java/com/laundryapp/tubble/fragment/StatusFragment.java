@@ -225,6 +225,9 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         long detail_id = -1;
 
         for (BookingDetails detail : details) {
+            if (detail.getStatus() == Status.REJECTED) {
+                continue;
+            }
             long returnDate = detail.getReturnDate();
             if ((startTime <= returnDate) && (returnDate <= endTime)) {
                 isLaundryExists = true;
