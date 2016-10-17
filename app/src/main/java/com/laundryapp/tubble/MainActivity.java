@@ -1,5 +1,6 @@
 package com.laundryapp.tubble;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.Toolbar;
 
 import com.google.android.gms.appindexing.Action;
@@ -154,6 +158,19 @@ public class MainActivity extends FragmentActivity implements
                 Utility.logout(this);
                 return true;
             case R.id.action_search:
+                final Dialog dialog = new Dialog(MainActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.search_dialog);
+
+                ImageButton closeBtn = (ImageButton) dialog.findViewById(R.id.close_btn);
+                closeBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
+
+                dialog.show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

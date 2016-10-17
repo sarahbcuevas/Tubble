@@ -43,4 +43,9 @@
         <item quantity="one">min</item>
         <item quantity="other">mins</item>
     </plurals>
+
+    <!--Search Dialog-->
+    <string name="how_search">How would you like us to define your search?</string>
+    <string name="location">Location</string>
+    <string name="close">Close</string>
 </resources>
