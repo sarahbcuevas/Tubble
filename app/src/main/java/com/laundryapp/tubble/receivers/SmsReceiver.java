@@ -57,6 +57,9 @@ public class SmsReceiver extends BroadcastReceiver {
         } else if (message.startsWith("laundry")) {
             message = message.substring("laundry{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
+            if (!subStr[3].equals(Long.toString(Utility.getUserId(context)))) {
+                return;
+            }
             User user = User.find(User.class, "m_Mobile_Number = ?", subStr[0]).get(0);
             BookingDetails.Mode mode = (subStr[1].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
             BookingDetails.Type type = (subStr[2].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);

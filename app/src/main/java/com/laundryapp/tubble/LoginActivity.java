@@ -61,6 +61,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Utility.setUserId(getApplicationContext(), shops.get(0).getId());
                             Intent nextActivity = new Intent(this, MainActivity.class);
                             nextActivity.putExtra(MainActivity.USER_ID, shops.get(0).getId());
+                            nextActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(nextActivity);
                         }
                     } else {
@@ -68,6 +70,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         Utility.setUserId(getApplicationContext(), users.get(0).getId());
                         Intent nextActivity = new Intent(this, MainActivity.class);
                         nextActivity.putExtra(MainActivity.USER_ID, users.get(0).getId());
+                        nextActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        nextActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(nextActivity);
                     }
                 }

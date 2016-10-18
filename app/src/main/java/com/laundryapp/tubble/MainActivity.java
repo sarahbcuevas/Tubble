@@ -149,9 +149,15 @@ public class MainActivity extends FragmentActivity implements
 
     private void updateOptionsMenu() {
         int currentTab = mViewPager.getCurrentItem();
-        menuSearch.setVisible(currentTab == 0);     // Find Fragment
-        menuStatus.setVisible(currentTab == 2);     // Status Fragment
+        User.Type userType = Utility.getUserType(getApplicationContext());
         menuLogout.setVisible(currentTab == 4);     // Profile Fragment
+        if (userType == User.Type.CUSTOMER) {
+            menuSearch.setVisible(currentTab == 0);     // Find Fragment
+            menuStatus.setVisible(currentTab == 2);     // Status Fragment
+        } else if (userType == User.Type.LAUNDRY_SHOP) {
+            menuSearch.setVisible(false);
+            menuStatus.setVisible(false);
+        }
         menuCancel.setVisible(false);
     }
 
@@ -182,9 +188,18 @@ public class MainActivity extends FragmentActivity implements
                 menuCancel.setVisible(true);
                 return true;
             case R.id.action_cancel:
-                StatusFragment.updateLaundryList();
-                menuStatus.setVisible(true);
-                menuCancel.setVisible(false);
+                if (mViewPager.getCurrentItem() == 1) {             // Scheduler Fragment
+                    SchedulerFragment.onBackPressed();
+                    menuCancel.setVisible(false);
+                } else if (mViewPager.getCurrentItem() == 2) {     // Status Fragment
+                    StatusFragment.updateLaundryList();
+                    menuCancel.setVisible(false);
+                    User.Type userType = Utility.getUserType(getApplicationContext());
+                    if (userType == User.Type.CUSTOMER) {
+                        menuStatus.setVisible(true);
+                    }
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -214,8 +229,8 @@ public class MainActivity extends FragmentActivity implements
     public void onBackPressed() {
         boolean onBackPressed = false;
         if (mViewPager.getCurrentItem() == 1) { // Scheduler Fragment
-//            onBackPressed = ((SchedulerFragment) mTabPagerAdapter.getItem(1)).onBackPressed();
             onBackPressed = SchedulerFragment.onBackPressed();
+            menuCancel.setVisible(false);
         } else if (mViewPager.getCurrentItem() == 2) { // Status Fragment
             if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.APPROVED_STATUS_LIST) {
                 StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
@@ -230,6 +245,10 @@ public class MainActivity extends FragmentActivity implements
             } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {
                 StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
                 StatusFragment.updateLaundryList();
+                User.Type userType = Utility.getUserType(getApplicationContext());
+                if (userType == User.Type.LAUNDRY_SHOP) {
+                    menuCancel.setVisible(false);
+                }
                 onBackPressed = true;
             }
         } else if (mViewPager.getCurrentItem() == 4) {  // Profile Fragment
@@ -244,6 +263,11 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public void onViewLaundryScheduleDetails() {
+        menuCancel.setVisible(true);
     }
 
     @Override

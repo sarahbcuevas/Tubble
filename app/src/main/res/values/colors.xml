@@ -17,4 +17,6 @@
     <color name="booking_field_location_hint_text">#A6A6A6</color>
 
     <color name="search_blue">#3499C6</color>
+
+    <color name="disabled_button">#A6A6A6</color>
 </resources>
