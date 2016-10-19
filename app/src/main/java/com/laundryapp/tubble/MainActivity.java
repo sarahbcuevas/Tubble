@@ -307,7 +307,10 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onBackPressed() {
         boolean onBackPressed = false;
-        if (mViewPager.getCurrentItem() == 1) { // Scheduler Fragment
+        if (mViewPager.getCurrentItem() == 0) { // Find Fragment
+            onBackPressed = FindFragment.onBackPressed();
+            menuCancel.setVisible(false);
+        } else if (mViewPager.getCurrentItem() == 1) { // Scheduler Fragment
             onBackPressed = SchedulerFragment.onBackPressed();
             menuCancel.setVisible(false);
         } else if (mViewPager.getCurrentItem() == 2) { // Status Fragment

@@ -56,8 +56,8 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     private String mParam1;
     private String mParam2;
 
-    private FrameLayout mapLayout;
-    private LinearLayout infoLayout;
+    private static FrameLayout mapLayout;
+    private static LinearLayout infoLayout;
 
     private GoogleMap myMap;
     private MapView mMapView;
@@ -289,6 +289,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
         LaundryShop shop = LaundryShop.find(LaundryShop.class, "m_Name = ?", marker.getTitle()).get(0);
 
         mapLayout.setVisibility(View.GONE);
+        searchResultsLayout.setVisibility(View.GONE);
         infoLayout.setVisibility(View.VISIBLE);
 
         TextView shopNameText = (TextView) infoLayout.findViewById(R.id.shop_name);
@@ -300,6 +301,8 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
     public static void showSearchResults(List<LaundryShop> laundryShops) {
         searchResultsLayout.setVisibility(View.VISIBLE);
+        mapLayout.setVisibility(View.GONE);
+        infoLayout.setVisibility(View.GONE);
 
         RecyclerView recyclerView = (RecyclerView) searchResultsLayout.findViewById(R.id.search_recyclerview);
         recyclerView.setHasFixedSize(true);
@@ -313,6 +316,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     @Override
     public void onItemClick(String name) {
         searchResultsLayout.setVisibility(View.GONE);
+        infoLayout.setVisibility(View.GONE);
         mapLayout.setVisibility(View.VISIBLE);
 
         for (int i = 0; i < mapMarkers.size(); i++) {
@@ -322,6 +326,18 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
                 break;
             }
         }
+    }
+
+    public static boolean onBackPressed() {
+        if (infoLayout.getVisibility() == View.VISIBLE || searchResultsLayout.getVisibility() == View.VISIBLE) {
+            infoLayout.setVisibility(View.GONE);
+            searchResultsLayout.setVisibility(View.GONE);
+            mapLayout.setVisibility(View.VISIBLE);
+
+            // true handled
+            return true;
+        }
+        return false;
     }
 
     /**

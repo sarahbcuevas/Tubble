@@ -22,7 +22,8 @@
         android:id="@+id/search_results"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="match_parent"
@@ -37,8 +38,8 @@
             android:id="@+id/search_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@android:color/white"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:background="@android:color/white" />
     </LinearLayout>
 
     <LinearLayout
