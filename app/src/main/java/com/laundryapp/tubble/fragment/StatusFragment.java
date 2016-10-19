@@ -389,6 +389,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     }
 
     public static void updateLaundryScheduleDetailsLayout(long detailsId) {
+        selectedBookingId = detailsId;
         setCheckStatusFromScheduler(STATUS_LIST);
         final BookingDetails details = BookingDetails.findById(BookingDetails.class, detailsId);
         if (details == null) {
@@ -469,7 +470,11 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                     return;
                 }
 
-                Utility.sendEditDetailsThruSms(mContext, details, newFee, newNoOfClothes, newEstimatedKilo);
+                if (details.getFee() == newFee && details.getNoOfClothes() == newNoOfClothes && details.getEstimatedKilo() == newEstimatedKilo) {
+                    // do nothing
+                } else {
+                    Utility.sendEditDetailsThruSms(mContext, details, newFee, newNoOfClothes, newEstimatedKilo);
+                }
 
                 editButton.setVisibility(View.VISIBLE);
                 doneButton.setVisibility(View.GONE);
@@ -602,6 +607,21 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                         Toast.makeText(mContext, "No contact number available.", Toast.LENGTH_SHORT).show();
                     }
                 }
+                break;
+            case R.id.processing_button:
+                BookingDetails details2 = BookingDetails.findById(BookingDetails.class, selectedBookingId);
+                details2.setStatus(Status.PROCESSING);
+                Utility.sendLaundryStatusThruSms(mContext, details2, Status.PROCESSING);
+                processingBg.setBackgroundColor(ContextCompat.getColor(mContext, R.color.tubble_yellow));
+                processingButton.setEnabled(false);
+                returningButton.setEnabled(true);
+                break;
+            case R.id.returning_button:
+                BookingDetails details3 = BookingDetails.findById(BookingDetails.class, selectedBookingId);
+                details3.setStatus(Status.COMPLETED);
+                Utility.sendLaundryStatusThruSms(mContext, details3, Status.COMPLETED);
+                returningBg.setBackgroundColor(ContextCompat.getColor(mContext, R.color.tubble_yellow));
+                returningButton.setEnabled(false);
                 break;
             default:
                 break;
