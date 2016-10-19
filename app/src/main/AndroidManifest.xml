@@ -34,6 +34,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".receivers.EditLaundryDetailsReceiver">
+            <intent-filter>
+                <action android:name="com.laundryapp.tubble.EDIT_DETAILS_SENT" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name=".receivers.SendLaundryRequestReceiver">
             <intent-filter>
                 <action android:name="com.laundryapp.tubble.SMS_SENT" />

@@ -30,6 +30,9 @@
 
     <string name="disclaimer">Disclaimer:\nTubble does not hold responsibility over any damages incurred and loss of items. In case of any missing or damaged items, please contact your laundry service provider.</string>
 
+    <string name="no_laundry_for_the_week">Seems like you did your\nlaundry for the week.\nGreat job!</string>
+    <string name="no_approved_bookings">No approved bookings.</string>
+
     <plurals name="plural_day">
         <item quantity="one">day</item>
         <item quantity="other">days</item>

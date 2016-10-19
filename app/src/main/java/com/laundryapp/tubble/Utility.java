@@ -24,6 +24,7 @@ import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.User.Type;
+import com.laundryapp.tubble.receivers.EditLaundryDetailsReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryRequestReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryStatusReceiver;
 
@@ -43,6 +44,7 @@ public class Utility {
     private static final String DELIVERED = "sms_delivered";
     private static String SENT = "com.laundryapp.tubble.SMS_SENT";
     private static String STATUS_SENT = "com.laundryapp.tubble.STATUS_SENT";
+    private static String EDIT_DETAILS_SENT = "com.laundryapp.tubble.EDIT_DETAILS_SENT";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
@@ -122,6 +124,7 @@ public class Utility {
         String returnDate = Long.toString(details.getReturnDate());
         String noOfClothes = Integer.toString(details.getNoOfClothes());
         String estimatedKilo = Float.toString(details.getEstimatedKilo());
+        String fee = Float.toString(details.getFee());
         String message = "status{" +
                 status + DELIMETER +
                 mode + DELIMETER +
@@ -132,7 +135,8 @@ public class Utility {
                 pickupDate + DELIMETER +
                 returnDate + DELIMETER +
                 noOfClothes + DELIMETER +
-                estimatedKilo + "}";
+                estimatedKilo + DELIMETER +
+                fee + "}";
 
         Log.d(TAG, "Message: " + message);
         User user = User.findById(User.class, details.getUserId());
@@ -143,27 +147,59 @@ public class Utility {
         try {
             SmsManager smsManager = SmsManager.getDefault();
             PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(STATUS_SENT), 0);
-//            context.registerReceiver(new BroadcastReceiver() {
-//                @Override
-//                public void onReceive(Context context, Intent intent) {
-//                    switch (getResultCode()) {
-//                        case Activity.RESULT_OK:
-//                            details.setStatus(laundryStatus);
-//                            details.save();
-//                            Toast.makeText(context, "Laundry status updated.", Toast.LENGTH_SHORT).show();
-//                            break;
-//                        default:
-//                            Toast.makeText(context, "Failed to change laundry request status. Please try again later.", Toast.LENGTH_SHORT).show();
-//                            break;
-//                    }
-//                }
-//            }, new IntentFilter(SENT));
             SendLaundryStatusReceiver.setBookingDetailsWaitingResponse(details, laundryStatus);
             smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
             Log.d(TAG, "Sending laundry status update...");
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
+    }
+
+    public static void sendEditDetailsThruSms(Context context, final BookingDetails details, float tempFee, int tempNoOfClothes, float tempEstimatedKilo) {
+        // To do: Implement sending of edited laundry schedule details
+        String newFee = Float.toString(tempFee);
+        String newNoOfClothes = Integer.toString(tempNoOfClothes);
+        String newEstimatedKilo = Float.toString(tempEstimatedKilo);
+
+        String mode = Integer.toString(details.getMode() == BookingDetails.Mode.PICKUP ? 1 : 2);
+        String type = Integer.toString(details.getType() == BookingDetails.Type.COMMERCIAL ? 1 : 2);
+        String laundryShopId = Long.toString(Utility.getUserId(context));
+        String serviceId = Long.toString(details.getLaundryServiceId());
+        String notes = details.getNotes().equals("") ? " " : details.getNotes();
+        String pickupDate = Long.toString(details.getPickupDate());
+        String returnDate = Long.toString(details.getReturnDate());
+        String noOfClothes = Integer.toString(details.getNoOfClothes());
+        String estimatedKilo = Float.toString(details.getEstimatedKilo());
+        String fee = Float.toString(details.getFee());
+        String message = "edit{" +
+                newFee + DELIMETER +
+                newNoOfClothes + DELIMETER +
+                newEstimatedKilo + DELIMETER +
+                mode + DELIMETER +
+                type + DELIMETER +
+                laundryShopId + DELIMETER +
+                serviceId + DELIMETER +
+                notes + DELIMETER +
+                pickupDate + DELIMETER +
+                returnDate + DELIMETER +
+                noOfClothes + DELIMETER +
+                estimatedKilo + DELIMETER +
+                fee + "}";
+
+        Log.d(TAG, "Message: " + message);
+        User user = User.findById(User.class, details.getUserId());
+        String phoneNo = user.getMobileNumber();
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(EDIT_DETAILS_SENT), 0);
+            EditLaundryDetailsReceiver.setBookingDetailsWaitingResponse(details, tempFee, tempNoOfClothes, tempEstimatedKilo);
+            smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
+            Log.d(TAG, "Sending laundry details update...");
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
     }
 
     public static void sendLaundryRequestThruSms(Context context, final BookingDetails details) {
@@ -183,6 +219,7 @@ public class Utility {
         String returnDate = Long.toString(details.getReturnDate());
         String noOfClothes = Integer.toString(details.getNoOfClothes());
         String estimatedKilo = Float.toString(details.getEstimatedKilo());
+        String estimatedFee = Float.toString(details.getFee());
         message = "laundry{" +
                 userMobile + DELIMETER +
                 mode + DELIMETER +
@@ -193,7 +230,8 @@ public class Utility {
                 pickupDate + DELIMETER +
                 returnDate + DELIMETER +
                 noOfClothes + DELIMETER +
-                estimatedKilo + "}";
+                estimatedKilo + DELIMETER +
+                estimatedFee + "}";
         Log.d(TAG, "Message before sending: " + message);
 
         userInfo = "user{" +
@@ -211,28 +249,6 @@ public class Utility {
         try {
             SmsManager smsManager = SmsManager.getDefault();
             PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
-//            context.registerReceiver(new BroadcastReceiver() {
-//                @Override
-//                public void onReceive(Context context, Intent intent) {
-//                    switch (getResultCode()) {
-//                        case Activity.RESULT_OK:
-//                            details.save();
-//                            SchedulerFragment.updateScheduleListAndCalendar();
-//                            StatusFragment.updateLaundryList();
-//                            Toast.makeText(context, "Laundry request has been sent.", Toast.LENGTH_SHORT).show();
-//                            Log.d(TAG, "Laundry request has been sent.");
-//                            break;
-//                        case SmsManager.RESULT_ERROR_NO_SERVICE:
-//                            Toast.makeText(context, "Error sending laundry request: No service available", Toast.LENGTH_SHORT).show();
-//                            break;
-//                        case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-//                            Toast.makeText(context, "Sending laundry request failed. Please try again later.", Toast.LENGTH_SHORT).show();
-//                        default:
-//                            Log.d(TAG, "Laundry request was not sent.");
-//                            break;
-//                    }
-//                }
-//            }, new IntentFilter(SENT));
             SendLaundryRequestReceiver.setBookingDetailsWaitingResponse(details);
             smsManager.sendDataMessage(phoneNo, null, PORT, userInfo.getBytes(), sentIntent, null);
             byte[] b = message.getBytes();

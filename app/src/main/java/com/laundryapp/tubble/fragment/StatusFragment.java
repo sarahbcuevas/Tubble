@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -65,7 +66,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     /* No laundry layout */
     TextView noLaundryShopText, noLaundryPickup, noLaundryDelivery;
     static RelativeLayout nextScheduleLayout;
-    static TextView nextLaundryShop, nextPickup, nextReturn;
+    static TextView nextLaundryShop, nextPickup, nextReturn, noLaundryDetails;
     private ImageView nextAddButton, nextCancelButton;
 
     /* Laundry Processed */
@@ -82,9 +83,10 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
 
     /* Laundry Schedule Details */
     private static TextView scheduleCustomer, scheduleFee, scheduleMode, scheduleType, scheduleLocation, scheduleService, schedulePickupDate, schedulePickupLocation, scheduleDeliveryDate, scheduleDeliveryLocation, scheduleNoOfClothes, scheduleEstimatedKilo, scheduleNotes;
-    private static ImageView editButton;
+    private static ImageView editButton, doneButton;
     private static LinearLayout laundryAcceptedButton, processingButton, returningButton;
     private static RelativeLayout laundryAcceptedBg, processingBg, returningBg;
+    private static EditText feeEdittext, noOfClothesEdittext, estimatedKiloEdittext;
 
     private static OnFragmentInteractionListener mListener;
     private static Context mContext;
@@ -136,6 +138,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         laundryScheduleDetailsLayout = (LinearLayout) fragmentView.findViewById(R.id.laundry_schedule_details);
 
         /* No Laundry Layout */
+        noLaundryDetails = (TextView) noLaundryLayout.findViewById(R.id.details);
         nextScheduleLayout = (RelativeLayout) noLaundryLayout.findViewById(R.id.next_schedule);
         nextLaundryShop = (TextView) nextScheduleLayout.findViewById(R.id.laundry_shop_text);
         nextPickup = (TextView) nextScheduleLayout.findViewById(R.id.pick_up_text);
@@ -184,6 +187,10 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         laundryAcceptedBg = (RelativeLayout) laundryScheduleDetailsLayout.findViewById(R.id.laundry_accepted_bg);
         processingBg = (RelativeLayout) laundryScheduleDetailsLayout.findViewById(R.id.processing_bg);
         returningBg = (RelativeLayout) laundryScheduleDetailsLayout.findViewById(R.id.returning_bg);
+        feeEdittext = (EditText) laundryScheduleDetailsLayout.findViewById(R.id.fee_edittext);
+        noOfClothesEdittext = (EditText) laundryScheduleDetailsLayout.findViewById(R.id.no_of_clothes_edittext);
+        estimatedKiloEdittext = (EditText) laundryScheduleDetailsLayout.findViewById(R.id.estimated_kilo_edittext);
+        doneButton = (ImageView) laundryScheduleDetailsLayout.findViewById(R.id.done_button);
 
         nextAddButton.setOnClickListener(this);
         nextCancelButton.setOnClickListener(this);
@@ -311,7 +318,6 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                             onCheckBookingStatus(id, StatusFragment.STATUS_LIST);
                         } else if (userType == User.Type.LAUNDRY_SHOP) {
                             updateLaundryScheduleDetailsLayout(id);
-                            // To do: View/Edit Laundry Request by LSP
                         }
                     }
                 });
@@ -329,7 +335,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         laundryScheduleDetailsLayout.setVisibility(View.GONE);
         if(isLaundryExists) {
             noLaundryLayout.setVisibility(View.GONE);
-            if (laundryListLayoutList.getChildCount() == 1) {
+            if (laundryListLayoutList.getChildCount() == 1 && Utility.getUserType(mContext) == User.Type.CUSTOMER) {
                 laundryListLayout.setVisibility(View.GONE);
                 laundryProcessedLayout.setVisibility(View.VISIBLE);
                 updateLaundryProcessedLayout(detail_id);
@@ -338,6 +344,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             }
         } else {
             noLaundryLayout.setVisibility(View.VISIBLE);
+            noLaundryDetails.setText(R.string.no_laundry_for_the_week);
             laundryListLayout.setVisibility(View.GONE);
             if (nextLaundry == null) {
                 nextScheduleLayout.setVisibility(View.GONE);
@@ -381,9 +388,9 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private static void updateLaundryScheduleDetailsLayout(long detailsId) {
+    public static void updateLaundryScheduleDetailsLayout(long detailsId) {
         setCheckStatusFromScheduler(STATUS_LIST);
-        BookingDetails details = BookingDetails.findById(BookingDetails.class, detailsId);
+        final BookingDetails details = BookingDetails.findById(BookingDetails.class, detailsId);
         if (details == null) {
             return;
         }
@@ -392,6 +399,15 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         noLaundryLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
+        editButton.setVisibility(View.VISIBLE);
+        doneButton.setVisibility(View.GONE);
+        scheduleFee.setVisibility(View.VISIBLE);
+        feeEdittext.setVisibility(View.GONE);
+        scheduleNoOfClothes.setVisibility(View.VISIBLE);
+        noOfClothesEdittext.setVisibility(View.GONE);
+        scheduleEstimatedKilo.setVisibility(View.VISIBLE);
+        estimatedKiloEdittext.setVisibility(View.GONE);
+
         mListener.onViewLaundryScheduleDetails();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
@@ -408,6 +424,69 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         scheduleNoOfClothes.setText(details.getNoOfClothes() + "");
         scheduleEstimatedKilo.setText(details.getEstimatedKilo() + "kg");
         scheduleNotes.setText(details.getNotes());
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editButton.setVisibility(View.GONE);
+                doneButton.setVisibility(View.VISIBLE);
+
+                scheduleFee.setVisibility(View.GONE);
+                feeEdittext.setVisibility(View.VISIBLE);
+                scheduleNoOfClothes.setVisibility(View.GONE);
+                noOfClothesEdittext.setVisibility(View.VISIBLE);
+                scheduleEstimatedKilo.setVisibility(View.GONE);
+                estimatedKiloEdittext.setVisibility(View.VISIBLE);
+
+                feeEdittext.setText(details.getFee() + "");
+                noOfClothesEdittext.setText(details.getNoOfClothes() + "");
+                estimatedKiloEdittext.setText(details.getEstimatedKilo() + "");
+            }
+        });
+
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                float newFee, newEstimatedKilo;
+                int newNoOfClothes;
+                try {
+                    newFee = Float.parseFloat(feeEdittext.getText().toString());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(mContext, "Fee input invalid.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                try {
+                    newNoOfClothes = Integer.parseInt(noOfClothesEdittext.getText().toString());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(mContext, "No. of clothes input invalid.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                try {
+                    newEstimatedKilo = Float.parseFloat(estimatedKiloEdittext.getText().toString());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(mContext, "Estimated kilo input invalid.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Utility.sendEditDetailsThruSms(mContext, details, newFee, newNoOfClothes, newEstimatedKilo);
+
+                editButton.setVisibility(View.VISIBLE);
+                doneButton.setVisibility(View.GONE);
+
+                scheduleFee.setVisibility(View.VISIBLE);
+                feeEdittext.setVisibility(View.GONE);
+                scheduleNoOfClothes.setVisibility(View.VISIBLE);
+                noOfClothesEdittext.setVisibility(View.GONE);
+                scheduleEstimatedKilo.setVisibility(View.VISIBLE);
+                estimatedKiloEdittext.setVisibility(View.GONE);
+
+                feeEdittext.setText("");
+                noOfClothesEdittext.setText("");
+                estimatedKiloEdittext.setText("");
+
+            }
+        });
 
         Status status = details.getStatus();
         int yellow = ContextCompat.getColor(mContext, R.color.tubble_yellow);
@@ -536,9 +615,12 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
 
         List<BookingDetails> approvedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.ACCEPTED.name());
         List<BookingDetails> deniedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.REJECTED.name());
+        List<BookingDetails> newBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.NEW.name());
 
         if (approvedBookings.isEmpty() && deniedBookings.isEmpty()) {
             noLaundryLayout.setVisibility(View.VISIBLE);
+            noLaundryDetails.setText(R.string.no_approved_bookings);
+            nextScheduleLayout.setVisibility(View.GONE);
             approvedBookingsStatus.setVisibility(View.GONE);
             return;
         } else {

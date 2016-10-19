@@ -659,7 +659,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             calendar.set(returnDate.year, returnDate.month, returnDate.date, returnTime.hour, returnTime.minute);
             final long returnMillis = calendar.getTimeInMillis();
             String ret = format.format(calendar.getTime());
-            float estimatedFee = LaundryShopService.findById(LaundryShopService.class, laundryShopService_id).getPrice() * Float.parseFloat(mEstimatedKilo);
+            final float estimatedFee = LaundryShopService.findById(LaundryShopService.class, laundryShopService_id).getPrice() * Float.parseFloat(mEstimatedKilo);
 
             String message = "Please confirm details below:\n\n" +
                     "Mode: " + (mMode == BookingDetails.Mode.DELIVERY ? "Delivery" : "Pick-Up") + "\n" +
@@ -691,7 +691,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    BookingDetails booking = new BookingDetails(mMode, mType, laundryShopService_id, laundryShop_id, mUserId, mLocation, mNotes, pickupMillis, returnMillis, Integer.parseInt(mNoOfClothes), Float.parseFloat(mEstimatedKilo));
+                    BookingDetails booking = new BookingDetails(mMode, mType, laundryShopService_id, laundryShop_id, mUserId, mLocation, mNotes, pickupMillis, returnMillis, Integer.parseInt(mNoOfClothes), Float.parseFloat(mEstimatedKilo), estimatedFee);
 //                    booking.save();
                     reset();
                     Utility.sendLaundryRequestThruSms(getContext(), booking);

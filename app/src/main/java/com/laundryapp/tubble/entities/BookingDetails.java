@@ -25,13 +25,13 @@ public class BookingDetails extends SugarRecord {
     private String mLocation, mNotes;
     private long mPickupDate, mReturnDate, mDateCreated;
     private int mNoOfClothes;
-    private float mEstimatedKilo;
+    private float mEstimatedKilo, mFee;
     public static final String BOOKING_URI = "booking_uri";
 
     public BookingDetails() {
     }
 
-    public BookingDetails(Mode mMode, Type mType, long mServiceId, long mLaundryShopId, long mUserId, String mLocation, String mNotes, long mPickupDate, long mReturnDate, int mNoOfClothes, float mEstimatedKilo) {
+    public BookingDetails(Mode mMode, Type mType, long mServiceId, long mLaundryShopId, long mUserId, String mLocation, String mNotes, long mPickupDate, long mReturnDate, int mNoOfClothes, float mEstimatedKilo, float mFee) {
         this.mMode = mMode;
         this.mType = mType;
         this.mServiceId = mServiceId;
@@ -43,6 +43,7 @@ public class BookingDetails extends SugarRecord {
         this.mReturnDate = mReturnDate;
         this.mNoOfClothes = mNoOfClothes;
         this.mEstimatedKilo = mEstimatedKilo;
+        this.mFee = mFee;
         this.mStatus = Status.NEW;
         this.mDateCreated = System.currentTimeMillis();
     }
@@ -91,8 +92,9 @@ public class BookingDetails extends SugarRecord {
     }
 
     public float getFee() {
-        LaundryShopService service = LaundryShopService.findById(LaundryShopService.class, mServiceId);
-        return mEstimatedKilo * service.getPrice();
+//        LaundryShopService service = LaundryShopService.findById(LaundryShopService.class, mServiceId);
+//        return mEstimatedKilo * service.getPrice();
+        return mFee;
     }
 
     public String getLocation() {
@@ -128,4 +130,16 @@ public class BookingDetails extends SugarRecord {
     public float getEstimatedKilo() { return mEstimatedKilo; }
 
     public String getNotes() { return mNotes; }
+
+    public void setFee(float fee) {
+        this.mFee = fee;
+    }
+
+    public void setNoOfClothes(int noOfClothes) {
+        this.mNoOfClothes = noOfClothes;
+    }
+
+    public void setEstimatedKilo(float estimatedKilo) {
+        this.mEstimatedKilo = estimatedKilo;
+    }
 }
