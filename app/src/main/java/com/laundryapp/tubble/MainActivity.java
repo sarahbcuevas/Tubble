@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -48,6 +49,8 @@ public class MainActivity extends FragmentActivity implements
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
+    private Context mContext;
+
     private MenuItem menuSearch, menuLogout, menuStatus, menuCancel;
 
     public static final String USER_ID = "user_id";
@@ -79,6 +82,8 @@ public class MainActivity extends FragmentActivity implements
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         initializeFragments();
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        mContext = this;
     }
 
     private void initializeFragments() {
@@ -368,7 +373,28 @@ public class MainActivity extends FragmentActivity implements
         }
 
         if (!onBackPressed) {
-            super.onBackPressed();
+            final Dialog dialog = new Dialog(MainActivity.this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.shut_down_dialog);
+
+            Button closeBtn = (Button) dialog.findViewById(R.id.cancel_button);
+            closeBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.cancel();
+                }
+            });
+
+            Button shutdownBtn = (Button) dialog.findViewById(R.id.shut_down_button);
+            shutdownBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mContext.super.on
+                }
+            });
+
+            dialog.show();
+//            super.onBackPressed();
         }
     }
 
