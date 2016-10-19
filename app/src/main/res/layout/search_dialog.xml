@@ -27,12 +27,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:layout_marginBottom="20dp"
             android:gravity="center_horizontal"
-            android:textColor="@android:color/black"
             android:text="@string/how_search"
+            android:textColor="@android:color/black"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -43,10 +43,13 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:background="@drawable/spinner_bg">
+
             <Spinner
                 android:id="@+id/service_spinner"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                android:layout_centerInParent="true"
+                android:prompt="@string/service" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -56,10 +59,14 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:background="@drawable/spinner_bg">
+
             <Spinner
                 android:id="@+id/rating_spinner"
                 android:layout_width="match_parent"
-                android:layout_height="30dp" />
+                android:layout_height="30dp"
+                android:layout_centerInParent="true"
+                android:gravity="center_horizontal"
+                android:prompt="@string/rating" />
         </RelativeLayout>
 
         <EditText
@@ -79,7 +86,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="10dp"
             android:background="@color/tubble_yellow"
             android:contentDescription="@string/location"
             android:scaleType="fitCenter"

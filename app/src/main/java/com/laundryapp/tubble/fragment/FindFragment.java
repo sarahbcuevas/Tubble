@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.laundryapp.tubble.R;
+import com.laundryapp.tubble.SearchResultsAdapter;
 import com.laundryapp.tubble.entities.LaundryShop;
 
 import java.lang.reflect.Field;
@@ -61,6 +64,8 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     private List<Marker> mapMarkers = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
+
+//    private LinearLayout searchResultsLayout;
 
     public FindFragment() {
         // Required empty public constructor
@@ -101,6 +106,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
         mapLayout = (FrameLayout) view.findViewById(R.id.map_layout);
         infoLayout = (LinearLayout) view.findViewById(R.id.shop_info_layout);
+//        searchResultsLayout = (LinearLayout) view.findViewById(R.id.search_results);
 
         try {
             MapsInitializer.initialize(this.getActivity());
@@ -286,6 +292,21 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
         shopNameText.setText(shop.getName());
         laundryRating.setRating(shop.getRating());
+    }
+
+    public void showSearchResults(List<LaundryShop> laundryShops) {
+        LinearLayout searchResultsLayout = (LinearLayout) FindFragment.this.getView().findViewById(R.id.search_results);
+        searchResultsLayout.setVisibility(View.VISIBLE);
+
+        RecyclerView recyclerView = (RecyclerView) searchResultsLayout.findViewById(R.id.search_recyclerview);
+        recyclerView.setHasFixedSize(true);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(FindFragment.this.getContext());
+        recyclerView.setLayoutManager(layoutManager);
+
+        SearchResultsAdapter adapter = new SearchResultsAdapter(laundryShops);
+
+        recyclerView.setAdapter(adapter);
     }
 
     /**

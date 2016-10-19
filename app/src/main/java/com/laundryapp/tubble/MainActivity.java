@@ -10,17 +10,23 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toolbar;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
+import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.fragment.FindFragment;
 import com.laundryapp.tubble.fragment.LaundryRequestFragment;
@@ -28,6 +34,9 @@ import com.laundryapp.tubble.fragment.ProfileFragment;
 import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
 import com.laundryapp.tubble.fragment.TipsFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends FragmentActivity implements
         FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener,
@@ -170,10 +179,87 @@ public class MainActivity extends FragmentActivity implements
                     }
                 });
 
+                final Spinner ratingSpinner = (Spinner) dialog.findViewById(R.id.rating_spinner);
+                List<String> ratings = new ArrayList<String>();
+                ratings.add("Rating");
+                ratings.add("1");
+                ratings.add("2");
+                ratings.add("3");
+                ratings.add("4");
+                ratings.add("5");
+
+                // Creating adapter for spinner
+                ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                        android.R.layout.simple_spinner_item, ratings);
+
+                // Drop down layout style - list view with radio button
+                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                // attaching data adapter to spinner
+                ratingSpinner.setAdapter(dataAdapter);
+
+                final Spinner serviceSpinner = (Spinner) dialog.findViewById(R.id.service_spinner);
+                List<String> services = new ArrayList<String>();
+                services.add("Service");
+
+                List<LaundryService> serviceList = LaundryService.listAll(LaundryService.class);
+                for (LaundryService service : serviceList) {
+                    services.add(service.getLabel());
+                }
+
+                // Creating adapter for spinner
+                ArrayAdapter<String> data1Adapter = new ArrayAdapter<String>(this,
+                        android.R.layout.simple_spinner_item, services);
+
+                // Drop down layout style - list view with radio button
+                data1Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                // attaching data adapter to spinner
+                serviceSpinner.setAdapter(data1Adapter);
+
+                final EditText location = (EditText) dialog.findViewById(R.id.location_search);
+
+                ImageButton searchBtn = (ImageButton) dialog.findViewById(R.id.search_btn);
+                searchBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.e("Search", "Click");
+                        int ratingPos = ratingSpinner.getSelectedItemPosition();
+                        int servicePos = serviceSpinner.getSelectedItemPosition();
+                        openSearchResults(ratingPos, servicePos, location.getText().toString());
+                    }
+                });
+
                 dialog.show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void openSearchResults(int ratingPos, int servicePos, String location) {
+        Log.e("Search", "rating, service, text " + ratingPos + ", " + servicePos + ", " + location);
+        List<LaundryService> serviceList = LaundryService.listAll(LaundryService.class);
+
+        List<LaundryShopService> shopsWithService = LaundryShopService.find(
+                LaundryShopService.class, "m_Laundry_Service_Id  = ?", serviceList.get(0).getId() + "");
+        Log.e("Search", "shopswithservice + " + shopsWithService.toString());
+
+        List<LaundryShop> elligibleShops = new ArrayList<>();
+        for (LaundryShopService tempShop : shopsWithService) {
+            LaundryShop shop = LaundryShop.findById(LaundryShop.class, tempShop.getLaundryShopId());
+            Log.e("Search", "shopwithservice" + shop.getName() + " , " + shop.getRating() + " ; " + shop.getAddress());
+
+            if (shop.getRating() >= ratingPos && shop.getAddress().contains(location)) {
+                Log.e("Search", "ellig" + shop.getName() + " , " + shop.getRating() + " ; " + shop.getAddress());
+                elligibleShops.add(shop);
+            }
+        }
+        Fragment fragment = mTabPagerAdapter.getItem(mViewPager.getCurrentItem());
+        if (fragment instanceof FindFragment) {
+            Log.e("Search", "ellig find fragment");
+            FindFragment findFragment = (FindFragment) fragment;
+            findFragment.showSearchResults(elligibleShops);
         }
     }
 

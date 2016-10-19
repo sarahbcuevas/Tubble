@@ -5,7 +5,7 @@ import com.orm.SugarRecord;
 public class LaundryShopService extends SugarRecord {
 
     private long laundryshop_id;
-    private long laundryservice_id;
+    private long mLaundryServiceId;
     private float mPrice;
 
     public LaundryShopService() {
@@ -13,7 +13,7 @@ public class LaundryShopService extends SugarRecord {
 
     public LaundryShopService(long laundryshop_id, long laundryservice_id, float mPrice) {
         this.laundryshop_id = laundryshop_id;
-        this.laundryservice_id = laundryservice_id;
+        this.mLaundryServiceId = laundryservice_id;
         this.mPrice = mPrice;
     }
 
@@ -22,7 +22,7 @@ public class LaundryShopService extends SugarRecord {
     }
 
     public long getLaundryServiceId() {
-        return laundryservice_id;
+        return mLaundryServiceId;
     }
 
     public float getPrice() {
