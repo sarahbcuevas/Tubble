@@ -237,6 +237,7 @@ public class MainActivity extends FragmentActivity implements
                         int ratingPos = ratingSpinner.getSelectedItemPosition();
                         int servicePos = serviceSpinner.getSelectedItemPosition();
                         openSearchResults(ratingPos, servicePos, location.getText().toString());
+                        dialog.cancel();
                     }
                 });
 
@@ -266,29 +267,21 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void openSearchResults(int ratingPos, int servicePos, String location) {
-        Log.e("Search", "rating, service, text " + ratingPos + ", " + servicePos + ", " + location);
         List<LaundryService> serviceList = LaundryService.listAll(LaundryService.class);
 
         List<LaundryShopService> shopsWithService = LaundryShopService.find(
                 LaundryShopService.class, "m_Laundry_Service_Id  = ?", serviceList.get(0).getId() + "");
-        Log.e("Search", "shopswithservice + " + shopsWithService.toString());
 
         List<LaundryShop> elligibleShops = new ArrayList<>();
         for (LaundryShopService tempShop : shopsWithService) {
             LaundryShop shop = LaundryShop.findById(LaundryShop.class, tempShop.getLaundryShopId());
-            Log.e("Search", "shopwithservice" + shop.getName() + " , " + shop.getRating() + " ; " + shop.getAddress());
 
             if (shop.getRating() >= ratingPos && shop.getAddress().contains(location)) {
-                Log.e("Search", "ellig" + shop.getName() + " , " + shop.getRating() + " ; " + shop.getAddress());
                 elligibleShops.add(shop);
             }
         }
-        Fragment fragment = mTabPagerAdapter.getItem(mViewPager.getCurrentItem());
-        if (fragment instanceof FindFragment) {
-            Log.e("Search", "ellig find fragment");
-            FindFragment findFragment = (FindFragment) fragment;
-            findFragment.showSearchResults(elligibleShops);
-        }
+
+        FindFragment.showSearchResults(elligibleShops);
     }
 
     @Override

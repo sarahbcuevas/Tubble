@@ -45,7 +45,7 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class FindFragment extends Fragment implements OnMapReadyCallback,
-        GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener, SearchResultsAdapter.SearchItemClick {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -65,7 +65,9 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
     private OnFragmentInteractionListener mListener;
 
-//    private LinearLayout searchResultsLayout;
+    private static LinearLayout searchResultsLayout;
+    private static LinearLayoutManager searchLayoutManager;
+    private static SearchResultsAdapter adapter;
 
     public FindFragment() {
         // Required empty public constructor
@@ -106,7 +108,9 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
         mapLayout = (FrameLayout) view.findViewById(R.id.map_layout);
         infoLayout = (LinearLayout) view.findViewById(R.id.shop_info_layout);
-//        searchResultsLayout = (LinearLayout) view.findViewById(R.id.search_results);
+        searchResultsLayout = (LinearLayout) view.findViewById(R.id.search_results);
+        searchLayoutManager = new LinearLayoutManager(getContext());
+        adapter = new SearchResultsAdapter(this);
 
         try {
             MapsInitializer.initialize(this.getActivity());
@@ -294,19 +298,30 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
         laundryRating.setRating(shop.getRating());
     }
 
-    public void showSearchResults(List<LaundryShop> laundryShops) {
-        LinearLayout searchResultsLayout = (LinearLayout) FindFragment.this.getView().findViewById(R.id.search_results);
+    public static void showSearchResults(List<LaundryShop> laundryShops) {
         searchResultsLayout.setVisibility(View.VISIBLE);
 
         RecyclerView recyclerView = (RecyclerView) searchResultsLayout.findViewById(R.id.search_recyclerview);
         recyclerView.setHasFixedSize(true);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(FindFragment.this.getContext());
-        recyclerView.setLayoutManager(layoutManager);
-
-        SearchResultsAdapter adapter = new SearchResultsAdapter(laundryShops);
+        recyclerView.setLayoutManager(searchLayoutManager);
+        adapter.setData(laundryShops);
 
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onItemClick(String name) {
+        searchResultsLayout.setVisibility(View.GONE);
+        mapLayout.setVisibility(View.VISIBLE);
+
+        for (int i = 0; i < mapMarkers.size(); i++) {
+            if (name.equals(mapMarkers.get(i).getTitle())) {
+                myMap.animateCamera(CameraUpdateFactory.newLatLng(mapMarkers.get(i).getPosition()));
+                mapMarkers.get(i).showInfoWindow();
+                break;
+            }
+        }
     }
 
     /**
