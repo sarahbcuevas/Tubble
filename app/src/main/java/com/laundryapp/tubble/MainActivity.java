@@ -267,19 +267,51 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void openSearchResults(int ratingPos, int servicePos, String location) {
-        List<LaundryShopService> shopsWithService = LaundryShopService.find(
-                LaundryShopService.class, "m_Laundry_Service_Id  = ?", servicePos + "");
+        if (servicePos == 0) {
+            List<LaundryShop> shops = LaundryShop.listAll(LaundryShop.class);
+            List<LaundryShop> elligibleShops = new ArrayList<>();
 
-        List<LaundryShop> elligibleShops = new ArrayList<>();
-        for (LaundryShopService tempShop : shopsWithService) {
-            LaundryShop shop = LaundryShop.findById(LaundryShop.class, tempShop.getLaundryShopId());
+            if (ratingPos == 0) {
+                for (LaundryShop tempShop : shops) {
+                    if (tempShop.getAddress().contains(location)) {
+                        elligibleShops.add(tempShop);
+                    }
+                }
 
-            if (shop.getRating() >= ratingPos && shop.getAddress().contains(location)) {
-                elligibleShops.add(shop);
+                FindFragment.showSearchResults(elligibleShops);
+            } else {
+                for (LaundryShop tempShop : shops) {
+                    if ((tempShop.getRating() < (ratingPos + .99))
+                            && (tempShop.getRating() >= ratingPos)
+                            && (tempShop.getAddress().contains(location))) {
+                        elligibleShops.add(tempShop);
+                    }
+                }
+
+                FindFragment.showSearchResults(elligibleShops);
             }
-        }
+        } else {
+            List<LaundryShopService> shopsWithService = LaundryShopService.find(
+                    LaundryShopService.class, "m_Laundry_Service_Id  = ?", servicePos + "");
 
-        FindFragment.showSearchResults(elligibleShops);
+            List<LaundryShop> elligibleShops = new ArrayList<>();
+            for (LaundryShopService tempShop : shopsWithService) {
+                LaundryShop shop = LaundryShop.findById(LaundryShop.class, tempShop.getLaundryShopId());
+
+                Log.e("Search", "SHop " + shop.getName() + " " + shop.getRating() + " :: " + ratingPos);
+                if (ratingPos == 0) {
+                    if (shop.getAddress().contains(location)) {
+                        elligibleShops.add(shop);
+                    }
+                } else if ((shop.getRating() < (ratingPos + .99))
+                        && (shop.getRating() >= ratingPos)
+                        && (shop.getAddress().contains(location))) {
+                    elligibleShops.add(shop);
+                }
+            }
+
+            FindFragment.showSearchResults(elligibleShops);
+        }
     }
 
     @Override
@@ -370,7 +402,7 @@ public class MainActivity extends FragmentActivity implements
 }
 
 class TabPagerAdapter extends FragmentPagerAdapter {
-//    FindFragment mFindFragment;
+    //    FindFragment mFindFragment;
 //    LaundryRequestFragment mLaundryRequestFragment;
 //    SchedulerFragment mSchedulerFragment;
 //    StatusFragment mStatusFragment;
