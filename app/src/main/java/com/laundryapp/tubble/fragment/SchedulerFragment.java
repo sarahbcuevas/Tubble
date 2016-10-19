@@ -361,6 +361,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 
         if (isVisibleToUser) {
             updateScheduleList(System.currentTimeMillis());
+            schedulerLayout.setVisibility(View.VISIBLE);
+            bookingLayout.setVisibility(View.GONE);
+            laundryScheduleDetails.setVisibility(View.GONE);
         }
     }
 
