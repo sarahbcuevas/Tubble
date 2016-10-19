@@ -79,7 +79,8 @@
             android:background="@drawable/spinner_bg"
             android:gravity="center_horizontal"
             android:hint="@string/location"
-            android:padding="5dp" />
+            android:padding="5dp"
+            android:textSize="20sp" />
 
         <ImageButton
             android:id="@+id/search_btn"

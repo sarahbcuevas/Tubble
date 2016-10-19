@@ -200,10 +200,10 @@ public class MainActivity extends FragmentActivity implements
 
                 // Creating adapter for spinner
                 ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                        android.R.layout.simple_spinner_item, ratings);
+                        R.layout.simple_spinner_item, ratings);
 
                 // Drop down layout style - list view with radio button
-                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                dataAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
 
                 // attaching data adapter to spinner
                 ratingSpinner.setAdapter(dataAdapter);
@@ -219,10 +219,10 @@ public class MainActivity extends FragmentActivity implements
 
                 // Creating adapter for spinner
                 ArrayAdapter<String> data1Adapter = new ArrayAdapter<String>(this,
-                        android.R.layout.simple_spinner_item, services);
+                        R.layout.simple_spinner_item, services);
 
                 // Drop down layout style - list view with radio button
-                data1Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                data1Adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
 
                 // attaching data adapter to spinner
                 serviceSpinner.setAdapter(data1Adapter);
@@ -267,10 +267,8 @@ public class MainActivity extends FragmentActivity implements
     }
 
     private void openSearchResults(int ratingPos, int servicePos, String location) {
-        List<LaundryService> serviceList = LaundryService.listAll(LaundryService.class);
-
         List<LaundryShopService> shopsWithService = LaundryShopService.find(
-                LaundryShopService.class, "m_Laundry_Service_Id  = ?", serviceList.get(0).getId() + "");
+                LaundryShopService.class, "m_Laundry_Service_Id  = ?", servicePos + "");
 
         List<LaundryShop> elligibleShops = new ArrayList<>();
         for (LaundryShopService tempShop : shopsWithService) {
