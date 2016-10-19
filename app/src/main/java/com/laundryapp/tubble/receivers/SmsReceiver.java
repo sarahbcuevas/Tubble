@@ -57,13 +57,13 @@ public class SmsReceiver extends BroadcastReceiver {
         } else if (message.startsWith("laundry")) {
             message = message.substring("laundry{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
-            if (!subStr[3].equals(Long.toString(Utility.getUserId(context)))) {
-                return;
-            }
+//            if (!subStr[3].equals(Long.toString(Utility.getUserId(context)))) {
+//                return;
+//            }
             User user = User.find(User.class, "m_Mobile_Number = ?", subStr[0]).get(0);
             BookingDetails.Mode mode = (subStr[1].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
             BookingDetails.Type type = (subStr[2].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
-            BookingDetails booking = new BookingDetails(mode, type, Long.parseLong(subStr[4]), Utility.getUserId(context), user.getId(), user.getAddress(), subStr[5], Long.parseLong(subStr[6]), Long.parseLong(subStr[7]), Integer.parseInt(subStr[8]), Float.parseFloat(subStr[9]));
+            BookingDetails booking = new BookingDetails(mode, type, Long.parseLong(subStr[4]), Long.parseLong(subStr[3]), user.getId(), user.getAddress(), subStr[5], Long.parseLong(subStr[6]), Long.parseLong(subStr[7]), Integer.parseInt(subStr[8]), Float.parseFloat(subStr[9]), Float.parseFloat(subStr[10]));
             booking.save();
             LaundryRequestFragment.updateBookingsList(context);
         } else if (message.startsWith("status")) {
@@ -91,23 +91,67 @@ public class SmsReceiver extends BroadcastReceiver {
             Log.d(TAG, "Return date: " + subStr[7]);
             Log.d(TAG, "No. of clothes: " + subStr[8]);
             Log.d(TAG, "Estimated kilo: " + subStr[9]);
+            Log.d(TAG, "Fee: " + subStr[10]);
 
             List<BookingDetails> booking;
             if (notes.equals("") || notes.equals(" ")) {
                 Log.d(TAG, "Notes is empty.");
                 booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
-                                "and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ?", mode.toString(), type.toString(),
-                        subStr[3], subStr[4], subStr[6], subStr[7], subStr[8], subStr[9]);
+                                "and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
+                        subStr[3], subStr[4], subStr[6], subStr[7], subStr[8], subStr[9], subStr[10]);
             } else {
                 Log.d(TAG, "Notes exists.");
                 booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
-                                "and m_Notes = ? and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ?", mode.toString(), type.toString(),
-                        subStr[3], subStr[4], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
+                                "and m_Notes = ? and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
+                        subStr[3], subStr[4], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9], subStr[10]);
             }
 
             Log.d(TAG, "booking found: " + booking.size());
             if (!booking.isEmpty()) {
                 booking.get(0).setStatus(status);
+                booking.get(0).save();
+                StatusFragment.updateLaundryList();
+            }
+        } else if (message.startsWith("edit")) {
+            message = message.substring("edit{".length(), message.length() - 1);
+            String[] subStr = message.split(Utility.DELIMETER);
+
+            BookingDetails.Mode mode = (subStr[3].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
+            BookingDetails.Type type = (subStr[4].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
+            String notes = subStr[7];
+
+            Log.d(TAG, "New Fee: " + subStr[0]);
+            Log.d(TAG, "New No. of Clothes: " + subStr[1]);
+            Log.d(TAG, "New Estimated Kilo: " + subStr[2]);
+            Log.d(TAG, "Mode: " + mode);
+            Log.d(TAG, "Type: " + type);
+            Log.d(TAG, "Laundry shop id: " + subStr[5]);
+            Log.d(TAG, "Service id: " + subStr[6]);
+            Log.d(TAG, "Notes: " + subStr[7]);
+            Log.d(TAG, "Pickup date: " + subStr[8]);
+            Log.d(TAG, "Return date: " + subStr[9]);
+            Log.d(TAG, "No. of clothes: " + subStr[10]);
+            Log.d(TAG, "Estimated kilo: " + subStr[11]);
+            Log.d(TAG, "Fee: " + subStr[12]);
+
+            List<BookingDetails> booking;
+            if (notes.equals("") || notes.equals(" ")) {
+                Log.d(TAG, "Notes is empty.");
+                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
+                                "and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
+                        subStr[5], subStr[6], subStr[8], subStr[9], subStr[10], subStr[11], subStr[12]);
+            } else {
+                Log.d(TAG, "Notes exists.");
+                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
+                                "and m_Notes = ? and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
+                        subStr[5], subStr[6], subStr[7], subStr[8], subStr[9], subStr[10], subStr[11], subStr[12]);
+            }
+
+            Log.d(TAG, "booking found: " + booking.size());
+            if (!booking.isEmpty()) {
+                booking.get(0).setFee(Float.parseFloat(subStr[0]));
+                booking.get(0).setNoOfClothes(Integer.parseInt(subStr[1]));
+                booking.get(0).setEstimatedKilo(Float.parseFloat(subStr[2]));
                 booking.get(0).save();
                 StatusFragment.updateLaundryList();
             }

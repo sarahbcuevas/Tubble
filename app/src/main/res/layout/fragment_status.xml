@@ -15,9 +15,10 @@
         android:visibility="gone">
 
         <TextView
+            android:id="@+id/details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Seems like you did your\nlaundry for the week.\nGreat job!"
+            android:text="@string/no_laundry_for_the_week"
             android:textAlignment="center"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -295,19 +296,44 @@
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:id="@+id/fee"
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="Fee: P120"
-                            android:textColor="@color/tubble_blue"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="Fee: "
+                                android:textColor="@color/tubble_blue"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/fee"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="P120"
+                                android:textColor="@color/tubble_blue"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:visibility="visible" />
+                            <EditText
+                                android:id="@+id/fee_edittext"
+                                android:layout_width="80dp"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/tubble_blue"
+                                android:visibility="gone"/>
+                        </LinearLayout>
 
                         <TableLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
                             android:layout_marginTop="10dp"
                             android:shrinkColumns="1">
 
@@ -322,7 +348,8 @@
 
                                 <TextView
                                     android:id="@+id/mode"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="Delivery"
                                     android:textSize="16sp"
@@ -340,7 +367,8 @@
 
                                 <TextView
                                     android:id="@+id/type"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="Personal"
                                     android:textSize="16sp"
@@ -358,7 +386,8 @@
 
                                 <TextView
                                     android:id="@+id/location"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="Metropole Katipunan"
                                     android:textSize="16sp"
@@ -376,7 +405,8 @@
 
                                 <TextView
                                     android:id="@+id/service"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="Wash-Dry-Press"
                                     android:textSize="16sp"
@@ -403,7 +433,8 @@
 
                                 <TextView
                                     android:id="@+id/pickup_datetime"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="3:00PM July 3, 2016"
                                     android:textSize="11sp"
@@ -420,7 +451,8 @@
 
                                 <TextView
                                     android:id="@+id/pickup_location"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="RM 201, 8989 Condominiums, Katipunan Ave."
                                     android:textSize="11sp"
@@ -437,7 +469,8 @@
 
                                 <TextView
                                     android:id="@+id/delivery_datetime"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="3:00PM July 4, 2016"
                                     android:textSize="11sp"
@@ -454,7 +487,8 @@
 
                                 <TextView
                                     android:id="@+id/delivery_location"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="RM 201, 8989 Condominiums, Katipunan Ave."
                                     android:textSize="11sp"
@@ -478,7 +512,17 @@
                                     android:text="15"
                                     android:textColor="@color/tubble_blue"
                                     android:textSize="11sp"
-                                    android:textStyle="bold" />
+                                    android:textStyle="bold"
+                                    android:visibility="visible"/>
+
+                                <EditText
+                                    android:id="@+id/no_of_clothes_edittext"
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:textStyle="bold"
+                                    android:textSize="11sp"
+                                    android:textColor="@color/tubble_blue"
+                                    android:visibility="gone"/>
                             </TableRow>
 
                             <TableRow android:layout_marginTop="8dp">
@@ -498,7 +542,17 @@
                                     android:text="1.5kg"
                                     android:textColor="@color/tubble_blue"
                                     android:textSize="11sp"
-                                    android:textStyle="bold" />
+                                    android:textStyle="bold"
+                                    android:visibility="visible"/>
+
+                                <EditText
+                                    android:id="@+id/estimated_kilo_edittext"
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/tubble_blue"
+                                    android:visibility="gone"/>
                             </TableRow>
 
                             <TableRow android:layout_marginTop="8dp">
@@ -511,7 +565,8 @@
 
                                 <TextView
                                     android:id="@+id/notes"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
                                     android:layout_height="wrap_content"
                                     android:text="Some of my clothes are thin."
                                     android:textSize="11sp"
@@ -526,7 +581,17 @@
                         android:layout_height="45dp"
                         android:layout_alignParentRight="true"
                         android:padding="10dp"
-                        android:src="@drawable/edit" />
+                        android:src="@drawable/edit"
+                        android:visibility="visible"/>
+
+                    <ImageView
+                        android:id="@+id/done_button"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:padding="10dp"
+                        android:src="@drawable/approvedbookings"
+                        android:layout_alignParentRight="true"
+                        android:visibility="gone"/>
                 </RelativeLayout>
 
                 <LinearLayout

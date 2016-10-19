@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:paddingLeft="30dp"
     android:paddingRight="20dp"
+    android:background="@color/tubble_yellow"
     android:gravity="center">
 
     <TextView
