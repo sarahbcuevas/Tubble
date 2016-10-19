@@ -4,227 +4,667 @@
     android:layout_height="match_parent"
     tools:context="com.laundryapp.tubble.fragment.StatusFragment">
 
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/no_laundry"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <FrameLayout
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        android:visibility="gone">
+
+        <TextView
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Seems like you did your\nlaundry for the week.\nGreat job!"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="@dimen/no_laundry_image_width"
+            android:layout_height="@dimen/no_laundry_image_height"
             android:layout_gravity="center"
-            android:layout_height="wrap_content">
-            <LinearLayout
-                android:id="@+id/no_laundry"
+            android:layout_marginBottom="50dp"
+            android:layout_marginTop="50dp"
+            android:src="@drawable/nolaundry" />
+
+        <RelativeLayout
+            android:id="@+id/next_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/next_schedule_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="40dp"
+                android:paddingRight="40dp"
+                android:text="Your next schedule is..." />
+
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:paddingTop="20dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView
+                android:layout_below="@id/next_schedule_text"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="5dp"
+                android:background="@android:color/black"
+                android:padding="3dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:text="Seems like you did your\nlaundry for the week.\nGreat job!"/>
-
-                <ImageView
-                    android:layout_width="@dimen/no_laundry_image_width"
-                    android:layout_height="@dimen/no_laundry_image_height"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="50dp"
-                    android:layout_marginBottom="50dp"
-                    android:src="@drawable/nolaundry" />
-
-                <RelativeLayout
-                    android:id="@+id/next_schedule"
-                    android:layout_width="match_parent"
-                    android:visibility="visible"
-                    android:layout_height="140dp">
+                    android:background="@android:color/background_light"
+                    android:orientation="vertical"
+                    android:padding="15dp">
 
                     <TextView
-                        android:id="@+id/next_schedule_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="40dp"
-                        android:paddingRight="40dp"
-                        android:text="Your next schedule is..."/>
-
-                    <RelativeLayout
+                        android:id="@+id/laundry_shop_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="3dp"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="40dp"
-                        android:layout_marginRight="40dp"
-                        android:layout_below="@id/next_schedule_text"
-                        android:background="@android:color/black">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@android:color/background_light"
-                            android:padding="15dp"
-                            android:orientation="vertical">
-                            <TextView
-                                android:id="@+id/laundry_shop_text"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textStyle="bold"
-                                android:text="Metropole Laundry Service Katipunan"/>
-                            <TextView
-                                android:id="@+id/pick_up_text"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Pick up: 1pm, July 1, 2016"/>
-                            <TextView
-                                android:id="@+id/delivery_text"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Delivery: 4pm, July 2, 2016"/>
-                        </LinearLayout>
-                    </RelativeLayout>
-                    <ImageView
-                        android:id="@+id/add_button"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="20dp"
-                        android:src="@drawable/add"/>
-                    <ImageView
-                        android:id="@+id/cancel_button"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginRight="20dp"
-                        android:src="@drawable/remove"/>
-                </RelativeLayout>
-            </LinearLayout>
+                        android:text="Metropole Laundry Service Katipunan"
+                        android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/laundry_processed"
+                    <TextView
+                        android:id="@+id/pick_up_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pick up: 1pm, July 1, 2016" />
+
+                    <TextView
+                        android:id="@+id/delivery_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Delivery: 4pm, July 2, 2016" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/add_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/add" />
+
+            <ImageView
+                android:id="@+id/cancel_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/remove" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/laundry_processed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="15dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/laundry_processed_accepted"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/time_remaining"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="20dp"
+            android:text="20 hrs 59 mins"
+            android:textAlignment="center"
+            android:textColor="@color/tubble_blue"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="@dimen/laundry_process_image_width"
+            android:layout_height="@dimen/laundry_process_image_height"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/laundryprocess" />
+
+        <RelativeLayout
+            android:id="@+id/laundry_info"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:visibility="visible">
+
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:paddingTop="15dp"
-                android:orientation="vertical"
-                android:visibility="visible">
-                <TextView
-                    android:id="@+id/status"
+                android:layout_below="@id/next_schedule_text"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="15dp"
+                android:background="@android:color/black"
+                android:padding="3dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:text="@string/laundry_processed_accepted"/>
+                    android:background="@android:color/background_light"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
 
-                <TextView
-                    android:id="@+id/time_remaining"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="15dp"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/tubble_blue"
-                    android:text="20 hrs 59 mins"/>
-
-                <ImageView
-                    android:layout_width="@dimen/laundry_process_image_width"
-                    android:layout_height="@dimen/laundry_process_image_height"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="20dp"
-                    android:src="@drawable/laundryprocess" />
-
-                <RelativeLayout
-                    android:id="@+id/laundry_info"
-                    android:layout_width="match_parent"
-                    android:visibility="visible"
-                    android:layout_height="180dp">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/laundry_shop_text"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="3dp"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginBottom="20dp"
-                        android:layout_marginLeft="40dp"
-                        android:layout_marginRight="40dp"
-                        android:layout_below="@id/next_schedule_text"
-                        android:background="@android:color/black">
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        android:text="Metropole Laundry Service Katipunan"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/laundry_service_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Wash-Dry-Press"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/pick_up_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Pick up: 1pm, July 1, 2016" />
+
+                    <TextView
+                        android:id="@+id/delivery_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="Delivery: 4pm, July 2, 2016" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/background_light"
-                            android:padding="10dp"
-                            android:gravity="center"
-                            android:orientation="vertical">
-                            <TextView
-                                android:id="@+id/laundry_shop_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textStyle="bold"
-                                android:text="Metropole Laundry Service Katipunan"/>
-                            <TextView
-                                android:id="@+id/laundry_service_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textStyle="bold"
-                                android:text="Wash-Dry-Press"/>
-                            <TextView
-                                android:id="@+id/pick_up_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:text="Pick up: 1pm, July 1, 2016"/>
-                            <TextView
-                                android:id="@+id/delivery_text"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="10dp"
-                                android:text="Delivery: 4pm, July 2, 2016"/>
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Total Fee: "/>
-                                <TextView
-                                    android:id="@+id/fee"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:textStyle="bold"
-                                    android:textColor="@color/tubble_blue"
-                                    android:text="P 120.00"/>
-                            </LinearLayout>
-                        </LinearLayout>
-                    </RelativeLayout>
-                    <ImageView
-                        android:id="@+id/call_button"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="20dp"
-                        android:src="@drawable/call"/>
-                    <ImageView
-                        android:id="@+id/cancel_button"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginRight="20dp"
-                        android:src="@drawable/remove"/>
-                </RelativeLayout>
-            </LinearLayout>
+                            android:text="Total Fee: " />
+
+                        <TextView
+                            android:id="@+id/fee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="P 120.00"
+                            android:textColor="@color/tubble_blue"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/call_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/call" />
+
+            <ImageView
+                android:id="@+id/cancel_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/remove" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/laundry_list_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:id="@+id/laundry_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible"></LinearLayout>
-        </FrameLayout>
-    </ScrollView>
+                android:orientation="vertical"></LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <include layout="@layout/fragment_approved_bookings" />
+
+    <LinearLayout
+        android:id="@+id/laundry_schedule_details"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:background="@color/tubble_blue"
+                    android:padding="5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/white"
+                        android:orientation="vertical"
+                        android:paddingBottom="15dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:paddingTop="15dp">
+
+                        <TextView
+                            android:id="@+id/customer_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Ina Burton"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/fee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Fee: P120"
+                            android:textColor="@color/tubble_blue"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TableLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:shrinkColumns="1">
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Mode:"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/mode"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Delivery"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Type:"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/type"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Personal"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Location:"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/location"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Metropole Katipunan"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Service:"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/service"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Wash-Dry-Press"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Summary:"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Pick Up Time &amp; Date:"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/pickup_datetime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="3:00PM July 3, 2016"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Pick Up Location:"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/pickup_location"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="RM 201, 8989 Condominiums, Katipunan Ave."
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow android:layout_marginTop="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Delivery Time &amp; Date:"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/delivery_datetime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="3:00PM July 4, 2016"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Delivery Location:"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/delivery_location"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="RM 201, 8989 Condominiums, Katipunan Ave."
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow android:layout_marginTop="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="No. of Clothes:"
+                                    android:textColor="@color/tubble_blue"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/no_of_clothes"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="15"
+                                    android:textColor="@color/tubble_blue"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow android:layout_marginTop="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Estimated Weight (kg):"
+                                    android:textColor="@color/tubble_blue"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/estimated_kilo"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1.5kg"
+                                    android:textColor="@color/tubble_blue"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+
+                            <TableRow android:layout_marginTop="8dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Notes:"
+                                    android:textSize="11sp" />
+
+                                <TextView
+                                    android:id="@+id/notes"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Some of my clothes are thin."
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </TableRow>
+                        </TableLayout>
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/edit_button"
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:layout_alignParentRight="true"
+                        android:padding="10dp"
+                        android:src="@drawable/edit" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/laundry_accepted_button"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@color/tubble_yellow"
+                            android:padding="2dp">
+
+                            <RelativeLayout
+                                android:id="@+id/laundry_accepted_bg"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/background_light">
+
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:layout_margin="10dp"
+                                    android:src="@drawable/approvedbookings" />
+                            </RelativeLayout>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Laundry\nAccepted"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent" />
+
+                    <LinearLayout
+                        android:id="@+id/processing_button"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@color/tubble_yellow"
+                            android:padding="2dp">
+
+                            <RelativeLayout
+                                android:id="@+id/processing_bg"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/background_light">
+
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:layout_margin="10dp"
+                                    android:src="@drawable/status" />
+                            </RelativeLayout>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Processing\nLaundry"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent" />
+
+                    <LinearLayout
+                        android:id="@+id/returning_button"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@color/tubble_yellow"
+                            android:padding="2dp">
+
+                            <RelativeLayout
+                                android:id="@+id/returning_bg"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/background_light">
+
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_centerInParent="true"
+                                    android:layout_margin="10dp"
+                                    android:src="@drawable/delivery" />
+                            </RelativeLayout>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Returning\nLaundry"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
 </FrameLayout>

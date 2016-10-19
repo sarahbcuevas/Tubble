@@ -16,7 +16,7 @@ public class BookingDetails extends SugarRecord {
 
     public enum Type {PERSONAL, COMMERCIAL}
 
-    public enum Status {NEW, ACCEPTED, COMPLETED, REJECTED}
+    public enum Status {NEW, ACCEPTED, PROCESSING, COMPLETED, REJECTED}
 
     private Mode mMode;
     private Type mType;

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.BookingDetails.Status;
 import com.laundryapp.tubble.entities.LaundryShop;
+import com.laundryapp.tubble.entities.User;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -54,9 +56,10 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     public static final int DEFAULT = 0;
     public static final int SCHEDULER = 1;
     public static final int STATUS_LIST = 2;
+    public static final int APPROVED_STATUS_LIST = 3;
 
     View fragmentView;
-    static LinearLayout noLaundryLayout, laundryProcessedLayout, laundryListLayout;
+    static LinearLayout noLaundryLayout, laundryProcessedLayout, laundryListLayout, laundryScheduleDetailsLayout;
     static LayoutInflater mInflater;
 
     /* No laundry layout */
@@ -71,7 +74,19 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             laundryProcessedFee;
     private static ImageView laundryProcessedCallButton, laundryProcessedCancelButton;
 
-    private OnFragmentInteractionListener mListener;
+    /* Laundry List */
+    private static LinearLayout laundryListLayoutList;
+
+    /* Approved Bookings List */
+    private static LinearLayout approvedBookingsStatus, approvedBookingsLayout, deniedBookingsLayout, approvedBookingsList, deniedBookingsList;
+
+    /* Laundry Schedule Details */
+    private static TextView scheduleCustomer, scheduleFee, scheduleMode, scheduleType, scheduleLocation, scheduleService, schedulePickupDate, schedulePickupLocation, scheduleDeliveryDate, scheduleDeliveryLocation, scheduleNoOfClothes, scheduleEstimatedKilo, scheduleNotes;
+    private static ImageView editButton;
+    private static LinearLayout laundryAcceptedButton, processingButton, returningButton;
+    private static RelativeLayout laundryAcceptedBg, processingBg, returningBg;
+
+    private static OnFragmentInteractionListener mListener;
     private static Context mContext;
 
     private static long selectedBookingId = -1;
@@ -116,7 +131,9 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         fragmentView = inflater.inflate(R.layout.fragment_status, container, false);
         noLaundryLayout = (LinearLayout) fragmentView.findViewById(R.id.no_laundry);
         laundryProcessedLayout = (LinearLayout) fragmentView.findViewById(R.id.laundry_processed);
-        laundryListLayout = (LinearLayout) fragmentView.findViewById(R.id.laundry_list);
+        laundryListLayout = (LinearLayout) fragmentView.findViewById(R.id.laundry_list_layout);
+        approvedBookingsStatus = (LinearLayout) fragmentView.findViewById(R.id.approved_bookings_status);
+        laundryScheduleDetailsLayout = (LinearLayout) fragmentView.findViewById(R.id.laundry_schedule_details);
 
         /* No Laundry Layout */
         nextScheduleLayout = (RelativeLayout) noLaundryLayout.findViewById(R.id.next_schedule);
@@ -137,10 +154,45 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         laundryProcessedCallButton = (ImageView) laundryProcessedLayout.findViewById(R.id.call_button);
         laundryProcessedCancelButton = (ImageView) laundryProcessedLayout.findViewById(R.id.cancel_button);
 
+        /* Laundry List Layout */
+        laundryListLayoutList = (LinearLayout) laundryListLayout.findViewById(R.id.laundry_list);
+
+        /* Approved Bookings List */
+        approvedBookingsLayout = (LinearLayout) approvedBookingsStatus.findViewById(R.id.approved_bookings);
+        approvedBookingsList = (LinearLayout) approvedBookingsLayout.findViewById(R.id.approved_bookings_list);
+        deniedBookingsLayout = (LinearLayout) approvedBookingsStatus.findViewById(R.id.denied_bookings);
+        deniedBookingsList = (LinearLayout) deniedBookingsLayout.findViewById(R.id.denied_bookings_list);
+
+        /* Laundry Schedule Details */
+        scheduleCustomer = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.customer_name);
+        scheduleFee = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.fee);
+        scheduleMode = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.mode);
+        scheduleType = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.type);
+        scheduleLocation = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.location);
+        scheduleService = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.service);
+        schedulePickupDate = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.pickup_datetime);
+        schedulePickupLocation = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.pickup_location);
+        scheduleDeliveryDate = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.delivery_datetime);
+        scheduleDeliveryLocation = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.delivery_location);
+        scheduleNoOfClothes = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.no_of_clothes);
+        scheduleEstimatedKilo = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.estimated_kilo);
+        scheduleNotes = (TextView) laundryScheduleDetailsLayout.findViewById(R.id.notes);
+        editButton = (ImageView) laundryScheduleDetailsLayout.findViewById(R.id.edit_button);
+        laundryAcceptedButton = (LinearLayout) laundryScheduleDetailsLayout.findViewById(R.id.laundry_accepted_button);
+        processingButton = (LinearLayout) laundryScheduleDetailsLayout.findViewById(R.id.processing_button);
+        returningButton = (LinearLayout) laundryScheduleDetailsLayout.findViewById(R.id.returning_button);
+        laundryAcceptedBg = (RelativeLayout) laundryScheduleDetailsLayout.findViewById(R.id.laundry_accepted_bg);
+        processingBg = (RelativeLayout) laundryScheduleDetailsLayout.findViewById(R.id.processing_bg);
+        returningBg = (RelativeLayout) laundryScheduleDetailsLayout.findViewById(R.id.returning_bg);
+
         nextAddButton.setOnClickListener(this);
         nextCancelButton.setOnClickListener(this);
         laundryProcessedCallButton.setOnClickListener(this);
         laundryProcessedCancelButton.setOnClickListener(this);
+        laundryAcceptedButton.setOnClickListener(this);
+        processingButton.setOnClickListener(this);
+        returningButton.setOnClickListener(this);
+        editButton.setOnClickListener(this);
 
         if (getCheckStatusFromScheduler() == SCHEDULER) {
             // execute onCheckBookingStatus(id)
@@ -198,28 +250,37 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
      */
     public interface OnFragmentInteractionListener {
         void showCreateBookingPage();
-
+        void onViewLaundryScheduleDetails();
     }
 
     public static void onCheckBookingStatus(long id, int caller) {
         setCheckStatusFromScheduler(caller);
         noLaundryLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
+        approvedBookingsStatus.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.VISIBLE);
         updateLaundryProcessedLayout(id);
     }
 
     public static void updateLaundryList() {
+        final User.Type userType = Utility.getUserType(mContext);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        List<BookingDetails> details = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", Long.toString(Utility.getUserId(mContext)));
+        List<BookingDetails> details = null;
+        if (userType == User.Type.CUSTOMER) {
+            details = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", Long.toString(Utility.getUserId(mContext)));
+        } else if (userType == User.Type.LAUNDRY_SHOP) {
+            details = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", Long.toString(Utility.getUserId(mContext)));
+        } else {
+            return;
+        }
         long startTime = calendar.getTimeInMillis();
         calendar.add(Calendar.DATE, 7);
         long endTime = calendar.getTimeInMillis();
         boolean isLaundryExists = false;
-        laundryListLayout.removeAllViews();
+        laundryListLayoutList.removeAllViews();
         BookingDetails nextLaundry = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
         long detail_id = -1;
@@ -246,10 +307,15 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onClick(View view) {
                         long id = Long.parseLong(((TextView) view.findViewById(R.id.laundry_shop_id)).getText().toString());
-                        onCheckBookingStatus(id, StatusFragment.STATUS_LIST);
+                        if (userType == User.Type.CUSTOMER) {
+                            onCheckBookingStatus(id, StatusFragment.STATUS_LIST);
+                        } else if (userType == User.Type.LAUNDRY_SHOP) {
+                            updateLaundryScheduleDetailsLayout(id);
+                            // To do: View/Edit Laundry Request by LSP
+                        }
                     }
                 });
-                laundryListLayout.addView(statusListItemView);
+                laundryListLayoutList.addView(statusListItemView);
                 // add to list
             } else if (returnDate > System.currentTimeMillis()) {
                 if ((nextLaundry == null) || (nextLaundry.getReturnDate() > returnDate)) {
@@ -259,9 +325,11 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         }
 
         laundryProcessedLayout.setVisibility(View.GONE);
+        approvedBookingsStatus.setVisibility(View.GONE);
+        laundryScheduleDetailsLayout.setVisibility(View.GONE);
         if(isLaundryExists) {
             noLaundryLayout.setVisibility(View.GONE);
-            if (laundryListLayout.getChildCount() == 1) {
+            if (laundryListLayoutList.getChildCount() == 1) {
                 laundryListLayout.setVisibility(View.GONE);
                 laundryProcessedLayout.setVisibility(View.VISIBLE);
                 updateLaundryProcessedLayout(detail_id);
@@ -300,6 +368,8 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                 laundryProcessedStatus.setText(R.string.laundry_processed_new);
             } else if (status == Status.ACCEPTED) {
                 laundryProcessedStatus.setText(R.string.laundry_processed_accepted);
+            } else if (status == Status.PROCESSING) {
+                laundryProcessedStatus.setText(R.string.laundry_processed_processing);
             }
 
             laundryProcessedTime.setText(Utility.getTimeDifference(mContext, dateCreated, deliveryDate));
@@ -309,6 +379,82 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             laundryProcessedDelivery.setText(dateFormat.format(deliveryDate));
             laundryProcessedFee.setText(Float.toString(fee));
         }
+    }
+
+    private static void updateLaundryScheduleDetailsLayout(long detailsId) {
+        setCheckStatusFromScheduler(STATUS_LIST);
+        BookingDetails details = BookingDetails.findById(BookingDetails.class, detailsId);
+        if (details == null) {
+            return;
+        }
+
+        laundryScheduleDetailsLayout.setVisibility(View.VISIBLE);
+        noLaundryLayout.setVisibility(View.GONE);
+        laundryProcessedLayout.setVisibility(View.GONE);
+        laundryListLayout.setVisibility(View.GONE);
+        mListener.onViewLaundryScheduleDetails();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
+        scheduleCustomer.setText(details.getCustomerName());
+        scheduleFee.setText("P" + details.getFee());
+        scheduleMode.setText(details.getModeName());
+        scheduleType.setText(details.getTypeName());
+        scheduleLocation.setText(details.getLaundryShop().getName());
+        scheduleService.setText(details.getLaundryServiceName());
+        schedulePickupDate.setText(dateFormat.format(details.getPickupDate()));
+        schedulePickupLocation.setText(details.getLocation());
+        scheduleDeliveryDate.setText(dateFormat.format(details.getReturnDate()));
+        scheduleDeliveryLocation.setText(details.getLocation());
+        scheduleNoOfClothes.setText(details.getNoOfClothes() + "");
+        scheduleEstimatedKilo.setText(details.getEstimatedKilo() + "kg");
+        scheduleNotes.setText(details.getNotes());
+
+        Status status = details.getStatus();
+        int yellow = ContextCompat.getColor(mContext, R.color.tubble_yellow);
+        int white = ContextCompat.getColor(mContext, android.R.color.background_light);
+        int gray = ContextCompat.getColor(mContext, R.color.disabled_button);
+        if (status == Status.ACCEPTED) {
+            editButton.setEnabled(true);
+            laundryAcceptedBg.setBackgroundColor(yellow);
+            processingBg.setBackgroundColor(white);
+            returningBg.setBackgroundColor(white);
+            laundryAcceptedButton.setEnabled(false);
+            processingButton.setEnabled(true);
+            returningButton.setEnabled(false);
+        } else if (status == Status.PROCESSING) {
+            editButton.setEnabled(true);
+            laundryAcceptedBg.setBackgroundColor(yellow);
+            processingBg.setBackgroundColor(yellow);
+            returningBg.setBackgroundColor(white);
+            laundryAcceptedButton.setEnabled(false);
+            processingButton.setEnabled(false);
+            returningButton.setEnabled(true);
+        } else if (status == Status.COMPLETED) {
+            editButton.setEnabled(true);
+            laundryAcceptedBg.setBackgroundColor(yellow);
+            processingBg.setBackgroundColor(yellow);
+            returningBg.setBackgroundColor(yellow);
+            laundryAcceptedButton.setEnabled(false);
+            processingButton.setEnabled(false);
+            returningButton.setEnabled(false);
+        } else if (status == Status.NEW) {
+            editButton.setEnabled(true);
+            laundryAcceptedBg.setBackgroundColor(white);
+            processingBg.setBackgroundColor(white);
+            returningBg.setBackgroundColor(white);
+            laundryAcceptedButton.setEnabled(true);
+            processingButton.setEnabled(false);
+            returningButton.setEnabled(false);
+        } else if (status == Status.REJECTED) {
+            editButton.setEnabled(false);
+            laundryAcceptedBg.setBackgroundColor(gray);
+            processingBg.setBackgroundColor(gray);
+            returningBg.setBackgroundColor(gray);
+            laundryAcceptedButton.setEnabled(false);
+            processingButton.setEnabled(false);
+            returningButton.setEnabled(false);
+        }
+
     }
 
     @Override
@@ -380,6 +526,73 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                 break;
             default:
                 break;
+        }
+    }
+
+    public static void updateApprovedBookingsList() {
+        setCheckStatusFromScheduler(APPROVED_STATUS_LIST);
+        laundryListLayout.setVisibility(View.GONE);
+        laundryProcessedLayout.setVisibility(View.GONE);
+
+        List<BookingDetails> approvedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.ACCEPTED.name());
+        List<BookingDetails> deniedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.REJECTED.name());
+
+        if (approvedBookings.isEmpty() && deniedBookings.isEmpty()) {
+            noLaundryLayout.setVisibility(View.VISIBLE);
+            approvedBookingsStatus.setVisibility(View.GONE);
+            return;
+        } else {
+            noLaundryLayout.setVisibility(View.GONE);
+            approvedBookingsStatus.setVisibility(View.VISIBLE);
+        }
+
+        if (approvedBookings.isEmpty()) {
+            approvedBookingsLayout.setVisibility(View.GONE);
+        } else {
+            approvedBookingsLayout.setVisibility(View.VISIBLE);
+            approvedBookingsList.removeAllViews();
+            for (BookingDetails details : approvedBookings) {
+                View view = mInflater.inflate(R.layout.approved_bookings_list_item, null);
+                TextView laundryShop = (TextView) view.findViewById(R.id.laundry_shop);
+                TextView laundryService = (TextView) view.findViewById(R.id.laundry_service);
+                TextView pickupDate = (TextView) view.findViewById(R.id.pick_up_datetime);
+                TextView returnDate = (TextView) view.findViewById(R.id.return_datetime);
+                TextView fee = (TextView) view.findViewById(R.id.fee);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
+
+                laundryShop.setText(details.getLaundryShop().getName());
+                laundryService.setText(details.getLaundryServiceName());
+                pickupDate.setText("Pick Up: " + dateFormat.format(details.getPickupDate()));
+                returnDate.setText("Delivery: " + dateFormat.format(details.getReturnDate()));
+                fee.setText("P " + details.getFee());
+
+                approvedBookingsList.addView(view);
+            }
+        }
+
+        if (deniedBookings.isEmpty()) {
+            deniedBookingsLayout.setVisibility(View.GONE);
+        } else {
+            deniedBookingsLayout.setVisibility(View.VISIBLE);
+            deniedBookingsList.removeAllViews();
+
+            for (BookingDetails details : deniedBookings) {
+                View view = mInflater.inflate(R.layout.approved_bookings_list_item, null);
+                TextView laundryShop = (TextView) view.findViewById(R.id.laundry_shop);
+                TextView laundryService = (TextView) view.findViewById(R.id.laundry_service);
+                TextView pickupDate = (TextView) view.findViewById(R.id.pick_up_datetime);
+                TextView returnDate = (TextView) view.findViewById(R.id.return_datetime);
+                TextView fee = (TextView) view.findViewById(R.id.fee);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
+
+                laundryShop.setText(details.getLaundryShop().getName());
+                laundryService.setText(details.getLaundryServiceName());
+                pickupDate.setText("Pick Up: " + dateFormat.format(details.getPickupDate()));
+                returnDate.setText("Delivery: " + dateFormat.format(details.getReturnDate()));
+                fee.setText("P " + details.getFee());
+
+                deniedBookingsList.addView(view);
+            }
         }
     }
 
