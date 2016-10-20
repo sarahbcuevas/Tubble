@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.BookingDetails.Status;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
+import com.laundryapp.tubble.entities.UserRating;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -61,6 +63,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
 
     View fragmentView;
     static LinearLayout noLaundryLayout, laundryProcessedLayout, laundryListLayout, laundryScheduleDetailsLayout;
+    static RelativeLayout laundryCompletedLayout;
     static LayoutInflater mInflater;
 
     /* No laundry layout */
@@ -87,6 +90,11 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     private static LinearLayout laundryAcceptedButton, processingButton, returningButton;
     private static RelativeLayout laundryAcceptedBg, processingBg, returningBg;
     private static EditText feeEdittext, noOfClothesEdittext, estimatedKiloEdittext;
+
+    /* Laundry Completed */
+    private static RatingBar ratingBar;
+    private static EditText commentsEdittext;
+    private static ImageView sendRatingButton;
 
     private static OnFragmentInteractionListener mListener;
     private static Context mContext;
@@ -136,6 +144,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         laundryListLayout = (LinearLayout) fragmentView.findViewById(R.id.laundry_list_layout);
         approvedBookingsStatus = (LinearLayout) fragmentView.findViewById(R.id.approved_bookings_status);
         laundryScheduleDetailsLayout = (LinearLayout) fragmentView.findViewById(R.id.laundry_schedule_details);
+        laundryCompletedLayout = (RelativeLayout) fragmentView.findViewById(R.id.laundry_completed);
 
         /* No Laundry Layout */
         noLaundryDetails = (TextView) noLaundryLayout.findViewById(R.id.details);
@@ -192,6 +201,11 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         estimatedKiloEdittext = (EditText) laundryScheduleDetailsLayout.findViewById(R.id.estimated_kilo_edittext);
         doneButton = (ImageView) laundryScheduleDetailsLayout.findViewById(R.id.done_button);
 
+        /* Laundry Completed */
+        ratingBar = (RatingBar) laundryCompletedLayout.findViewById(R.id.rating_bar);
+        commentsEdittext = (EditText) laundryCompletedLayout.findViewById(R.id.comments_edittext);
+        sendRatingButton = (ImageView) laundryCompletedLayout.findViewById(R.id.send_rating_button);
+
         nextAddButton.setOnClickListener(this);
         nextCancelButton.setOnClickListener(this);
         laundryProcessedCallButton.setOnClickListener(this);
@@ -200,6 +214,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         processingButton.setOnClickListener(this);
         returningButton.setOnClickListener(this);
         editButton.setOnClickListener(this);
+        sendRatingButton.setOnClickListener(this);
 
         if (getCheckStatusFromScheduler() == SCHEDULER) {
             // execute onCheckBookingStatus(id)
@@ -265,6 +280,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         noLaundryLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
         approvedBookingsStatus.setVisibility(View.GONE);
+        laundryCompletedLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.VISIBLE);
         updateLaundryProcessedLayout(id);
     }
@@ -333,6 +349,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         laundryProcessedLayout.setVisibility(View.GONE);
         approvedBookingsStatus.setVisibility(View.GONE);
         laundryScheduleDetailsLayout.setVisibility(View.GONE);
+        laundryCompletedLayout.setVisibility(View.GONE);
         if(isLaundryExists) {
             noLaundryLayout.setVisibility(View.GONE);
             if (laundryListLayoutList.getChildCount() == 1 && Utility.getUserType(mContext) == User.Type.CUSTOMER) {
@@ -358,11 +375,56 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    private static void updateLaundryCompletedLayout(long id) {
+        selectedBookingId = id;
+        BookingDetails details = BookingDetails.findById(BookingDetails.class, id);
+        LaundryShop shop = details.getLaundryShop();
+        if (details != null && details.getStatus() == Status.COMPLETED) {
+            noLaundryLayout.setVisibility(View.GONE);
+            laundryProcessedLayout.setVisibility(View.GONE);
+            laundryListLayout.setVisibility(View.GONE);
+            laundryScheduleDetailsLayout.setVisibility(View.GONE);
+            laundryCompletedLayout.setVisibility(View.VISIBLE);
+
+            List<UserRating> userRating = UserRating.find(UserRating.class, "m_Schedule_Id = ?", Long.toString(id));
+            if (userRating.isEmpty()) {
+                ratingBar.setIsIndicator(false);
+                ratingBar.setRating(shop.getRating());
+                commentsEdittext.setText("");
+                commentsEdittext.setEnabled(true);
+                sendRatingButton.setVisibility(View.VISIBLE);
+            } else {
+                onRatingSent(userRating.get(0).getId());
+            }
+        }
+    }
+
+    public static void onRatingSent(long ratingId) {
+        UserRating userRating = UserRating.findById(UserRating.class, ratingId);
+        if (userRating != null) {
+            ratingBar.setIsIndicator(true);
+            ratingBar.setRating(userRating.getRating());
+            commentsEdittext.setText(userRating.getComments());
+            commentsEdittext.setEnabled(false);
+            sendRatingButton.setVisibility(View.GONE);
+        }
+    }
+
     private static void updateLaundryProcessedLayout(long id) {
         selectedBookingId = id;
         BookingDetails details = BookingDetails.findById(BookingDetails.class, id);
         if (details != null) {
             Status status = details.getStatus();
+            if (status == Status.NEW) {
+                laundryProcessedStatus.setText(R.string.laundry_processed_new);
+            } else if (status == Status.ACCEPTED) {
+                laundryProcessedStatus.setText(R.string.laundry_processed_accepted);
+            } else if (status == Status.PROCESSING) {
+                laundryProcessedStatus.setText(R.string.laundry_processed_processing);
+            } else if (status == Status.COMPLETED) {
+                updateLaundryCompletedLayout(id);
+            }
+
             String laundryShop = details.getLaundryShop().getName();
             String laundryService = details.getLaundryServiceName();
             long dateCreated = System.currentTimeMillis();
@@ -370,14 +432,6 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             long deliveryDate = details.getReturnDate();
             float fee = details.getFee();
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
-
-            if (status == Status.NEW) {
-                laundryProcessedStatus.setText(R.string.laundry_processed_new);
-            } else if (status == Status.ACCEPTED) {
-                laundryProcessedStatus.setText(R.string.laundry_processed_accepted);
-            } else if (status == Status.PROCESSING) {
-                laundryProcessedStatus.setText(R.string.laundry_processed_processing);
-            }
 
             laundryProcessedTime.setText(Utility.getTimeDifference(mContext, dateCreated, deliveryDate));
             laundryProcessedShop.setText(laundryShop);
@@ -395,12 +449,17 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         if (details == null) {
             return;
         }
+        Status status = details.getStatus();
 
         laundryScheduleDetailsLayout.setVisibility(View.VISIBLE);
         noLaundryLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
-        editButton.setVisibility(View.VISIBLE);
+        if (status == Status.COMPLETED || status == Status.REJECTED) {
+            editButton.setVisibility(View.GONE);
+        } else {
+            editButton.setVisibility(View.VISIBLE);
+        }
         doneButton.setVisibility(View.GONE);
         scheduleFee.setVisibility(View.VISIBLE);
         feeEdittext.setVisibility(View.GONE);
@@ -493,9 +552,8 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        Status status = details.getStatus();
         int yellow = ContextCompat.getColor(mContext, R.color.tubble_yellow);
-        int white = ContextCompat.getColor(mContext, android.R.color.background_light);
+        int white = ContextCompat.getColor(mContext, R.color.background_color_light);
         int gray = ContextCompat.getColor(mContext, R.color.disabled_button);
         if (status == Status.ACCEPTED) {
             editButton.setEnabled(true);
@@ -514,7 +572,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             processingButton.setEnabled(false);
             returningButton.setEnabled(true);
         } else if (status == Status.COMPLETED) {
-            editButton.setEnabled(true);
+            editButton.setEnabled(false);
             laundryAcceptedBg.setBackgroundColor(yellow);
             processingBg.setBackgroundColor(yellow);
             returningBg.setBackgroundColor(yellow);
@@ -608,6 +666,14 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                     }
                 }
                 break;
+            case R.id.laundry_accepted_button:
+                BookingDetails details1 = BookingDetails.findById(BookingDetails.class, selectedBookingId);
+                details1.setStatus(Status.ACCEPTED);
+                Utility.sendLaundryStatusThruSms(mContext, details1, Status.ACCEPTED);
+                laundryAcceptedBg.setBackgroundColor(ContextCompat.getColor(mContext, R.color.tubble_yellow));
+                laundryAcceptedBg.setEnabled(false);
+                processingButton.setEnabled(true);
+                break;
             case R.id.processing_button:
                 BookingDetails details2 = BookingDetails.findById(BookingDetails.class, selectedBookingId);
                 details2.setStatus(Status.PROCESSING);
@@ -623,6 +689,11 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                 returningBg.setBackgroundColor(ContextCompat.getColor(mContext, R.color.tubble_yellow));
                 returningButton.setEnabled(false);
                 break;
+            case R.id.send_rating_button:
+                BookingDetails details4 = BookingDetails.findById(BookingDetails.class, selectedBookingId);
+                Utility.sendRatingThruSms(mContext, details4, ratingBar.getRating(), commentsEdittext.getText().toString());
+                // To do: Send comments/suggestions and rating to LSP via SMS
+                break;
             default:
                 break;
         }
@@ -632,10 +703,15 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         setCheckStatusFromScheduler(APPROVED_STATUS_LIST);
         laundryListLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.GONE);
+        laundryCompletedLayout.setVisibility(View.GONE);
 
-        List<BookingDetails> approvedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.ACCEPTED.name());
-        List<BookingDetails> deniedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.REJECTED.name());
-        List<BookingDetails> newBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), BookingDetails.Status.NEW.name());
+        List<BookingDetails> approvedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), Status.ACCEPTED.name());
+        List<BookingDetails> deniedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), Status.REJECTED.name());
+        List<BookingDetails> processingBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), Status.PROCESSING.name());
+        List<BookingDetails> completedBookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(mContext)), Status.COMPLETED.name());
+
+        approvedBookings.addAll(processingBookings);
+        approvedBookings.addAll(completedBookings);
 
         if (approvedBookings.isEmpty() && deniedBookings.isEmpty()) {
             noLaundryLayout.setVisibility(View.VISIBLE);

@@ -27,15 +27,20 @@ import com.laundryapp.tubble.entities.User.Type;
 import com.laundryapp.tubble.receivers.EditLaundryDetailsReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryRequestReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryStatusReceiver;
+import com.laundryapp.tubble.receivers.SendRatingReceiver;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Utility {
+
+    private static final String TESTING_CONTACT_NO = "09391157355";
+//    private static final String TESTING_CONTACT_NO = "09063931566";     // Lyssa's Number
 
     public static final String DELIMETER = ";";
     private static final String TAG = "Utility";
@@ -45,6 +50,7 @@ public class Utility {
     private static String SENT = "com.laundryapp.tubble.SMS_SENT";
     private static String STATUS_SENT = "com.laundryapp.tubble.STATUS_SENT";
     private static String EDIT_DETAILS_SENT = "com.laundryapp.tubble.EDIT_DETAILS_SENT";
+    private static String RATING_SENT = "com.laundryapp.tubble.RATING_SENT";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
@@ -111,6 +117,47 @@ public class Utility {
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         activity.sendBroadcast(mediaScanIntent);
+    }
+
+    public static void sendRatingThruSms(Context context, BookingDetails details, float rating, String comments) {
+        String mode = Integer.toString(details.getMode() == BookingDetails.Mode.PICKUP ? 1 : 2);
+        String type = Integer.toString(details.getType() == BookingDetails.Type.COMMERCIAL ? 1 : 2);
+        String laundryShopId = Long.toString(Utility.getUserId(context));
+        String serviceId = Long.toString(details.getLaundryServiceId());
+        String notes = details.getNotes().equals("") ? " " : details.getNotes();
+        String pickupDate = Long.toString(details.getPickupDate());
+        String returnDate = Long.toString(details.getReturnDate());
+        String noOfClothes = Integer.toString(details.getNoOfClothes());
+        String estimatedKilo = Float.toString(details.getEstimatedKilo());
+        String fee = Float.toString(details.getFee());
+        String message = "rating{" +
+                mode + DELIMETER +
+                type + DELIMETER +
+                laundryShopId + DELIMETER +
+                serviceId + DELIMETER +
+                notes + DELIMETER +
+                pickupDate + DELIMETER +
+                returnDate + DELIMETER +
+                noOfClothes + DELIMETER +
+                estimatedKilo + DELIMETER +
+                fee + DELIMETER +
+                rating + DELIMETER +
+                comments + "}";
+
+        LaundryShop laundryShop = details.getLaundryShop();
+//        String phoneNo = laundryShop.getContact();
+        String phoneNo = TESTING_CONTACT_NO;
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            ArrayList<String> messageArray = smsManager.divideMessage(message);
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(RATING_SENT), 0);
+            SendRatingReceiver.setBookingDetailsWaitingResponse(details.getId(), rating, comments);
+            smsManager.sendDataMessage(phoneNo, null, PORT, messageArray.get(0).getBytes(), sentIntent, null);
+            Log.d(TAG, "Sending rating...");
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
     }
 
     public static void sendLaundryStatusThruSms(Context context, final BookingDetails details, final BookingDetails.Status laundryStatus) {
@@ -242,9 +289,7 @@ public class Utility {
 
         LaundryShop laundryShop = details.getLaundryShop();
 //        String phoneNo = laundryShop.getContact();
-//        String phoneNo = "09989976459";   // personal number
-//        String phoneNo = "09063931566";   // lyssa
-        String phoneNo = "09391157355";
+        String phoneNo = TESTING_CONTACT_NO;
 
         try {
             SmsManager smsManager = SmsManager.getDefault();

@@ -276,7 +276,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         }
     }
 
-    public void updateScheduleList(long timeInMillis) {
+    public static void updateScheduleList(long timeInMillis) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMillis);
         int year = calendar.get(Calendar.YEAR);
@@ -284,14 +284,17 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         listAdapter.setDate(timeInMillis);
         List<BookingDetails> bookings = null;
-        String user_id = Long.toString(Utility.getUserId(getContext()));
-        if (Utility.getUserType(getContext()) == User.Type.CUSTOMER) {
+        String user_id = Long.toString(Utility.getUserId(mContext));
+        if (Utility.getUserType(mContext) == User.Type.CUSTOMER) {
             bookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", user_id);
-        } else if (Utility.getUserType(getContext()) == User.Type.LAUNDRY_SHOP) {
+        } else if (Utility.getUserType(mContext) == User.Type.LAUNDRY_SHOP) {
             bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", user_id);
         }
         SchedulerFragment.allBookings.clear();
         for (BookingDetails booking : bookings) {
+            if (booking.getStatus() == BookingDetails.Status.REJECTED) {
+                continue;
+            }
             calendar.setTimeInMillis(booking.getPickupDate());
             int pickupYear = calendar.get(Calendar.YEAR);
             int pickupMonth = calendar.get(Calendar.MONTH);
@@ -313,7 +316,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else {
             noScheduleText.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
-            listAdapter = new ScheduleListAdapter(getContext(), SchedulerFragment.allBookings);
+            listAdapter = new ScheduleListAdapter(mContext, SchedulerFragment.allBookings);
             listView.setAdapter(SchedulerFragment.listAdapter);
             listAdapter.notifyDataSetChanged();
         }
