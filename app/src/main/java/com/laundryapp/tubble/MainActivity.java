@@ -49,8 +49,6 @@ public class MainActivity extends FragmentActivity implements
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
-    private Context mContext;
-
     private MenuItem menuSearch, menuLogout, menuStatus, menuCancel;
 
     public static final String USER_ID = "user_id";
@@ -83,7 +81,6 @@ public class MainActivity extends FragmentActivity implements
         initializeFragments();
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-        mContext = this;
     }
 
     private void initializeFragments() {
@@ -389,7 +386,7 @@ public class MainActivity extends FragmentActivity implements
             shutdownBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mContext.super.on
+                   finish();
                 }
             });
 
