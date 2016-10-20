@@ -449,17 +449,11 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         if (details == null) {
             return;
         }
-        Status status = details.getStatus();
 
         laundryScheduleDetailsLayout.setVisibility(View.VISIBLE);
         noLaundryLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
-        if (status == Status.COMPLETED || status == Status.REJECTED) {
-            editButton.setVisibility(View.GONE);
-        } else {
-            editButton.setVisibility(View.VISIBLE);
-        }
         doneButton.setVisibility(View.GONE);
         scheduleFee.setVisibility(View.VISIBLE);
         feeEdittext.setVisibility(View.GONE);
@@ -552,6 +546,13 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             }
         });
 
+        Status status = details.getStatus();
+        Log.d(TAG, "Status = " + status.name());
+        if (status == Status.COMPLETED || status == Status.REJECTED) {
+            editButton.setVisibility(View.GONE);
+        } else {
+            editButton.setVisibility(View.VISIBLE);
+        }
         int yellow = ContextCompat.getColor(mContext, R.color.tubble_yellow);
         int white = ContextCompat.getColor(mContext, R.color.background_color_light);
         int gray = ContextCompat.getColor(mContext, R.color.disabled_button);
@@ -638,32 +639,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                 BookingDetails details = BookingDetails.findById(BookingDetails.class, selectedBookingId);
                 if (details != null) {
                     LaundryShop shop = details.getLaundryShop();
-                    final String[] contacts = shop.getContact().split("/");
-                    for (int i = 0; i < contacts.length; i++) {
-                        contacts[i] = contacts[i].replace("(", "").replace(")", "").replace(" ", "").replace("-", "").replace(".", "").trim();
-                    }
-
-                    ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, contacts);
-                    final Intent intent = new Intent(Intent.ACTION_DIAL);
-                    if (contacts.length > 1) {
-                        builder = new AlertDialog.Builder(mContext);
-                        builder.setTitle("Contact");
-                        builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                intent.setData(Uri.parse("tel:" + contacts[i]));
-                                startActivity(intent);
-                                dialog.dismiss();
-                            }
-                        });
-                        dialog = builder.create();
-                        dialog.show();
-                    } else if (contacts.length == 1) {
-                        intent.setData(Uri.parse("tel:" + contacts[0]));
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(mContext, "No contact number available.", Toast.LENGTH_SHORT).show();
-                    }
+                    Utility.callLaundryShop(mContext, shop);
                 }
                 break;
             case R.id.laundry_accepted_button:

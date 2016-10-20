@@ -633,6 +633,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     }
 
     public void createBooking() {
+        final long dateCreated = System.currentTimeMillis();
         final BookingDetails.Mode mMode = modeToggle.isChecked() ? BookingDetails.Mode.DELIVERY : BookingDetails.Mode.PICKUP;
         final BookingDetails.Type mType = typeToggle.isChecked() ? BookingDetails.Type.PERSONAL : BookingDetails.Type.COMMERCIAL;
         final long mUserId = Utility.getUserId(getContext());
@@ -697,7 +698,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    BookingDetails booking = new BookingDetails(mMode, mType, laundryShopService_id, laundryShop_id, mUserId, mLocation, mNotes, pickupMillis, returnMillis, Integer.parseInt(mNoOfClothes), Float.parseFloat(mEstimatedKilo), estimatedFee);
+                    BookingDetails booking = new BookingDetails(dateCreated, mMode, mType, laundryShopService_id, laundryShop_id, mUserId, mLocation, mNotes, pickupMillis, returnMillis, Integer.parseInt(mNoOfClothes), Float.parseFloat(mEstimatedKilo), estimatedFee);
 //                    booking.save();
                     reset();
                     Utility.sendLaundryRequestThruSms(getContext(), booking);

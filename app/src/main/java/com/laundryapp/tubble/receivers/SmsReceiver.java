@@ -63,10 +63,10 @@ public class SmsReceiver extends BroadcastReceiver {
             User user = User.find(User.class, "m_Mobile_Number = ?", subStr[0]).get(0);
             BookingDetails.Mode mode = (subStr[1].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
             BookingDetails.Type type = (subStr[2].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
-            BookingDetails booking = new BookingDetails(mode, type, Long.parseLong(subStr[4]), Long.parseLong(subStr[3]), user.getId(), user.getAddress(), subStr[5], Long.parseLong(subStr[6]), Long.parseLong(subStr[7]), Integer.parseInt(subStr[8]), Float.parseFloat(subStr[9]), Float.parseFloat(subStr[10]));
+            BookingDetails booking = new BookingDetails(Long.parseLong(subStr[11]), mode, type, Long.parseLong(subStr[4]), Long.parseLong(subStr[3]), user.getId(), user.getAddress(), subStr[5], Long.parseLong(subStr[6]), Long.parseLong(subStr[7]), Integer.parseInt(subStr[8]), Float.parseFloat(subStr[9]), Float.parseFloat(subStr[10]));
             booking.save();
             LaundryRequestFragment.updateBookingsList(context);
-            SchedulerFragment.updateScheduleList(System.currentTimeMillis());
+            SchedulerFragment.updateScheduleList(booking.getPickupDate());
         } else if (message.startsWith("status")) {
             message = message.substring("status{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
@@ -162,24 +162,28 @@ public class SmsReceiver extends BroadcastReceiver {
             message = message.substring("rating{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
 
-            BookingDetails.Mode mode = (subStr[0].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
-            BookingDetails.Type type = (subStr[1].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
-            String notes = subStr[4];
+//            BookingDetails.Mode mode = (subStr[0].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
+//            BookingDetails.Type type = (subStr[1].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
+//            String notes = subStr[4];
 
-            List<BookingDetails> booking;
-            if (notes.equals("") || notes.equals(" ")) {
-                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
-                                "and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
-                        subStr[2], subStr[3], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
-            } else {
-                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
-                                "and m_Notes = ? and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
-                        subStr[2], subStr[3], subStr[4], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
+            List<BookingDetails> booking = null;
+            List<User> users = User.find(User.class, "m_Full_Name = ? and m_Mobile_Number = ?", subStr[1], subStr[2]);
+            if (!users.isEmpty()) {
+                booking = BookingDetails.find(BookingDetails.class, "m_Date_Created = ? and m_User_Id = ?", subStr[0], Long.toString(users.get(0).getId()));
             }
+//            if (notes.equals("") || notes.equals(" ")) {
+//                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
+//                                "and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
+//                        subStr[2], subStr[3], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
+//            } else {
+//                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
+//                                "and m_Notes = ? and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
+//                        subStr[2], subStr[3], subStr[4], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
+//            }
 
             Log.d(TAG, "booking found: " + booking.size());
             if (!booking.isEmpty()) {
-                UserRating userRating = new UserRating(booking.get(0).getId(), Float.parseFloat(subStr[10]), subStr[11]);
+                UserRating userRating = new UserRating(booking.get(0).getId(), Float.parseFloat(subStr[3]), subStr[4]);
                 userRating.save();
                 LaundryShop shop = booking.get(0).getLaundryShop();
                 shop.addRating(userRating.getRating());

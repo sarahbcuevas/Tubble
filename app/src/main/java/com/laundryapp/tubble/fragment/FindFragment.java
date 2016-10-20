@@ -17,6 +17,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,7 +32,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.SearchResultsAdapter;
+import com.laundryapp.tubble.Utility;
+import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
+import com.laundryapp.tubble.entities.LaundryShopService;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -286,17 +291,47 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        LaundryShop shop = LaundryShop.find(LaundryShop.class, "m_Name = ?", marker.getTitle()).get(0);
+        final LaundryShop shop = LaundryShop.find(LaundryShop.class, "m_Name = ?", marker.getTitle()).get(0);
 
         mapLayout.setVisibility(View.GONE);
         searchResultsLayout.setVisibility(View.GONE);
         infoLayout.setVisibility(View.VISIBLE);
 
         TextView shopNameText = (TextView) infoLayout.findViewById(R.id.shop_name);
+        TextView shopScheduleText = (TextView) infoLayout.findViewById(R.id.shop_schedule);
         RatingBar laundryRating = (RatingBar) infoLayout.findViewById(R.id.laundry_rating);
+        TableLayout servicesTable = (TableLayout) infoLayout.findViewById(R.id.services_table);
+        ImageButton callButton = (ImageButton) infoLayout.findViewById(R.id.call_button);
 
         shopNameText.setText(shop.getName());
+        shopScheduleText.setText(shop.getSchedule());
         laundryRating.setRating(shop.getRating());
+        callButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Utility.callLaundryShop(getContext(), shop);
+            }
+        });
+
+        if (servicesTable.getChildCount() > 1) {
+            servicesTable.removeViews(1, servicesTable.getChildCount() - 1);
+        }
+        List<LaundryShopService> shopServices = LaundryShopService.find(LaundryShopService.class, "m_Laundry_Shop_Id = ?", Long.toString(shop.getId()));
+        if (!shopServices.isEmpty()) {
+            for (LaundryShopService service : shopServices) {
+                TableRow row = new TableRow(getContext());
+                LaundryService laundryService = LaundryService.findById(LaundryService.class, service.getLaundryServiceId());
+                TextView serviceName = new TextView(getContext());
+                serviceName.setText(laundryService.getLabel());
+                serviceName.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                TextView servicePrice = new TextView(getContext());
+                servicePrice.setText("P " + service.getPrice() + "/kilo");
+                servicePrice.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                row.addView(serviceName);
+                row.addView(servicePrice);
+                servicesTable.addView(row);
+            }
+        }
     }
 
     public static void showSearchResults(List<LaundryShop> laundryShops) {
@@ -329,7 +364,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     }
 
     public static boolean onBackPressed() {
-        if (infoLayout.getVisibility() == View.VISIBLE || searchResultsLayout.getVisibility() == View.VISIBLE) {
+        if ((infoLayout != null && infoLayout.getVisibility() == View.VISIBLE) || (searchResultsLayout != null && searchResultsLayout.getVisibility() == View.VISIBLE)) {
             infoLayout.setVisibility(View.GONE);
             searchResultsLayout.setVisibility(View.GONE);
             mapLayout.setVisibility(View.VISIBLE);

@@ -1,9 +1,11 @@
 package com.laundryapp.tubble;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -16,8 +18,10 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.laundryapp.tubble.entities.BookingDetails;
@@ -55,6 +59,37 @@ public class Utility {
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
     public final static int CAPTURE_IMAGE_RESULT = 2;
+    private static Dialog dialog;
+
+    public static void callLaundryShop(final Context context, LaundryShop shop) {
+        final String[] contacts = shop.getContact().split("/");
+        for (int i = 0; i < contacts.length; i++) {
+            contacts[i] = contacts[i].replace("(", "").replace(")", "").replace(" ", "").replace("-", "").replace(".", "").trim();
+        }
+
+        ArrayAdapter adapter = new ArrayAdapter(context, android.R.layout.simple_list_item_1, contacts);
+        final Intent intent = new Intent(Intent.ACTION_DIAL);
+        AlertDialog.Builder builder;
+        if (contacts.length > 1) {
+            builder = new AlertDialog.Builder(context);
+            builder.setTitle("Contact");
+            builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    intent.setData(Uri.parse("tel:" + contacts[i]));
+                    context.startActivity(intent);
+                    dialog.dismiss();
+                }
+            });
+            dialog = builder.create();
+            dialog.show();
+        } else if (contacts.length == 1) {
+            intent.setData(Uri.parse("tel:" + contacts[0]));
+            context.startActivity(intent);
+        } else {
+            Toast.makeText(context, "No contact number available.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public static String takePhotoUsingCamera(Activity activity) {
         String imageDecode = null;
@@ -120,27 +155,15 @@ public class Utility {
     }
 
     public static void sendRatingThruSms(Context context, BookingDetails details, float rating, String comments) {
-        String mode = Integer.toString(details.getMode() == BookingDetails.Mode.PICKUP ? 1 : 2);
-        String type = Integer.toString(details.getType() == BookingDetails.Type.COMMERCIAL ? 1 : 2);
-        String laundryShopId = Long.toString(Utility.getUserId(context));
-        String serviceId = Long.toString(details.getLaundryServiceId());
-        String notes = details.getNotes().equals("") ? " " : details.getNotes();
-        String pickupDate = Long.toString(details.getPickupDate());
-        String returnDate = Long.toString(details.getReturnDate());
-        String noOfClothes = Integer.toString(details.getNoOfClothes());
-        String estimatedKilo = Float.toString(details.getEstimatedKilo());
-        String fee = Float.toString(details.getFee());
+        String dateCreated = Long.toString(details.getDateCreatedInMillis());
+        User user = User.findById(User.class, details.getUserId());
+        String userName = user.getFullName();
+        String userMobile = user.getMobileNumber();
+
         String message = "rating{" +
-                mode + DELIMETER +
-                type + DELIMETER +
-                laundryShopId + DELIMETER +
-                serviceId + DELIMETER +
-                notes + DELIMETER +
-                pickupDate + DELIMETER +
-                returnDate + DELIMETER +
-                noOfClothes + DELIMETER +
-                estimatedKilo + DELIMETER +
-                fee + DELIMETER +
+                dateCreated + DELIMETER +
+                userName + DELIMETER +
+                userMobile + DELIMETER +
                 rating + DELIMETER +
                 comments + "}";
 
@@ -150,10 +173,9 @@ public class Utility {
 
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            ArrayList<String> messageArray = smsManager.divideMessage(message);
             PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(RATING_SENT), 0);
             SendRatingReceiver.setBookingDetailsWaitingResponse(details.getId(), rating, comments);
-            smsManager.sendDataMessage(phoneNo, null, PORT, messageArray.get(0).getBytes(), sentIntent, null);
+            smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
             Log.d(TAG, "Sending rating...");
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -252,6 +274,7 @@ public class Utility {
     public static void sendLaundryRequestThruSms(Context context, final BookingDetails details) {
         String message = "";
         String userInfo = "";
+        String dateCreated = Long.toString(details.getDateCreatedInMillis());
         String mode = Integer.toString(details.getMode() == BookingDetails.Mode.PICKUP ? 1 : 2);
         String type = Integer.toString(details.getType() == BookingDetails.Type.COMMERCIAL ? 1 : 2);
         String laundryShopId = Long.toString(details.getLaundryShop().getId());
@@ -278,7 +301,8 @@ public class Utility {
                 returnDate + DELIMETER +
                 noOfClothes + DELIMETER +
                 estimatedKilo + DELIMETER +
-                estimatedFee + "}";
+                estimatedFee + DELIMETER +
+                dateCreated + "}";
         Log.d(TAG, "Message before sending: " + message);
 
         userInfo = "user{" +

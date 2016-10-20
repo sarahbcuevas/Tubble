@@ -8,16 +8,18 @@
     <ScrollView
         android:id="@+id/user_profile"
         android:layout_width="match_parent"
-        android:visibility="visible"
+        android:visibility="gone"
         android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
             android:orientation="vertical">
 
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:id="@+id/profile_picture_layout"
+                android:layout_width="280dp"
                 android:layout_height="200dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
@@ -62,6 +64,7 @@
                 android:id="@+id/mobile_number"
                 android:layout_width="@dimen/form_edittext_width"
                 android:layout_height="@dimen/form_edittext_height"
+                android:enabled="false"
                 android:gravity="center"
                 android:hint="mobile number" />
 
@@ -70,6 +73,7 @@
                 android:layout_width="@dimen/form_edittext_width"
                 android:layout_height="@dimen/form_edittext_height"
                 android:gravity="center"
+                android:enabled="false"
                 android:hint="full name" />
 
             <EditText
@@ -77,6 +81,7 @@
                 android:layout_width="@dimen/form_edittext_width"
                 android:layout_height="@dimen/form_edittext_height"
                 android:gravity="center"
+                android:enabled="false"
                 android:hint="email" />
 
             <Button
@@ -99,7 +104,9 @@
                 android:text="Track History"
                 android:textAllCaps="true"
                 android:textColor="@android:color/white" />
+
         </LinearLayout>
+
     </ScrollView>
 
     <RelativeLayout
@@ -136,4 +143,30 @@
              android:visibility="gone"></ListView>
     </RelativeLayout>
 
+    <ScrollView
+        android:id="@+id/shop_layout"
+        android:layout_width="match_parent"
+        android:visibility="visible"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <include layout="@layout/shop_info_layout" />
+
+            <Button
+                android:id="@+id/track_history_button"
+                android:layout_width="280dp"
+                android:layout_height="@dimen/form_button_height"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/tubble_blue"
+                android:text="Track History"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

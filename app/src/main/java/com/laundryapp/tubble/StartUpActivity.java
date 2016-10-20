@@ -80,7 +80,7 @@ public class StartUpActivity extends AppCompatActivity {
             shop_id = shop.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 40);
             shopService.save();
-            shop = new LaundryShop("Metropole", "Gilmore Corner E. Rodriguez Sr. Avenue, Quezon City, New Manila, Quezon City, Metro Manila", "", "(02) 414 4587", 4, "024144587", "password");
+            shop = new LaundryShop("Metropole", "Gilmore Corner E. Rodriguez Sr. Avenue, Quezon City, New Manila, Quezon City, Metro Manila", "Mondays - Sundays, 8am - 6pm\nClosed on Holidays", "(02) 414 4587", 4, "024144587", "password");
             shop.setLocationCoordinates(14.6197947d, 121.0249749d);
             shop_id = shop.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 30);
