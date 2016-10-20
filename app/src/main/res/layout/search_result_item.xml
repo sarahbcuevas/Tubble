@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,18 +14,31 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="LAUNDRY SHOP" />
+            android:text="LAUNDRY SHOP"
+            android:textColor="@android:color/black"
+            android:textSize="15sp"
+
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5.0" />
+            android:text="5.0"
+            android:textSize="15sp"
+            android:textColor="@android:color/black" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/star_shaded"/>
     </LinearLayout>
 
     <TextView
         android:id="@+id/address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="38 asda ST." />
+        android:text="38 asda ST."
+
+        android:textColor="@android:color/black" />
 </LinearLayout>

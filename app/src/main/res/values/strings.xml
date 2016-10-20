@@ -55,4 +55,9 @@
     <string name="close">Close</string>
     <string name="service">Service</string>
     <string name="rating">Rating</string>
+
+    <!-- Shut Down Dialog-->
+
+    <string name="shutdown">Shut down</string>
+    <string name="shutdown_text">Do you want to shut down Tubble?</string>
 </resources>
