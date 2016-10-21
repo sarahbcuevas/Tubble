@@ -13,26 +13,33 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.laundryapp.tubble.MainActivity;
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.BookingDetails.Status;
+import com.laundryapp.tubble.entities.LaundryAssignment;
 import com.laundryapp.tubble.entities.LaundryShop;
+import com.laundryapp.tubble.entities.LaundryShopStaff;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.UserRating;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -321,10 +328,21 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                 TextView statusLaundryShopId = (TextView) statusListItemView.findViewById(R.id.laundry_shop_id);
                 TextView statusFee = (TextView) statusListItemView.findViewById(R.id.fee);
                 TextView statusTimeRemaining = (TextView) statusListItemView.findViewById(R.id.time_remaining);
-                statusLaundryShop.setText(detail.getLaundryShop().getName());
                 statusLaundryShopId.setText(Long.toString(detail.getId()));
-                statusFee.setText("Fee: " + detail.getFee());
+                statusFee.setText("Fee: P" + detail.getFee());
                 statusTimeRemaining.setText(Utility.getTimeDifference(mContext, System.currentTimeMillis(), returnDate));
+                String laundryShopName;
+                if (userType == User.Type.CUSTOMER) {
+                    laundryShopName = detail.getLaundryShop().getName();
+                    List<LaundryAssignment> assignments = LaundryAssignment.find(LaundryAssignment.class, "m_Booking_Details_Id = ?", Long.toString(detail.getId()));
+                    if (!assignments.isEmpty()) {
+                        laundryShopName += ", " + assignments.get(0).getLaundryStaffName();
+                    }
+                } else {
+                    User user = User.findById(User.class, detail.getUserId());
+                    laundryShopName = user.getFullName();
+                }
+                statusLaundryShop.setText(laundryShopName);
                 detail_id = detail.getId();
                 statusListItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -432,13 +450,27 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             long deliveryDate = details.getReturnDate();
             float fee = details.getFee();
             SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
+            List<LaundryAssignment> assignments = LaundryAssignment.find(LaundryAssignment.class, "m_Booking_Details_Id = ?", Long.toString(details.getId()));
+            if (!assignments.isEmpty()) {
+                laundryShop += ", " + assignments.get(0).getLaundryStaffName();
+            }
 
             laundryProcessedTime.setText(Utility.getTimeDifference(mContext, dateCreated, deliveryDate));
             laundryProcessedShop.setText(laundryShop);
             laundryProcessedService.setText(laundryService);
             laundryProcessedPickup.setText(dateFormat.format(pickupDate));
             laundryProcessedDelivery.setText(dateFormat.format(deliveryDate));
-            laundryProcessedFee.setText(Float.toString(fee));
+            laundryProcessedFee.setText("P" + Float.toString(fee));
+        }
+    }
+
+    public static void updateLaundrySchedule(long detailsId) {
+        if (laundryScheduleDetailsLayout.getVisibility() == View.VISIBLE) {
+            updateLaundryScheduleDetailsLayout(detailsId);
+        } else if (laundryListLayout.getVisibility() == View.VISIBLE) {
+            updateLaundryList();
+        } else if (laundryProcessedLayout.getVisibility() == View.VISIBLE) {
+            updateLaundryProcessedLayout(detailsId);
         }
     }
 
@@ -469,7 +501,6 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         scheduleFee.setText("P" + details.getFee());
         scheduleMode.setText(details.getModeName());
         scheduleType.setText(details.getTypeName());
-        scheduleLocation.setText(details.getLaundryShop().getName());
         scheduleService.setText(details.getLaundryServiceName());
         schedulePickupDate.setText(dateFormat.format(details.getPickupDate()));
         schedulePickupLocation.setText(details.getLocation());
@@ -478,6 +509,15 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         scheduleNoOfClothes.setText(details.getNoOfClothes() + "");
         scheduleEstimatedKilo.setText(details.getEstimatedKilo() + "kg");
         scheduleNotes.setText(details.getNotes());
+
+        String location = details.getLaundryShop().getName();
+        if (Utility.getUserType(mContext) == User.Type.LAUNDRY_SHOP) {
+            List<LaundryAssignment> assignment = LaundryAssignment.find(LaundryAssignment.class, "m_Booking_Details_Id = ?", Long.toString(detailsId));
+            if (!assignment.isEmpty()) {
+                location += (", " + assignment.get(0).getLaundryStaffName());
+            }
+        }
+        scheduleLocation.setText(location);
 
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -651,12 +691,47 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                 processingButton.setEnabled(true);
                 break;
             case R.id.processing_button:
-                BookingDetails details2 = BookingDetails.findById(BookingDetails.class, selectedBookingId);
-                details2.setStatus(Status.PROCESSING);
-                Utility.sendLaundryStatusThruSms(mContext, details2, Status.PROCESSING);
-                processingBg.setBackgroundColor(ContextCompat.getColor(mContext, R.color.tubble_yellow));
-                processingButton.setEnabled(false);
-                returningButton.setEnabled(true);
+                final BookingDetails details2 = BookingDetails.findById(BookingDetails.class, selectedBookingId);
+                final Dialog dialog = new Dialog(mContext);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.assign_laundry_dialog);
+
+                final Spinner assigneeSpinner = (Spinner) dialog.findViewById(R.id.assignee_spinner);
+                final List<LaundryShopStaff> staffList = LaundryShopStaff.find(LaundryShopStaff.class, "m_Laundry_Shop_Id = ?", Long.toString(details2.getLaundryShop().getId()));
+                List<String> staffListString = new ArrayList<>();
+                for (LaundryShopStaff staff : staffList) {
+                    staffListString.add(staff.getName());
+                }
+
+                ArrayAdapter<String> data1Adapter = new ArrayAdapter<String>(mContext,
+                        R.layout.simple_spinner_item, staffListString);
+                data1Adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown);
+                assigneeSpinner.setAdapter(data1Adapter);
+
+                Button closeBtn = (Button) dialog.findViewById(R.id.cancel_button);
+                closeBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
+
+                Button assignBtn = (Button) dialog.findViewById(R.id.assign_button);
+                assignBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // To do: Send assignee thry SMS
+                        Utility.sendAssignLaundryProcessing(mContext, details2, staffList.get(assigneeSpinner.getSelectedItemPosition()));
+//                        details2.setStatus(Status.PROCESSING);
+//                        Utility.sendLaundryStatusThruSms(mContext, details2, Status.PROCESSING);
+                        processingBg.setBackgroundColor(ContextCompat.getColor(mContext, R.color.tubble_yellow));
+                        processingButton.setEnabled(false);
+                        returningButton.setEnabled(true);
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
                 break;
             case R.id.returning_button:
                 BookingDetails details3 = BookingDetails.findById(BookingDetails.class, selectedBookingId);

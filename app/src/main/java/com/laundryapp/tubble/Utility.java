@@ -26,9 +26,11 @@ import android.widget.Toast;
 
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.LaundryShop;
+import com.laundryapp.tubble.entities.LaundryShopStaff;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.User.Type;
 import com.laundryapp.tubble.receivers.EditLaundryDetailsReceiver;
+import com.laundryapp.tubble.receivers.SendAssignLaundryProcessingReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryRequestReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryStatusReceiver;
 import com.laundryapp.tubble.receivers.SendRatingReceiver;
@@ -55,6 +57,7 @@ public class Utility {
     private static String STATUS_SENT = "com.laundryapp.tubble.STATUS_SENT";
     private static String EDIT_DETAILS_SENT = "com.laundryapp.tubble.EDIT_DETAILS_SENT";
     private static String RATING_SENT = "com.laundryapp.tubble.RATING_SENT";
+    private static String ASSIGN_LAUNDRY_SENT = "com.laundryapp.tubble.ASSIGN_LAUNDRY_SENT";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
@@ -180,6 +183,32 @@ public class Utility {
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
+    }
+
+    public static void sendAssignLaundryProcessing(Context context, BookingDetails details, LaundryShopStaff assignee) {
+        String dateCreated = Long.toString(details.getDateCreatedInMillis());
+        User user = User.findById(User.class, details.getUserId());
+        String userName = user.getFullName();
+        String userMobile = user.getMobileNumber();
+
+        String message = "assign{" +
+                dateCreated + DELIMETER +
+                userName + DELIMETER +
+                userMobile + DELIMETER +
+                assignee.getId() + "}";
+
+        String phoneNo = user.getMobileNumber();
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(ASSIGN_LAUNDRY_SENT), 0);
+            SendAssignLaundryProcessingReceiver.setAssignee(details, assignee);
+            smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
+            Log.d(TAG, "Sending laundry assignee...");
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
     }
 
     public static void sendLaundryStatusThruSms(Context context, final BookingDetails details, final BookingDetails.Status laundryStatus) {

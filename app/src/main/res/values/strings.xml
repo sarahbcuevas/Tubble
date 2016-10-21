@@ -60,4 +60,9 @@
 
     <string name="shutdown">Shut down</string>
     <string name="shutdown_text">Do you want to shut down Tubble?</string>
+
+    <!--Assign Laundry Dialog-->
+    <string name="assign_laundry_dialog_title">Assign Laundry</string>
+    <string name="assign_laundry_dialog_message">Who will process the laundry?</string>
+    <string name="assign">Assign</string>
 </resources>

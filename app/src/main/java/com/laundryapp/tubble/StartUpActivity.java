@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopService;
+import com.laundryapp.tubble.entities.LaundryShopStaff;
 import com.laundryapp.tubble.entities.User;
 import com.squareup.picasso.Picasso;
 
@@ -75,11 +76,19 @@ public class StartUpActivity extends AppCompatActivity {
             shop_id = shop.save();
             LaundryShopService shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 35);
             shopService.save();
+            (new LaundryShopStaff("Anne", shop_id)).save();
+            (new LaundryShopStaff("Jasmine", shop_id)).save();
+            (new LaundryShopStaff("Miguel", shop_id)).save();
+            (new LaundryShopStaff("Emman", shop_id)).save();
             shop = new LaundryShop("Panda Cleaners", "F Dela Rosa Street, Quezon City, Manila", "Daily: 6AM to 10PM", "(02) 579 0002", 4, "025790002", "password");
             shop.setLocationCoordinates(14.6403772d,121.0310285d);
             shop_id = shop.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 40);
             shopService.save();
+            (new LaundryShopStaff("Clarissa", shop_id)).save();
+            (new LaundryShopStaff("Genie", shop_id)).save();
+            (new LaundryShopStaff("Dean", shop_id)).save();
+            (new LaundryShopStaff("Jayson", shop_id)).save();
             shop = new LaundryShop("Metropole", "Gilmore Corner E. Rodriguez Sr. Avenue, Quezon City, New Manila, Quezon City, Metro Manila", "Mondays - Sundays, 8am - 6pm\nClosed on Holidays", "(02) 414 4587", 4, "024144587", "password");
             shop.setLocationCoordinates(14.6197947d, 121.0249749d);
             shop_id = shop.save();
@@ -93,11 +102,19 @@ public class StartUpActivity extends AppCompatActivity {
             shopService.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.DRY_CLEANING), 50);
             shopService.save();
+            (new LaundryShopStaff("Anna", shop_id)).save();
+            (new LaundryShopStaff("Maria", shop_id)).save();
+            (new LaundryShopStaff("Diego", shop_id)).save();
+            (new LaundryShopStaff("Martin", shop_id)).save();
             shop = new LaundryShop("Quicklean", "107 Maginhawa Diliman, Quezon City, Manila", "Daily: 7AM to 10PM", "0917 517 1470 / (02) 505 5349 / (02) 434 2834", 4, "024342834", "password");
             shop.setLocationCoordinates(14.6461237d, 121.0604149d);
             shop_id = shop.save();
             shopService = new LaundryShopService(shop_id, services_id.get(LaundryService.WASH_DRY_FOLD), 50);
             shopService.save();
+            (new LaundryShopStaff("Sarah", shop_id)).save();
+            (new LaundryShopStaff("Amilou", shop_id)).save();
+            (new LaundryShopStaff("Jose", shop_id)).save();
+            (new LaundryShopStaff("Noel", shop_id)).save();
         }
     }
 }

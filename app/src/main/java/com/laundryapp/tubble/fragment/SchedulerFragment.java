@@ -34,6 +34,7 @@ import android.widget.TextView;
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
+import com.laundryapp.tubble.entities.LaundryAssignment;
 import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopService;
@@ -830,6 +831,11 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             return;
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
+        String location = details.getLaundryShop().getName();
+        List<LaundryAssignment> assignments = LaundryAssignment.find(LaundryAssignment.class, "m_Booking_Details_Id = ?", Long.toString(details.getId()));
+        if (!assignments.isEmpty()) {
+            location += ", " + assignments.get(0).getLaundryStaffName();
+        }
         laundryScheduleDetails.setVisibility(View.VISIBLE);
         schedulerLayout.setVisibility(View.GONE);
         bookingLayout.setVisibility(View.GONE);
@@ -838,7 +844,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         scheduleFee.setText("P" + details.getFee());
         scheduleMode.setText(details.getModeName());
         scheduleType.setText(details.getTypeName());
-        scheduleLocation.setText(details.getLaundryShop().getName());
+        scheduleLocation.setText(location);
         scheduleService.setText(details.getLaundryServiceName());
         schedulePickupDate.setText(dateFormat.format(details.getPickupDate()));
         schedulePickupLocation.setText(details.getLocation());

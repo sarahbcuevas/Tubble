@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
+import com.laundryapp.tubble.entities.LaundryAssignment;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.UserRating;
@@ -162,24 +163,11 @@ public class SmsReceiver extends BroadcastReceiver {
             message = message.substring("rating{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
 
-//            BookingDetails.Mode mode = (subStr[0].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
-//            BookingDetails.Type type = (subStr[1].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
-//            String notes = subStr[4];
-
             List<BookingDetails> booking = null;
             List<User> users = User.find(User.class, "m_Full_Name = ? and m_Mobile_Number = ?", subStr[1], subStr[2]);
             if (!users.isEmpty()) {
                 booking = BookingDetails.find(BookingDetails.class, "m_Date_Created = ? and m_User_Id = ?", subStr[0], Long.toString(users.get(0).getId()));
             }
-//            if (notes.equals("") || notes.equals(" ")) {
-//                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
-//                                "and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
-//                        subStr[2], subStr[3], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
-//            } else {
-//                booking = BookingDetails.find(BookingDetails.class, "m_Mode = ? and m_Type = ? and m_Laundry_Shop_Id = ? and m_Service_Id = ? " +
-//                                "and m_Notes = ? and m_Pickup_Date = ? and m_Return_Date = ? and m_No_Of_Clothes = ? and m_Estimated_Kilo = ? and m_Fee = ?", mode.toString(), type.toString(),
-//                        subStr[2], subStr[3], subStr[4], subStr[5], subStr[6], subStr[7], subStr[8], subStr[9]);
-//            }
 
             Log.d(TAG, "booking found: " + booking.size());
             if (!booking.isEmpty()) {
@@ -190,6 +178,23 @@ public class SmsReceiver extends BroadcastReceiver {
                 shop.save();
             }
 
+        } else if (message.startsWith("assign")) {
+            message = message.substring("assign{".length(), message.length() - 1);
+            String[] subStr = message.split(Utility.DELIMETER);
+
+            List<BookingDetails> booking = null;
+            List<User> users = User.find(User.class, "m_Full_Name = ? and m_Mobile_Number = ?", subStr[1], subStr[2]);
+            if (!users.isEmpty()) {
+                booking = BookingDetails.find(BookingDetails.class, "m_Date_Created = ? and m_User_Id = ?", subStr[0], Long.toString(users.get(0).getId()));
+            }
+
+            if (!booking.isEmpty()) {
+                LaundryAssignment assignment = new LaundryAssignment(Long.parseLong(subStr[3]), booking.get(0).getId());
+                assignment.save();
+                booking.get(0).setStatus(BookingDetails.Status.PROCESSING);
+                booking.get(0).save();
+                StatusFragment.updateLaundrySchedule(booking.get(0).getId());
+            }
         }
     }
 }
