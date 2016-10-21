@@ -206,7 +206,45 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         bookButton = (ImageButton) fragmentView.findViewById(R.id.book_button);
         fm = getChildFragmentManager();
         calendarPager = (ViewPager) fragmentView.findViewById(R.id.calendar_pager);
-        calendarPager.setOffscreenPageLimit(0);
+        calendarPager.setOffscreenPageLimit(1);
+        calendarAdapter = new CalendarWeekViewAdapter(fm);
+        calendarPager.setAdapter(calendarAdapter);
+        calendarPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            @Override
+            public void onPageSelected(int position) {
+                setMonthTextView(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+
+            private void setMonthTextView(int position) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.setFirstDayOfWeek(Calendar.MONDAY);
+                calendar.add(Calendar.DATE, (position - 5_000) * 7);
+                if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                    calendar.add(Calendar.DATE, -1);
+                }
+                calendar.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
+                int year = calendar.get(Calendar.YEAR);
+                String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
+                SchedulerFragment.monthTextView.setText(monthString);
+                int day = CalendarWeekViewFragment.getSelectedDayPosition() + 2;
+                if (day == 8) {
+                    day = 1;
+                }
+                calendar.set(Calendar.DAY_OF_WEEK, day);
+                updateScheduleList(calendar.getTimeInMillis());
+            }
+
+            private void updateScheduleList(long timeInMillis) {
+                SchedulerFragment.updateScheduleList(timeInMillis);
+            }
+        });
 
         leftButton.setOnClickListener(this);
         rightButton.setOnClickListener(this);
@@ -262,15 +300,8 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     }
 
     public static void updateCalendarAdapter() {
-//        if (null == calendarAdapter) {
-            calendarAdapter = new CalendarWeekViewAdapter(fm);
-//        }
-
         try {
-            calendarPager.setAdapter(calendarAdapter);
-            calendarPager.setCurrentItem(4999);
-            calendarPager.setOffscreenPageLimit(0);
-            calendarAdapter.getDaysOfWeek(4999);
+            calendarPager.setCurrentItem(5000);
             calendarAdapter.notifyDataSetChanged();
         } catch (IllegalStateException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -370,7 +401,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             laundryScheduleDetails.setVisibility(View.GONE);
         } else {
             if (mContext != null) {
-                InputMethodManager imm  = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(schedulerLayout.getWindowToken(), 0);
             }
         }
@@ -406,7 +437,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onCheckBookingStatus(long id);
+
         void onAddOrDeleteLaundrySchedule();
+
         void onViewLaundryScheduleDetails();
     }
 
@@ -719,7 +752,6 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     }
 
     public static void updateScheduleListAndCalendar() {
-        calendarAdapter.updateCalendar();
         listAdapter.notifyDataSetChanged();
     }
 
@@ -862,37 +894,10 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 }
 
 class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
-    long[] daysOfWeek = new long[7];
-    Fragment fragment;
+    CalendarWeekViewFragment fragment;
 
     public CalendarWeekViewAdapter(FragmentManager fm) {
         super(fm);
-    }
-
-    public void updateCalendar() {
-        if (fragment != null) {
-            ((CalendarWeekViewFragment) fragment).updateCalendar(false);
-        }
-    }
-
-    public void getDaysOfWeek(int position) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        calendar.add(Calendar.DATE, (position - (getCount()/2)) * 7);
-        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-            calendar.add(Calendar.DATE, -1);
-        }
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        Log.d("Sarah", "Position: " + position + " Date of monday = " + new SimpleDateFormat("MMMM dd, yyyy").format(calendar.getTime()));
-        int year = calendar.get(Calendar.YEAR);
-        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-        for (int i = 0; i < 7; i++) {
-//            days[i] = calendar.getTimeInMillis();
-            daysOfWeek[i] = calendar.getTimeInMillis();
-            calendar.add(Calendar.DATE, 1);
-        }
-//        SchedulerFragment.monthTextView.setText(monthString);
     }
 
     @Override
@@ -902,12 +907,8 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Log.d("Sarah", "Position getItem: " + position);
         fragment = new CalendarWeekViewFragment();
-        Bundle args = new Bundle();
-        getDaysOfWeek(position);
-        args.putLongArray(CalendarWeekViewFragment.CALENDAR_DAY, daysOfWeek);
-        fragment.setArguments(args);
+        fragment.setPosition(position);
         return fragment;
     }
 }

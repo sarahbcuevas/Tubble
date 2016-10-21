@@ -238,7 +238,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         super.setUserVisibleHint(isVisibleToUser);
         if (!isVisibleToUser) {
             setCheckStatusFromScheduler(DEFAULT);
-            if (mContext != null) {
+            if (mContext != null && fragmentView != null) {
                 InputMethodManager imm  = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(fragmentView.getWindowToken(), 0);
             }
@@ -671,7 +671,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                         if (details != null) {
                             boolean isDeleted = details.delete();
                             if (isDeleted) {
-//                              details.delete();
+                                details.delete();
                                 updateLaundryList();
                                 SchedulerFragment.updateScheduleListAndCalendar();
                             }
