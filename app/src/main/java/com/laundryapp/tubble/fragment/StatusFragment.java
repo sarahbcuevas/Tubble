@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -237,6 +238,10 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         super.setUserVisibleHint(isVisibleToUser);
         if (!isVisibleToUser) {
             setCheckStatusFromScheduler(DEFAULT);
+            if (mContext != null) {
+                InputMethodManager imm  = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(fragmentView.getWindowToken(), 0);
+            }
         }
     }
 
@@ -583,6 +588,8 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                 noOfClothesEdittext.setText("");
                 estimatedKiloEdittext.setText("");
 
+                InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(laundryScheduleDetailsLayout.getWindowToken(), 0);
             }
         });
 
