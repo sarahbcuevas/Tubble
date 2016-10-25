@@ -45,8 +45,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Utility {
 
-    private static final String TESTING_CONTACT_NO = "09391157355";
-//    private static final String TESTING_CONTACT_NO = "09063931566";     // Lyssa's Number
+//    private static final String TESTING_CONTACT_NO = "09391157355";
+    private static final String TESTING_CONTACT_NO = "09063931566";     // Lyssa's Number
 
     public static final String DELIMETER = ";";
     private static final String TAG = "Utility";

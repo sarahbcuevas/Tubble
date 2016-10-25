@@ -14,6 +14,7 @@
     <color name="booking_field_background_blue">#109bc6</color>
     <color name="booking_field_text_deselected">#EBEBEB</color>
     <color name="booking_field_text_selected">#FFFFFF</color>
+    <color name="booking_field_text_confirmed">#000000</color>
     <color name="booking_field_divider_color">#A6A6A6</color>
     <color name="booking_field_location_hint_text">#A6A6A6</color>
 

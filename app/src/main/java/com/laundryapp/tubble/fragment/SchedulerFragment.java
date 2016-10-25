@@ -458,30 +458,24 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                 }
                 break;
             case R.id.shop:
-                if (!locationEdittext.getText().toString().isEmpty()) {
-                    isLocationDone = true;
-                    updateBookingSelectedItem(R.id.shop);
-                    shopDialog.show();
-                } else {
-                    messageDialog.show();
-                }
-
+                    if (!locationEdittext.getText().toString().isEmpty()) {
+                        isLocationDone = true;
+                        updateBookingSelectedItem(R.id.shop);
+                        shopDialog.show();
+                    }
                 break;
             case R.id.service:
-                if (locationEdittext.getText().toString().isEmpty()) {
-                    messageDialog.show();
-                    break;
-                }
-                if (laundryShop_id == -1) {
-                    messageDialog.show();
-                } else {
+                if (laundryShop_id != -1) {
                     isLaundyShopDone = true;
                     updateBookingSelectedItem(R.id.service);
                     serviceDialog.show();
                 }
                 break;
             case R.id.summary:
-                updateBookingSelectedItem(R.id.summary);
+                if (laundryShopService_id != -1) {
+                    isServiceDone = true;
+                    updateBookingSelectedItem(R.id.summary);
+                }
                 break;
             case R.id.pickup_date_button:
                 DialogFragment pickupDatePicker = new DatePickerFragment();
@@ -565,10 +559,11 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         int selectedBackground = ContextCompat.getColor(mContext, R.color.booking_field_background_blue);
         int deselectedBackground = ContextCompat.getColor(mContext, R.color.booking_field_background_gray);
         int selectedText = ContextCompat.getColor(mContext, R.color.booking_field_text_selected);
+        int confirmedText = ContextCompat.getColor(mContext, R.color.booking_field_text_confirmed);
         int deselectedText = ContextCompat.getColor(mContext, R.color.booking_field_text_deselected);
 
         modeLayout.setBackgroundColor(resId == R.id.mode ? selectedBackground : confirmedBg);
-        modeText.setTextColor(resId == R.id.mode ? selectedText : deselectedText);
+        modeText.setTextColor(resId == R.id.mode ? selectedText : confirmedText);
 
         if (resId == R.id.type) {
             typeLayout.setBackgroundColor(selectedBackground);
@@ -577,7 +572,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else {
             if (isTypeDone) {
                 typeLayout.setBackgroundColor(confirmedBg);
-                typeText.setTextColor(deselectedText);
+                typeText.setTextColor(confirmedText);
             } else {
                 typeLayout.setBackgroundColor(deselectedBackground);
                 typeText.setTextColor(deselectedText);
@@ -591,7 +586,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else {
             if (isLocationDone) {
                 locationLayout.setBackgroundColor(confirmedBg);
-                locationText.setTextColor(deselectedText);
+                locationText.setTextColor(confirmedText);
             } else {
                 locationLayout.setBackgroundColor(deselectedBackground);
                 locationText.setTextColor(deselectedText);
@@ -605,7 +600,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else {
             if (isLaundyShopDone) {
                 shopLayout.setBackgroundColor(confirmedBg);
-                shopText.setTextColor(deselectedText);
+                shopText.setTextColor(confirmedText);
             } else {
                 shopLayout.setBackgroundColor(deselectedBackground);
                 shopText.setTextColor(deselectedText);
@@ -619,7 +614,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else {
             if (isLaundyShopDone) {
                 serviceLayout.setBackgroundColor(confirmedBg);
-                serviceText.setTextColor(deselectedText);
+                serviceText.setTextColor(confirmedText);
             } else {
                 serviceLayout.setBackgroundColor(deselectedBackground);
                 serviceText.setTextColor(deselectedText);
@@ -631,9 +626,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             summaryText.setTextColor(selectedText);
 
         } else {
-            if (isLaundyShopDone) {
+            if (isServiceDone) {
                 summaryLayout.setBackgroundColor(confirmedBg);
-                summaryText.setTextColor(deselectedText);
+                summaryText.setTextColor(confirmedText);
             } else {
                 summaryLayout.setBackgroundColor(deselectedBackground);
                 summaryText.setTextColor(deselectedText);
@@ -892,6 +887,12 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         try {
             bookingLayout.setVisibility(View.GONE);
             schedulerLayout.setVisibility(View.VISIBLE);
+            updateBookingSelectedItem(R.id.mode);
+            isModeDone = false;
+            isTypeDone = false;
+            isLocationDone = false;
+            isLaundyShopDone = false;
+            isServiceDone = false;
             updateCalendarAdapter();
             modeToggle.setChecked(false);
             typeToggle.setChecked(false);
