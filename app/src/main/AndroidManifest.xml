@@ -28,6 +28,18 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <receiver android:name=".receivers.SendAssignLaundryProcessingReceiver">
+            <intent-filter>
+                <action android:name="com.laundryapp.tubble.ASSIGN_LAUNDRY_SENT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receivers.SendRatingReceiver">
+            <intent-filter>
+                <action android:name="com.laundryapp.tubble.RATING_SENT" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name=".receivers.SendLaundryStatusReceiver">
             <intent-filter>
                 <action android:name="com.laundryapp.tubble.STATUS_SENT" />

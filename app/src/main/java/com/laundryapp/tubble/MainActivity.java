@@ -29,6 +29,7 @@ import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
+import com.laundryapp.tubble.fragment.CalendarWeekViewFragment;
 import com.laundryapp.tubble.fragment.FindFragment;
 import com.laundryapp.tubble.fragment.LaundryRequestFragment;
 import com.laundryapp.tubble.fragment.ProfileFragment;
@@ -275,7 +276,7 @@ public class MainActivity extends FragmentActivity implements
 
             if (ratingPos == 0) {
                 for (LaundryShop tempShop : shops) {
-                    if (tempShop.getAddress().contains(location)) {
+                    if (tempShop.getAddress().toLowerCase().contains(location.toLowerCase())) {
                         elligibleShops.add(tempShop);
                     }
                 }
@@ -283,9 +284,9 @@ public class MainActivity extends FragmentActivity implements
                 FindFragment.showSearchResults(elligibleShops);
             } else {
                 for (LaundryShop tempShop : shops) {
-                    if ((tempShop.getRating() < (ratingPos + .99))
+                    if ((tempShop.getRating() <= (ratingPos + .99))
                             && (tempShop.getRating() >= ratingPos)
-                            && (tempShop.getAddress().contains(location))) {
+                            && (tempShop.getAddress().toLowerCase().contains(location.toLowerCase()))) {
                         elligibleShops.add(tempShop);
                     }
                 }
@@ -302,12 +303,12 @@ public class MainActivity extends FragmentActivity implements
 
                 Log.e("Search", "SHop " + shop.getName() + " " + shop.getRating() + " :: " + ratingPos);
                 if (ratingPos == 0) {
-                    if (shop.getAddress().contains(location)) {
+                    if (shop.getAddress().toLowerCase().contains(location.toLowerCase())) {
                         elligibleShops.add(shop);
                     }
-                } else if ((shop.getRating() < (ratingPos + .99))
+                } else if ((shop.getRating() <= (ratingPos + .99))
                         && (shop.getRating() >= ratingPos)
-                        && (shop.getAddress().contains(location))) {
+                        && (shop.getAddress().toLowerCase().contains(location.toLowerCase()))) {
                     elligibleShops.add(shop);
                 }
             }
@@ -354,6 +355,7 @@ public class MainActivity extends FragmentActivity implements
                 onBackPressed = true;
             } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
                 StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+                SchedulerFragment.setSelectedDateInCalendar(SchedulerFragment.calendarPager.getCurrentItem());
                 mViewPager.setCurrentItem(1);   // go back to Scheduler Fragment
                 onBackPressed = true;
             } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {

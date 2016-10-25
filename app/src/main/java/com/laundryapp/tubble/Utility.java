@@ -1,9 +1,11 @@
 package com.laundryapp.tubble;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -16,26 +18,35 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.LaundryShop;
+import com.laundryapp.tubble.entities.LaundryShopStaff;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.User.Type;
 import com.laundryapp.tubble.receivers.EditLaundryDetailsReceiver;
+import com.laundryapp.tubble.receivers.SendAssignLaundryProcessingReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryRequestReceiver;
 import com.laundryapp.tubble.receivers.SendLaundryStatusReceiver;
+import com.laundryapp.tubble.receivers.SendRatingReceiver;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Utility {
+
+    private static final String TESTING_CONTACT_NO = "09391157355";
+//    private static final String TESTING_CONTACT_NO = "09063931566";     // Lyssa's Number
 
     public static final String DELIMETER = ";";
     private static final String TAG = "Utility";
@@ -45,10 +56,43 @@ public class Utility {
     private static String SENT = "com.laundryapp.tubble.SMS_SENT";
     private static String STATUS_SENT = "com.laundryapp.tubble.STATUS_SENT";
     private static String EDIT_DETAILS_SENT = "com.laundryapp.tubble.EDIT_DETAILS_SENT";
+    private static String RATING_SENT = "com.laundryapp.tubble.RATING_SENT";
+    private static String ASSIGN_LAUNDRY_SENT = "com.laundryapp.tubble.ASSIGN_LAUNDRY_SENT";
     private static final int CUSTOMER = 1;
     private static final int LAUNDRY_SHOP = 2;
     private static final short PORT = 6734;
     public final static int CAPTURE_IMAGE_RESULT = 2;
+    private static Dialog dialog;
+
+    public static void callLaundryShop(final Context context, LaundryShop shop) {
+        final String[] contacts = shop.getContact().split("/");
+        for (int i = 0; i < contacts.length; i++) {
+            contacts[i] = contacts[i].replace("(", "").replace(")", "").replace(" ", "").replace("-", "").replace(".", "").trim();
+        }
+
+        ArrayAdapter adapter = new ArrayAdapter(context, android.R.layout.simple_list_item_1, contacts);
+        final Intent intent = new Intent(Intent.ACTION_DIAL);
+        AlertDialog.Builder builder;
+        if (contacts.length > 1) {
+            builder = new AlertDialog.Builder(context);
+            builder.setTitle("Contact");
+            builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    intent.setData(Uri.parse("tel:" + contacts[i]));
+                    context.startActivity(intent);
+                    dialog.dismiss();
+                }
+            });
+            dialog = builder.create();
+            dialog.show();
+        } else if (contacts.length == 1) {
+            intent.setData(Uri.parse("tel:" + contacts[0]));
+            context.startActivity(intent);
+        } else {
+            Toast.makeText(context, "No contact number available.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public static String takePhotoUsingCamera(Activity activity) {
         String imageDecode = null;
@@ -111,6 +155,60 @@ public class Utility {
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         activity.sendBroadcast(mediaScanIntent);
+    }
+
+    public static void sendRatingThruSms(Context context, BookingDetails details, float rating, String comments) {
+        String dateCreated = Long.toString(details.getDateCreatedInMillis());
+        User user = User.findById(User.class, details.getUserId());
+        String userName = user.getFullName();
+        String userMobile = user.getMobileNumber();
+
+        String message = "rating{" +
+                dateCreated + DELIMETER +
+                userName + DELIMETER +
+                userMobile + DELIMETER +
+                rating + DELIMETER +
+                comments + "}";
+
+        LaundryShop laundryShop = details.getLaundryShop();
+//        String phoneNo = laundryShop.getContact();
+        String phoneNo = TESTING_CONTACT_NO;
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(RATING_SENT), 0);
+            SendRatingReceiver.setBookingDetailsWaitingResponse(details.getId(), rating, comments);
+            smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
+            Log.d(TAG, "Sending rating...");
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
+
+    public static void sendAssignLaundryProcessing(Context context, BookingDetails details, LaundryShopStaff assignee) {
+        String dateCreated = Long.toString(details.getDateCreatedInMillis());
+        User user = User.findById(User.class, details.getUserId());
+        String userName = user.getFullName();
+        String userMobile = user.getMobileNumber();
+
+        String message = "assign{" +
+                dateCreated + DELIMETER +
+                userName + DELIMETER +
+                userMobile + DELIMETER +
+                assignee.getId() + "}";
+
+        String phoneNo = user.getMobileNumber();
+
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent(ASSIGN_LAUNDRY_SENT), 0);
+            SendAssignLaundryProcessingReceiver.setAssignee(details, assignee);
+            smsManager.sendDataMessage(phoneNo, null, PORT, message.getBytes(), sentIntent, null);
+            Log.d(TAG, "Sending laundry assignee...");
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+
     }
 
     public static void sendLaundryStatusThruSms(Context context, final BookingDetails details, final BookingDetails.Status laundryStatus) {
@@ -205,6 +303,7 @@ public class Utility {
     public static void sendLaundryRequestThruSms(Context context, final BookingDetails details) {
         String message = "";
         String userInfo = "";
+        String dateCreated = Long.toString(details.getDateCreatedInMillis());
         String mode = Integer.toString(details.getMode() == BookingDetails.Mode.PICKUP ? 1 : 2);
         String type = Integer.toString(details.getType() == BookingDetails.Type.COMMERCIAL ? 1 : 2);
         String laundryShopId = Long.toString(details.getLaundryShop().getId());
@@ -231,7 +330,8 @@ public class Utility {
                 returnDate + DELIMETER +
                 noOfClothes + DELIMETER +
                 estimatedKilo + DELIMETER +
-                estimatedFee + "}";
+                estimatedFee + DELIMETER +
+                dateCreated + "}";
         Log.d(TAG, "Message before sending: " + message);
 
         userInfo = "user{" +
@@ -242,9 +342,7 @@ public class Utility {
 
         LaundryShop laundryShop = details.getLaundryShop();
 //        String phoneNo = laundryShop.getContact();
-//        String phoneNo = "09989976459";   // personal number
-//        String phoneNo = "09063931566";   // lyssa
-        String phoneNo = "09391157355";
+        String phoneNo = TESTING_CONTACT_NO;
 
         try {
             SmsManager smsManager = SmsManager.getDefault();

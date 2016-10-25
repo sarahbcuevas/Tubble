@@ -11,8 +11,12 @@ import android.util.Log;
 
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
+import com.laundryapp.tubble.entities.LaundryAssignment;
+import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.User;
+import com.laundryapp.tubble.entities.UserRating;
 import com.laundryapp.tubble.fragment.LaundryRequestFragment;
+import com.laundryapp.tubble.fragment.SchedulerFragment;
 import com.laundryapp.tubble.fragment.StatusFragment;
 
 import java.io.ByteArrayInputStream;
@@ -60,9 +64,10 @@ public class SmsReceiver extends BroadcastReceiver {
             User user = User.find(User.class, "m_Mobile_Number = ?", subStr[0]).get(0);
             BookingDetails.Mode mode = (subStr[1].equals("1") ? BookingDetails.Mode.PICKUP : BookingDetails.Mode.DELIVERY);
             BookingDetails.Type type = (subStr[2].equals("1") ? BookingDetails.Type.COMMERCIAL : BookingDetails.Type.PERSONAL);
-            BookingDetails booking = new BookingDetails(mode, type, Long.parseLong(subStr[4]), Long.parseLong(subStr[3]), user.getId(), user.getAddress(), subStr[5], Long.parseLong(subStr[6]), Long.parseLong(subStr[7]), Integer.parseInt(subStr[8]), Float.parseFloat(subStr[9]), Float.parseFloat(subStr[10]));
+            BookingDetails booking = new BookingDetails(Long.parseLong(subStr[11]), mode, type, Long.parseLong(subStr[4]), Long.parseLong(subStr[3]), user.getId(), user.getAddress(), subStr[5], Long.parseLong(subStr[6]), Long.parseLong(subStr[7]), Integer.parseInt(subStr[8]), Float.parseFloat(subStr[9]), Float.parseFloat(subStr[10]));
             booking.save();
             LaundryRequestFragment.updateBookingsList(context);
+            SchedulerFragment.updateScheduleList(booking.getPickupDate());
         } else if (message.startsWith("status")) {
             message = message.substring("status{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
@@ -153,6 +158,42 @@ public class SmsReceiver extends BroadcastReceiver {
                 booking.get(0).setEstimatedKilo(Float.parseFloat(subStr[2]));
                 booking.get(0).save();
                 StatusFragment.updateLaundryList();
+            }
+        } else if (message.startsWith("rating")) {
+            message = message.substring("rating{".length(), message.length() - 1);
+            String[] subStr = message.split(Utility.DELIMETER);
+
+            List<BookingDetails> booking = null;
+            List<User> users = User.find(User.class, "m_Full_Name = ? and m_Mobile_Number = ?", subStr[1], subStr[2]);
+            if (!users.isEmpty()) {
+                booking = BookingDetails.find(BookingDetails.class, "m_Date_Created = ? and m_User_Id = ?", subStr[0], Long.toString(users.get(0).getId()));
+            }
+
+            Log.d(TAG, "booking found: " + booking.size());
+            if (!booking.isEmpty()) {
+                UserRating userRating = new UserRating(booking.get(0).getId(), Float.parseFloat(subStr[3]), subStr[4]);
+                userRating.save();
+                LaundryShop shop = booking.get(0).getLaundryShop();
+                shop.addRating(userRating.getRating());
+                shop.save();
+            }
+
+        } else if (message.startsWith("assign")) {
+            message = message.substring("assign{".length(), message.length() - 1);
+            String[] subStr = message.split(Utility.DELIMETER);
+
+            List<BookingDetails> booking = null;
+            List<User> users = User.find(User.class, "m_Full_Name = ? and m_Mobile_Number = ?", subStr[1], subStr[2]);
+            if (!users.isEmpty()) {
+                booking = BookingDetails.find(BookingDetails.class, "m_Date_Created = ? and m_User_Id = ?", subStr[0], Long.toString(users.get(0).getId()));
+            }
+
+            if (!booking.isEmpty()) {
+                LaundryAssignment assignment = new LaundryAssignment(Long.parseLong(subStr[3]), booking.get(0).getId());
+                assignment.save();
+                booking.get(0).setStatus(BookingDetails.Status.PROCESSING);
+                booking.get(0).save();
+                StatusFragment.updateLaundrySchedule(booking.get(0).getId());
             }
         }
     }

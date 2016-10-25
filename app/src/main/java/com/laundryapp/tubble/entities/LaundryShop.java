@@ -44,7 +44,7 @@ public class LaundryShop extends SugarRecord {
 
     public String getLogin() { return mLogin; }
 
-    public void addRating(int rating) {
+    public void addRating(float rating) {
         mTotalRating += rating;
         mRatingCount++;
         mRating = mTotalRating / mRatingCount;

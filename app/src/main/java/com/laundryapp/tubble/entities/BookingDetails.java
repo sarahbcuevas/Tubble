@@ -31,7 +31,7 @@ public class BookingDetails extends SugarRecord {
     public BookingDetails() {
     }
 
-    public BookingDetails(Mode mMode, Type mType, long mServiceId, long mLaundryShopId, long mUserId, String mLocation, String mNotes, long mPickupDate, long mReturnDate, int mNoOfClothes, float mEstimatedKilo, float mFee) {
+    public BookingDetails(long mDateCreated, Mode mMode, Type mType, long mServiceId, long mLaundryShopId, long mUserId, String mLocation, String mNotes, long mPickupDate, long mReturnDate, int mNoOfClothes, float mEstimatedKilo, float mFee) {
         this.mMode = mMode;
         this.mType = mType;
         this.mServiceId = mServiceId;
@@ -45,7 +45,8 @@ public class BookingDetails extends SugarRecord {
         this.mEstimatedKilo = mEstimatedKilo;
         this.mFee = mFee;
         this.mStatus = Status.NEW;
-        this.mDateCreated = System.currentTimeMillis();
+        this.mDateCreated = mDateCreated;
+//        this.mDateCreated = System.currentTimeMillis();
     }
 
     public LaundryShop getLaundryShop() {

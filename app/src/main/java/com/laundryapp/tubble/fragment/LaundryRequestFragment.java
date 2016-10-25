@@ -19,6 +19,8 @@ import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.lorentzos.flingswipe.SwipeFlingAdapterView;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 
 import org.w3c.dom.Text;
 
@@ -108,24 +110,15 @@ public class LaundryRequestFragment extends Fragment {
 
     public static void updateBookingsList(final Context context) {
         LaundryShop laundryShop = LaundryShop.findById(LaundryShop.class, Utility.getUserId(context));
-        bookingsList = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ? and m_Status = ?", laundryShop.getId().toString(), BookingDetails.Status.NEW.toString());
+        bookingsList = Select.from(BookingDetails.class).where(Condition.prop("m_Laundry_Shop_Id").eq(laundryShop.getId().toString()), Condition.prop("m_Status").eq(BookingDetails.Status.NEW.toString())).orderBy("m_Return_Date").list();
 
         laundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.GONE : View.VISIBLE);
         noLaundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.VISIBLE : View.GONE);
 
-        Log.d("Sarah", "Bookings size: " + bookingsList.size());
         if (!bookingsList.isEmpty()) {
             flingContainer = (SwipeFlingAdapterView) laundryRequestLayout.findViewById(R.id.fling_container);
-//            ArrayList<String> array = new ArrayList<String>();
-//            for (BookingDetails booking: bookings) {
-//                array.add(booking.getCustomerName());
-//            }
-//            flingAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, array);
             flingAdapter = new FlingContainerAdapter(context, bookingsList);
-            Log.d("Sarah", "flingAdapter = " + flingAdapter);
-            Log.d("Sarah", "flingAdapter size: " + flingAdapter.getCount());
             flingContainer.setAdapter(flingAdapter);
-            Log.d("Sarah", "flingAdapter size: " + flingContainer.getAdapter().getCount());
             flingContainer.setFlingListener(new SwipeFlingAdapterView.onFlingListener() {
                 BookingDetails details;
 
@@ -171,16 +164,6 @@ public class LaundryRequestFragment extends Fragment {
                 }
             });
         }
-//        try {
-//            bookingsList = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ? and m_Status = ?", Long.toString(Utility.getUserId(context)), BookingDetails.Status.NEW.toString());
-//            flingAdapter.setBookings(bookingsList);
-//            flingContainer.setAdapter(flingAdapter);
-//            flingContainer.setVisibility(View.VISIBLE);
-//            noLaundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.VISIBLE : View.GONE);
-//            laundryRequestLayout.setVisibility(bookingsList.isEmpty() ? View.GONE : View.VISIBLE);
-//        } catch(Exception e) {
-//            Log.e(TAG, e.getMessage(), e);
-//        }
     }
 
     @Override

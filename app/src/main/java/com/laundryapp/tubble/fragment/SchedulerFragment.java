@@ -34,12 +34,15 @@ import android.widget.TextView;
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
+import com.laundryapp.tubble.entities.LaundryAssignment;
 import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.fragment.DatePickerFragment.Date;
 import com.laundryapp.tubble.fragment.TimePickerFragment.Time;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -96,7 +99,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     private static Time pickupTime, returnTime;
     private static ArrayAdapter<String> serviceAdapter, shopAdapter;
     private static CalendarWeekViewAdapter calendarAdapter;
-    static ViewPager calendarPager;
+    public static ViewPager calendarPager;
     private static FragmentManager fm;
     private static Context mContext;
     public static RelativeLayout laundryScheduleDetails;
@@ -205,7 +208,21 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         bookButton = (ImageButton) fragmentView.findViewById(R.id.book_button);
         fm = getChildFragmentManager();
         calendarPager = (ViewPager) fragmentView.findViewById(R.id.calendar_pager);
-        calendarPager.setOffscreenPageLimit(0);
+        calendarPager.setOffscreenPageLimit(1);
+        calendarAdapter = new CalendarWeekViewAdapter(fm);
+        calendarPager.setAdapter(calendarAdapter);
+        calendarPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            @Override
+            public void onPageSelected(int position) {
+                setSelectedDateInCalendar(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+        });
 
         leftButton.setOnClickListener(this);
         rightButton.setOnClickListener(this);
@@ -261,22 +278,15 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     }
 
     public static void updateCalendarAdapter() {
-//        if (null == calendarAdapter) {
-            calendarAdapter = new CalendarWeekViewAdapter(fm);
-//        }
-
         try {
-            calendarPager.setAdapter(calendarAdapter);
-            calendarPager.setCurrentItem(4999);
-            calendarPager.setOffscreenPageLimit(0);
-            calendarAdapter.getDaysOfWeek(4999);
+            calendarPager.setCurrentItem(5000);
             calendarAdapter.notifyDataSetChanged();
         } catch (IllegalStateException e) {
             Log.e(TAG, e.getMessage(), e);
         }
     }
 
-    public void updateScheduleList(long timeInMillis) {
+    public static void updateScheduleList(long timeInMillis) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMillis);
         int year = calendar.get(Calendar.YEAR);
@@ -284,14 +294,17 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         listAdapter.setDate(timeInMillis);
         List<BookingDetails> bookings = null;
-        String user_id = Long.toString(Utility.getUserId(getContext()));
-        if (Utility.getUserType(getContext()) == User.Type.CUSTOMER) {
-            bookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", user_id);
-        } else if (Utility.getUserType(getContext()) == User.Type.LAUNDRY_SHOP) {
-            bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", user_id);
+        String user_id = Long.toString(Utility.getUserId(mContext));
+        if (Utility.getUserType(mContext) == User.Type.CUSTOMER) {
+            bookings = Select.from(BookingDetails.class).where(Condition.prop("m_User_Id").eq(user_id)).orderBy("m_Return_Date").list();
+        } else if (Utility.getUserType(mContext) == User.Type.LAUNDRY_SHOP) {
+            bookings = Select.from(BookingDetails.class).where(Condition.prop("m_Laundry_Shop_Id").eq(user_id)).orderBy("m_Return_Date").list();
         }
         SchedulerFragment.allBookings.clear();
         for (BookingDetails booking : bookings) {
+            if (booking.getStatus() == BookingDetails.Status.REJECTED) {
+                continue;
+            }
             calendar.setTimeInMillis(booking.getPickupDate());
             int pickupYear = calendar.get(Calendar.YEAR);
             int pickupMonth = calendar.get(Calendar.MONTH);
@@ -313,7 +326,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else {
             noScheduleText.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
-            listAdapter = new ScheduleListAdapter(getContext(), SchedulerFragment.allBookings);
+            listAdapter = new ScheduleListAdapter(mContext, SchedulerFragment.allBookings);
             listView.setAdapter(SchedulerFragment.listAdapter);
             listAdapter.notifyDataSetChanged();
         }
@@ -364,6 +377,11 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             schedulerLayout.setVisibility(View.VISIBLE);
             bookingLayout.setVisibility(View.GONE);
             laundryScheduleDetails.setVisibility(View.GONE);
+        } else {
+            if (mContext != null) {
+                InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(schedulerLayout.getWindowToken(), 0);
+            }
         }
     }
 
@@ -397,7 +415,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onCheckBookingStatus(long id);
+
         void onAddOrDeleteLaundrySchedule();
+
         void onViewLaundryScheduleDetails();
     }
 
@@ -629,7 +649,28 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         updateMessageDialog(getString(stringId));
     }
 
+    public static void setSelectedDateInCalendar(int position) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.add(Calendar.DATE, (position - 5_000) * 7);
+        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            calendar.add(Calendar.DATE, -1);
+        }
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
+        int year = calendar.get(Calendar.YEAR);
+        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
+        SchedulerFragment.monthTextView.setText(monthString);
+        int day = CalendarWeekViewFragment.getSelectedDayPosition() + 2;
+        if (day == 8) {
+            day = 1;
+        }
+        calendar.set(Calendar.DAY_OF_WEEK, day);
+        updateScheduleList(calendar.getTimeInMillis());
+    }
+
     public void createBooking() {
+        final long dateCreated = System.currentTimeMillis();
         final BookingDetails.Mode mMode = modeToggle.isChecked() ? BookingDetails.Mode.DELIVERY : BookingDetails.Mode.PICKUP;
         final BookingDetails.Type mType = typeToggle.isChecked() ? BookingDetails.Type.PERSONAL : BookingDetails.Type.COMMERCIAL;
         final long mUserId = Utility.getUserId(getContext());
@@ -637,6 +678,14 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         final String mNotes = notesEdittext.getText().toString();
         final String mNoOfClothes = noOfClothesEdittext.getText().toString();
         final String mEstimatedKilo = estimatedKiloEdittext.getText().toString();
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+        calendar.set(pickupDate.year, pickupDate.month, pickupDate.date, pickupTime.hour, pickupTime.minute);
+        final long pickupMillis = calendar.getTimeInMillis();
+        String pick = format.format(calendar.getTime());
+        calendar.set(returnDate.year, returnDate.month, returnDate.date, returnTime.hour, returnTime.minute);
+        final long returnMillis = calendar.getTimeInMillis();
+        String ret = format.format(calendar.getTime());
 
         if (mLocation.equals("")) {
             updateMessageDialog(R.string.input_location);
@@ -647,6 +696,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else if (laundryShopService_id == -1) {
             updateMessageDialog(R.string.select_laundry_service);
             messageDialog.show();
+        } else if (getTimeDifferenceInHours(dateCreated, pickupMillis) < 3 || getTimeDifferenceInHours(dateCreated, returnMillis) < 3) {
+            updateMessageDialog("You're laundry schedule is too close, you may choose to drop off your laundry in the shop or select another day.");
+            messageDialog.show();
         } else if (mNoOfClothes.equals("")) {
             updateMessageDialog(R.string.input_no_of_clothes);
             messageDialog.show();
@@ -654,14 +706,6 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             updateMessageDialog(R.string.input_estimated_kilo);
             messageDialog.show();
         } else {
-            Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-            calendar.set(pickupDate.year, pickupDate.month, pickupDate.date, pickupTime.hour, pickupTime.minute);
-            final long pickupMillis = calendar.getTimeInMillis();
-            String pick = format.format(calendar.getTime());
-            calendar.set(returnDate.year, returnDate.month, returnDate.date, returnTime.hour, returnTime.minute);
-            final long returnMillis = calendar.getTimeInMillis();
-            String ret = format.format(calendar.getTime());
             final float estimatedFee = LaundryShopService.findById(LaundryShopService.class, laundryShopService_id).getPrice() * Float.parseFloat(mEstimatedKilo);
 
             String message = "Please confirm details below:\n\n" +
@@ -694,7 +738,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    BookingDetails booking = new BookingDetails(mMode, mType, laundryShopService_id, laundryShop_id, mUserId, mLocation, mNotes, pickupMillis, returnMillis, Integer.parseInt(mNoOfClothes), Float.parseFloat(mEstimatedKilo), estimatedFee);
+                    BookingDetails booking = new BookingDetails(dateCreated, mMode, mType, laundryShopService_id, laundryShop_id, mUserId, mLocation, mNotes, pickupMillis, returnMillis, Integer.parseInt(mNoOfClothes), Float.parseFloat(mEstimatedKilo), estimatedFee);
 //                    booking.save();
                     reset();
                     Utility.sendLaundryRequestThruSms(getContext(), booking);
@@ -708,8 +752,16 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         }
     }
 
+    private long getTimeDifferenceInHours(long startTime, long endTime) {
+        long difference = endTime - startTime;
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long elapsedHours = difference / hoursInMilli;
+        return elapsedHours;
+    }
+
     public static void updateScheduleListAndCalendar() {
-        calendarAdapter.updateCalendar();
         listAdapter.notifyDataSetChanged();
     }
 
@@ -826,6 +878,11 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             return;
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma, MMMM dd, yyyy");
+        String location = details.getLaundryShop().getName();
+        List<LaundryAssignment> assignments = LaundryAssignment.find(LaundryAssignment.class, "m_Booking_Details_Id = ?", Long.toString(details.getId()));
+        if (!assignments.isEmpty()) {
+            location += ", " + assignments.get(0).getLaundryStaffName();
+        }
         laundryScheduleDetails.setVisibility(View.VISIBLE);
         schedulerLayout.setVisibility(View.GONE);
         bookingLayout.setVisibility(View.GONE);
@@ -834,7 +891,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         scheduleFee.setText("P" + details.getFee());
         scheduleMode.setText(details.getModeName());
         scheduleType.setText(details.getTypeName());
-        scheduleLocation.setText(details.getLaundryShop().getName());
+        scheduleLocation.setText(location);
         scheduleService.setText(details.getLaundryServiceName());
         schedulePickupDate.setText(dateFormat.format(details.getPickupDate()));
         schedulePickupLocation.setText(details.getLocation());
@@ -847,37 +904,10 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 }
 
 class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
-    long[] daysOfWeek = new long[7];
-    Fragment fragment;
+    CalendarWeekViewFragment fragment;
 
     public CalendarWeekViewAdapter(FragmentManager fm) {
         super(fm);
-    }
-
-    public void updateCalendar() {
-        if (fragment != null) {
-            ((CalendarWeekViewFragment) fragment).updateCalendar(false);
-        }
-    }
-
-    public void getDaysOfWeek(int position) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        calendar.add(Calendar.DATE, (position - (getCount()/2)) * 7);
-        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-            calendar.add(Calendar.DATE, -1);
-        }
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        Log.d("Sarah", "Position: " + position + " Date of monday = " + new SimpleDateFormat("MMMM dd, yyyy").format(calendar.getTime()));
-        int year = calendar.get(Calendar.YEAR);
-        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-        for (int i = 0; i < 7; i++) {
-//            days[i] = calendar.getTimeInMillis();
-            daysOfWeek[i] = calendar.getTimeInMillis();
-            calendar.add(Calendar.DATE, 1);
-        }
-//        SchedulerFragment.monthTextView.setText(monthString);
     }
 
     @Override
@@ -887,12 +917,8 @@ class CalendarWeekViewAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Log.d("Sarah", "Position getItem: " + position);
         fragment = new CalendarWeekViewFragment();
-        Bundle args = new Bundle();
-        getDaysOfWeek(position);
-        args.putLongArray(CalendarWeekViewFragment.CALENDAR_DAY, daysOfWeek);
-        fragment.setArguments(args);
+        fragment.setPosition(position);
         return fragment;
     }
 }

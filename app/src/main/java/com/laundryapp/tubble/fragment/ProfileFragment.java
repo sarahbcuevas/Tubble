@@ -21,19 +21,26 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.laundryapp.tubble.R;
 import com.laundryapp.tubble.Utility;
 import com.laundryapp.tubble.entities.BookingDetails;
+import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
+import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
+import com.laundryapp.tubble.entities.UserRating;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -68,15 +75,26 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private View fragmentView;
     private EditText mMobileNumber, mFullName, mEmail;
-    private static ScrollView profileLayout;
+    private static ScrollView profileLayout, shopLayout;
     private static RelativeLayout trackLayout;
     private LinearLayout noTrackLayout;
     private ListView trackListView;
-    private Button trackHistoryButton;
+    private Button trackHistoryButton, viewAddressButton;
     private User.Type userType;
     private ImageView selectPhotoButton, takePhotoButton;
     private CircleImageView userPhoto;
     private String imageDecode;
+
+    /* Shop Layout */
+    private LinearLayout shopInfoLinearLayout;
+    private Button shopTrackHistoryButton;
+    private ImageButton websiteButton, callButton;
+    private TextView shopName, shopSchedule, disclaimer;
+    private RatingBar laundryRating;
+    private TableLayout servicesTable;
+
+    private static Context mContext;
+
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -116,39 +134,57 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         // Inflate the layout for this
         fragmentView = inflater.inflate(R.layout.fragment_profile, container, false);
         profileLayout = (ScrollView) fragmentView.findViewById(R.id.user_profile);
+        shopLayout = (ScrollView) fragmentView.findViewById(R.id.shop_layout);
         trackLayout = (RelativeLayout) fragmentView.findViewById(R.id.track_history);
         noTrackLayout = (LinearLayout) fragmentView.findViewById(R.id.no_track);
+
+        /* Track Layout */
         trackListView = (ListView) fragmentView.findViewById(R.id.track_history_list);
+
+        /* Profile Layout */
         mMobileNumber = (EditText) fragmentView.findViewById(R.id.mobile_number);
         mFullName = (EditText) fragmentView.findViewById(R.id.full_name);
         mEmail = (EditText) fragmentView.findViewById(R.id.email);
         trackHistoryButton = (Button) fragmentView.findViewById(R.id.track_history_button);
+        viewAddressButton = (Button) fragmentView.findViewById(R.id.view_address_button);
         selectPhotoButton = (ImageView) fragmentView.findViewById(R.id.select_photo_button);
         takePhotoButton = (ImageView) fragmentView.findViewById(R.id.take_photo_button);
         userPhoto = (CircleImageView) fragmentView.findViewById(R.id.profile_image);
 
-        String mobileNumber = "", fullName = "", photo = "";
+        /* Shop Layout */
+        shopInfoLinearLayout = (LinearLayout) shopLayout.findViewById(R.id.shop_info_layout);
+        shopTrackHistoryButton = (Button) shopLayout.findViewById(R.id.track_history_button);
+        websiteButton = (ImageButton) shopLayout.findViewById(R.id.website_button);
+        callButton = (ImageButton) shopLayout.findViewById(R.id.call_button);
+        shopName = (TextView) shopLayout.findViewById(R.id.shop_name);
+        shopSchedule = (TextView) shopLayout.findViewById(R.id.shop_schedule);
+        disclaimer = (TextView) shopLayout.findViewById(R.id.disclaimer);
+        laundryRating = (RatingBar) shopLayout.findViewById(R.id.laundry_rating);
+        servicesTable = (TableLayout) shopLayout.findViewById(R.id.services_table);
+
+        String photo = "";
         List<BookingDetails> bookings = null;
         if (User.Type.CUSTOMER == userType) {
             User user = User.findById(User.class, Utility.getUserId(getContext()));
-            mobileNumber = user.getMobileNumber();
-            fullName = user.getFullName();
             photo = user.getUserPhoto();
             mEmail.setText(user.getEmailAddress());
-            mEmail.setVisibility(View.VISIBLE);
+            mFullName.setText(user.getFullName());
+            mMobileNumber.setText(user.getMobileNumber());
             bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", Long.toString(Utility.getUserId(getContext())));
+            profileLayout.setVisibility(View.VISIBLE);
+            shopLayout.setVisibility(View.GONE);
         } else if (User.Type.LAUNDRY_SHOP == userType) {
             LaundryShop shop = LaundryShop.findById(LaundryShop.class, Utility.getUserId(getContext()));
-            mobileNumber = shop.getContact();
-            fullName = shop.getName();
-            mEmail.setVisibility(View.GONE);
             bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", Long.toString(Utility.getUserId(getContext())));
+            shopName.setText(shop.getName());
+            shopSchedule.setText(shop.getSchedule());
+            disclaimer.setText(shop.getAddress());
+            laundryRating.setRating(shop.getRating());
+            updateServicesTable(shop);
+            profileLayout.setVisibility(View.GONE);
+            shopLayout.setVisibility(View.VISIBLE);
         }
-        mMobileNumber.setText(mobileNumber);
-        mFullName.setText(fullName);
-        mMobileNumber.setEnabled(false);
-        mFullName.setEnabled(false);
-        mEmail.setEnabled(false);
+
         if (photo == null || photo.equals("")) {
             userPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.userphoto));
             userPhoto.setBorderWidth(0);
@@ -162,11 +198,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 userPhoto.setBorderWidth(0);
             }
         }
-        profileLayout.setVisibility(View.VISIBLE);
+
         trackLayout.setVisibility(View.GONE);
+        websiteButton.setVisibility(View.GONE);
+        callButton.setVisibility(View.GONE);
+        shopInfoLinearLayout.setVisibility(View.VISIBLE);
         trackHistoryButton.setOnClickListener(this);
         selectPhotoButton.setOnClickListener(this);
         takePhotoButton.setOnClickListener(this);
+        shopTrackHistoryButton.setOnClickListener(this);
         Picasso.with(getContext()).load(R.drawable.nolaundry).into((ImageView) fragmentView.findViewById(R.id.no_track_image));
 
         ArrayAdapter<BookingDetails> adapter = new TrackHistoryAdapter(getContext(), bookings);
@@ -176,10 +216,35 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         return fragmentView;
     }
 
+    private void updateServicesTable(LaundryShop shop) {
+        List<LaundryShopService> shopServices = LaundryShopService.find(LaundryShopService.class, "m_Laundry_Shop_Id = ?", Long.toString(shop.getId()));
+        if (!shopServices.isEmpty()) {
+            for (LaundryShopService service : shopServices) {
+                TableRow row = new TableRow(mContext);
+                LaundryService laundryService = LaundryService.findById(LaundryService.class, service.getLaundryServiceId());
+                TextView serviceName = new TextView(mContext);
+                serviceName.setText(laundryService.getLabel());
+                serviceName.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                TextView servicePrice = new TextView(mContext);
+                servicePrice.setText("P " + service.getPrice() + "/kilo");
+                servicePrice.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                row.addView(serviceName);
+                row.addView(servicePrice);
+                servicesTable.addView(row);
+            }
+        }
+
+    }
+
     public static boolean onBackPressed() {
+        User.Type userType = Utility.getUserType(mContext);
         if (trackLayout != null && trackLayout.getVisibility() == View.VISIBLE) {
             trackLayout.setVisibility(View.GONE);
-            profileLayout.setVisibility(View.VISIBLE);
+            if (userType == User.Type.CUSTOMER) {
+                profileLayout.setVisibility(View.VISIBLE);
+            } else {
+                shopLayout.setVisibility(View.VISIBLE);
+            }
             return true;
         }
         return false;
@@ -188,6 +253,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mContext = context;
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -216,7 +282,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
@@ -266,6 +332,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private void setTrackHistoryVisibility(boolean isVisible) {
         if (isVisible) {
             profileLayout.setVisibility(View.GONE);
+            shopLayout.setVisibility(View.GONE);
             trackLayout.setVisibility(View.VISIBLE);
             List<BookingDetails> bookings = null;
             if (Utility.getUserType(getContext()) == User.Type.CUSTOMER) {
@@ -282,7 +349,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 trackListView.setVisibility(View.VISIBLE);
             }
         } else {
-            profileLayout.setVisibility(View.VISIBLE);
+            if (userType == User.Type.CUSTOMER) {
+                profileLayout.setVisibility(View.VISIBLE);
+            } else {
+                shopLayout.setVisibility(View.VISIBLE);
+            }
             trackLayout.setVisibility(View.GONE);
         }
     }
@@ -297,6 +368,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             TextView serviceType;
             TextView mode;
             TextView fee;
+            TextView laundryStatus;
+            RatingBar ratingBar;
         }
 
         public TrackHistoryAdapter(Context context, List<BookingDetails> bookings) {
@@ -319,6 +392,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 viewHolder.serviceType = (TextView) convertView.findViewById(R.id.service_type);
                 viewHolder.mode = (TextView) convertView.findViewById(R.id.mode);
                 viewHolder.fee = (TextView) convertView.findViewById(R.id.fee);
+                viewHolder.laundryStatus = (TextView) convertView.findViewById(R.id.laundry_status);
+                viewHolder.ratingBar = (RatingBar) convertView.findViewById(R.id.rating_bar);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
@@ -334,6 +409,18 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             viewHolder.serviceType.setText(details.getTypeName() + " - " + details.getLaundryServiceName());
             viewHolder.mode.setText(details.getModeName());
             viewHolder.fee.setText("Fee: " + details.getFee());
+            String status = details.getStatus().name().toLowerCase();
+            status = Character.toString(status.charAt(0)).toUpperCase() + status.substring(1);
+            viewHolder.laundryStatus.setText(status);
+
+            List<UserRating> userRating = UserRating.find(UserRating.class, "m_Schedule_Id = ?", Long.toString(details.getId()));
+            if (userRating.isEmpty()) {
+                viewHolder.ratingBar.setVisibility(View.GONE);
+            } else {
+                viewHolder.ratingBar.setVisibility(View.VISIBLE);
+                viewHolder.ratingBar.setRating(userRating.get(0).getRating());
+            }
+
             return convertView;
         }
     }
@@ -345,7 +432,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         try {
             if (requestCode == IMG_RESULT && resultCode == Activity.RESULT_OK && data != null) {
                 Uri URI = data.getData();
-                String[] FILE = { MediaStore.Images.Media.DATA };
+                String[] FILE = {MediaStore.Images.Media.DATA};
                 Cursor cursor = getContext().getContentResolver().query(URI, FILE, null, null, null);
                 cursor.moveToFirst();
                 int columnIndex = cursor.getColumnIndex(FILE[0]);

@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="tubble_yellow">#FCD204</color>
     <color name="tubble_blue">#109bc6</color>
+    <color name="background_color_light">#FAFAFA</color>
 
     <color name="calendar_day">#818E99</color>
     <color name="calendar_day_disabled">#C6CDD2</color>
