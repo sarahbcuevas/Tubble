@@ -37,11 +37,14 @@ import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopStaff;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.entities.UserRating;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -305,9 +308,9 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         List<BookingDetails> details = null;
         if (userType == User.Type.CUSTOMER) {
-            details = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", Long.toString(Utility.getUserId(mContext)));
+            details = Select.from(BookingDetails.class).where(Condition.prop("m_User_id").eq(Long.toString(Utility.getUserId(mContext)))).orderBy("m_Return_Date").list();
         } else if (userType == User.Type.LAUNDRY_SHOP) {
-            details = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", Long.toString(Utility.getUserId(mContext)));
+            details = Select.from(BookingDetails.class).where(Condition.prop("m_Laundry_Shop_Id").eq(Long.toString(Utility.getUserId(mContext)))).orderBy("m_Return_Date").list();
         } else {
             return;
         }
@@ -321,7 +324,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         long detail_id = -1;
 
         for (BookingDetails detail : details) {
-            if (detail.getStatus() == Status.REJECTED) {
+            if (detail.getStatus() == Status.NEW || detail.getStatus() == Status.REJECTED) {
                 continue;
             }
             long returnDate = detail.getReturnDate();
@@ -788,6 +791,16 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
             approvedBookingsLayout.setVisibility(View.VISIBLE);
             approvedBookingsList.removeAllViews();
             for (BookingDetails details : approvedBookings) {
+                Date currentDate = new Date(System.currentTimeMillis());
+                Date retDate = new Date(details.getReturnDate());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(currentDate);
+                calendar.add(Calendar.DATE, 3);
+                Date endDate = calendar.getTime();
+
+                if (!(retDate.compareTo(currentDate) >= 0 && retDate.compareTo(endDate) <= 0)) {
+                    continue;
+                }
                 View view = mInflater.inflate(R.layout.approved_bookings_list_item, null);
                 TextView laundryShop = (TextView) view.findViewById(R.id.laundry_shop);
                 TextView laundryService = (TextView) view.findViewById(R.id.laundry_service);

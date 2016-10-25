@@ -29,6 +29,7 @@ import com.laundryapp.tubble.entities.LaundryService;
 import com.laundryapp.tubble.entities.LaundryShop;
 import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
+import com.laundryapp.tubble.fragment.CalendarWeekViewFragment;
 import com.laundryapp.tubble.fragment.FindFragment;
 import com.laundryapp.tubble.fragment.LaundryRequestFragment;
 import com.laundryapp.tubble.fragment.ProfileFragment;
@@ -354,6 +355,7 @@ public class MainActivity extends FragmentActivity implements
                 onBackPressed = true;
             } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
                 StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+                SchedulerFragment.setSelectedDateInCalendar(SchedulerFragment.calendarPager.getCurrentItem());
                 mViewPager.setCurrentItem(1);   // go back to Scheduler Fragment
                 onBackPressed = true;
             } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {

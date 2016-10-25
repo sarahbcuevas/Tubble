@@ -41,6 +41,8 @@ import com.laundryapp.tubble.entities.LaundryShopService;
 import com.laundryapp.tubble.entities.User;
 import com.laundryapp.tubble.fragment.DatePickerFragment.Date;
 import com.laundryapp.tubble.fragment.TimePickerFragment.Time;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -97,7 +99,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     private static Time pickupTime, returnTime;
     private static ArrayAdapter<String> serviceAdapter, shopAdapter;
     private static CalendarWeekViewAdapter calendarAdapter;
-    static ViewPager calendarPager;
+    public static ViewPager calendarPager;
     private static FragmentManager fm;
     private static Context mContext;
     public static RelativeLayout laundryScheduleDetails;
@@ -215,35 +217,11 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 
             @Override
             public void onPageSelected(int position) {
-                setMonthTextView(position);
+                setSelectedDateInCalendar(position);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {}
-
-            private void setMonthTextView(int position) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.setFirstDayOfWeek(Calendar.MONDAY);
-                calendar.add(Calendar.DATE, (position - 5_000) * 7);
-                if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                    calendar.add(Calendar.DATE, -1);
-                }
-                calendar.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
-                int year = calendar.get(Calendar.YEAR);
-                String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
-                SchedulerFragment.monthTextView.setText(monthString);
-                int day = CalendarWeekViewFragment.getSelectedDayPosition() + 2;
-                if (day == 8) {
-                    day = 1;
-                }
-                calendar.set(Calendar.DAY_OF_WEEK, day);
-                updateScheduleList(calendar.getTimeInMillis());
-            }
-
-            private void updateScheduleList(long timeInMillis) {
-                SchedulerFragment.updateScheduleList(timeInMillis);
-            }
         });
 
         leftButton.setOnClickListener(this);
@@ -318,9 +296,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         List<BookingDetails> bookings = null;
         String user_id = Long.toString(Utility.getUserId(mContext));
         if (Utility.getUserType(mContext) == User.Type.CUSTOMER) {
-            bookings = BookingDetails.find(BookingDetails.class, "m_User_Id = ?", user_id);
+            bookings = Select.from(BookingDetails.class).where(Condition.prop("m_User_Id").eq(user_id)).orderBy("m_Return_Date").list();
         } else if (Utility.getUserType(mContext) == User.Type.LAUNDRY_SHOP) {
-            bookings = BookingDetails.find(BookingDetails.class, "m_Laundry_Shop_Id = ?", user_id);
+            bookings = Select.from(BookingDetails.class).where(Condition.prop("m_Laundry_Shop_Id").eq(user_id)).orderBy("m_Return_Date").list();
         }
         SchedulerFragment.allBookings.clear();
         for (BookingDetails booking : bookings) {
@@ -671,6 +649,26 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         updateMessageDialog(getString(stringId));
     }
 
+    public static void setSelectedDateInCalendar(int position) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.add(Calendar.DATE, (position - 5_000) * 7);
+        if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            calendar.add(Calendar.DATE, -1);
+        }
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
+        int year = calendar.get(Calendar.YEAR);
+        String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + Integer.toString(year);
+        SchedulerFragment.monthTextView.setText(monthString);
+        int day = CalendarWeekViewFragment.getSelectedDayPosition() + 2;
+        if (day == 8) {
+            day = 1;
+        }
+        calendar.set(Calendar.DAY_OF_WEEK, day);
+        updateScheduleList(calendar.getTimeInMillis());
+    }
+
     public void createBooking() {
         final long dateCreated = System.currentTimeMillis();
         final BookingDetails.Mode mMode = modeToggle.isChecked() ? BookingDetails.Mode.DELIVERY : BookingDetails.Mode.PICKUP;
@@ -680,6 +678,14 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         final String mNotes = notesEdittext.getText().toString();
         final String mNoOfClothes = noOfClothesEdittext.getText().toString();
         final String mEstimatedKilo = estimatedKiloEdittext.getText().toString();
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+        calendar.set(pickupDate.year, pickupDate.month, pickupDate.date, pickupTime.hour, pickupTime.minute);
+        final long pickupMillis = calendar.getTimeInMillis();
+        String pick = format.format(calendar.getTime());
+        calendar.set(returnDate.year, returnDate.month, returnDate.date, returnTime.hour, returnTime.minute);
+        final long returnMillis = calendar.getTimeInMillis();
+        String ret = format.format(calendar.getTime());
 
         if (mLocation.equals("")) {
             updateMessageDialog(R.string.input_location);
@@ -690,6 +696,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else if (laundryShopService_id == -1) {
             updateMessageDialog(R.string.select_laundry_service);
             messageDialog.show();
+        } else if (getTimeDifferenceInHours(dateCreated, pickupMillis) < 3 || getTimeDifferenceInHours(dateCreated, returnMillis) < 3) {
+            updateMessageDialog("You're laundry schedule is too close, you may choose to drop off your laundry in the shop or select another day.");
+            messageDialog.show();
         } else if (mNoOfClothes.equals("")) {
             updateMessageDialog(R.string.input_no_of_clothes);
             messageDialog.show();
@@ -697,14 +706,6 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             updateMessageDialog(R.string.input_estimated_kilo);
             messageDialog.show();
         } else {
-            Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-            calendar.set(pickupDate.year, pickupDate.month, pickupDate.date, pickupTime.hour, pickupTime.minute);
-            final long pickupMillis = calendar.getTimeInMillis();
-            String pick = format.format(calendar.getTime());
-            calendar.set(returnDate.year, returnDate.month, returnDate.date, returnTime.hour, returnTime.minute);
-            final long returnMillis = calendar.getTimeInMillis();
-            String ret = format.format(calendar.getTime());
             final float estimatedFee = LaundryShopService.findById(LaundryShopService.class, laundryShopService_id).getPrice() * Float.parseFloat(mEstimatedKilo);
 
             String message = "Please confirm details below:\n\n" +
@@ -749,6 +750,15 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             messageDialog = builder.create();
             messageDialog.show();
         }
+    }
+
+    private long getTimeDifferenceInHours(long startTime, long endTime) {
+        long difference = endTime - startTime;
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long elapsedHours = difference / hoursInMilli;
+        return elapsedHours;
     }
 
     public static void updateScheduleListAndCalendar() {

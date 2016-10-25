@@ -145,6 +145,9 @@ public class CalendarWeekViewFragment extends Fragment implements View.OnClickLi
                     }
                 }
             }
+            if (0 <= selectedPosition && selectedPosition < 7) {
+                SchedulerFragment.updateScheduleList(daysOfWeek[selectedPosition]);
+            }
         } catch (NullPointerException e) {
             Log.e(TAG, e.getMessage(), e);
         }
