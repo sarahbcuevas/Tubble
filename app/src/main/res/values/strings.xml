@@ -65,4 +65,7 @@
     <string name="assign_laundry_dialog_title">Assign Laundry</string>
     <string name="assign_laundry_dialog_message">Who will process the laundry?</string>
     <string name="assign">Assign</string>
+
+    <!--View Address Dialog-->
+    <string name="view_address_dialog_title">Address</string>
 </resources>

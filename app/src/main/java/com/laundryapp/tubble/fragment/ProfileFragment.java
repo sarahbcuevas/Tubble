@@ -1,6 +1,7 @@
 package com.laundryapp.tubble.fragment;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -203,6 +205,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         websiteButton.setVisibility(View.GONE);
         callButton.setVisibility(View.GONE);
         shopInfoLinearLayout.setVisibility(View.VISIBLE);
+        viewAddressButton.setOnClickListener(this);
         trackHistoryButton.setOnClickListener(this);
         selectPhotoButton.setOnClickListener(this);
         takePhotoButton.setOnClickListener(this);
@@ -295,6 +298,25 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.view_address_button:
+                if (userType == User.Type.CUSTOMER) {
+                    User user = User.findById(User.class, Utility.getUserId(mContext));
+                    final Dialog dialog = new Dialog(mContext);
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.setContentView(R.layout.view_address_dialog);
+                    TextView addressText = (TextView) dialog.findViewById(R.id.address_text);
+                    addressText.setText(user.getAddress());
+                    Button closeBtn = (Button) dialog.findViewById(R.id.close_button);
+                    closeBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    dialog.show();
+                }
+                break;
             case R.id.track_history_button:
                 setTrackHistoryVisibility(true);
                 break;
