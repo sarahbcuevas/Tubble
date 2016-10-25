@@ -105,6 +105,8 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     public static RelativeLayout laundryScheduleDetails;
     private static TextView scheduleCustomer, scheduleFee, scheduleMode, scheduleType, scheduleLocation, scheduleService, schedulePickupDate, schedulePickupLocation, scheduleDeliveryDate, scheduleDeliveryLocation, scheduleNoOfClothes, scheduleEstimatedKilo, scheduleNotes;
 
+    private static boolean isModeDone, isTypeDone, isLocationDone, isLaundyShopDone, isServiceDone;
+
     static OnFragmentInteractionListener mListener;
 
     public SchedulerFragment() {
@@ -213,7 +215,8 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         calendarPager.setAdapter(calendarAdapter);
         calendarPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
@@ -221,7 +224,8 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrollStateChanged(int state) {
+            }
         });
 
         leftButton.setOnClickListener(this);
@@ -442,22 +446,37 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                 break;
             case R.id.mode:
                 updateBookingSelectedItem(R.id.mode);
+                isModeDone = true;
                 break;
             case R.id.type:
                 updateBookingSelectedItem(R.id.type);
+                isTypeDone = true;
                 break;
             case R.id.location:
-                updateBookingSelectedItem(R.id.location);
+                if (isTypeDone) {
+                    updateBookingSelectedItem(R.id.location);
+                }
                 break;
             case R.id.shop:
-                updateBookingSelectedItem(R.id.shop);
-                shopDialog.show();
+                if (!locationEdittext.getText().toString().isEmpty()) {
+                    isLocationDone = true;
+                    updateBookingSelectedItem(R.id.shop);
+                    shopDialog.show();
+                } else {
+                    messageDialog.show();
+                }
+
                 break;
             case R.id.service:
-                updateBookingSelectedItem(R.id.service);
+                if (locationEdittext.getText().toString().isEmpty()) {
+                    messageDialog.show();
+                    break;
+                }
                 if (laundryShop_id == -1) {
                     messageDialog.show();
                 } else {
+                    isLaundyShopDone = true;
+                    updateBookingSelectedItem(R.id.service);
                     serviceDialog.show();
                 }
                 break;
@@ -542,27 +561,104 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     }
 
     public static void updateBookingSelectedItem(int resId) {
+        int confirmedBg = ContextCompat.getColor(mContext, R.color.tubble_yellow);
         int selectedBackground = ContextCompat.getColor(mContext, R.color.booking_field_background_blue);
         int deselectedBackground = ContextCompat.getColor(mContext, R.color.booking_field_background_gray);
         int selectedText = ContextCompat.getColor(mContext, R.color.booking_field_text_selected);
         int deselectedText = ContextCompat.getColor(mContext, R.color.booking_field_text_deselected);
-        modeLayout.setBackgroundColor(resId == R.id.mode ? selectedBackground : deselectedBackground);
+
+        modeLayout.setBackgroundColor(resId == R.id.mode ? selectedBackground : confirmedBg);
         modeText.setTextColor(resId == R.id.mode ? selectedText : deselectedText);
-        typeLayout.setBackgroundColor(resId == R.id.type ? selectedBackground : deselectedBackground);
-        typeText.setTextColor(resId == R.id.type ? selectedText : deselectedText);
-        locationLayout.setBackgroundColor(resId == R.id.location ? selectedBackground : deselectedBackground);
-        locationText.setTextColor(resId == R.id.location ? selectedText : deselectedText);
-        shopLayout.setBackgroundColor(resId == R.id.shop ? selectedBackground : deselectedBackground);
-        shopText.setTextColor(resId == R.id.shop ? selectedText : deselectedText);
-        serviceLayout.setBackgroundColor(resId == R.id.service ? selectedBackground : deselectedBackground);
-        serviceText.setTextColor(resId == R.id.service ? selectedText : deselectedText);
-        summaryLayout.setBackgroundColor(resId == R.id.summary ? selectedBackground : deselectedBackground);
-        summaryText.setTextColor(resId == R.id.summary ? selectedText : deselectedText);
+
+        if (resId == R.id.type) {
+            typeLayout.setBackgroundColor(selectedBackground);
+            typeText.setTextColor(selectedText);
+
+        } else {
+            if (isTypeDone) {
+                typeLayout.setBackgroundColor(confirmedBg);
+                typeText.setTextColor(deselectedText);
+            } else {
+                typeLayout.setBackgroundColor(deselectedBackground);
+                typeText.setTextColor(deselectedText);
+            }
+        }
+
+        if (resId == R.id.location) {
+            locationLayout.setBackgroundColor(selectedBackground);
+            locationText.setTextColor(selectedText);
+
+        } else {
+            if (isLocationDone) {
+                locationLayout.setBackgroundColor(confirmedBg);
+                locationText.setTextColor(deselectedText);
+            } else {
+                locationLayout.setBackgroundColor(deselectedBackground);
+                locationText.setTextColor(deselectedText);
+            }
+        }
+
+        if (resId == R.id.shop) {
+            shopLayout.setBackgroundColor(selectedBackground);
+            shopText.setTextColor(selectedText);
+
+        } else {
+            if (isLaundyShopDone) {
+                shopLayout.setBackgroundColor(confirmedBg);
+                shopText.setTextColor(deselectedText);
+            } else {
+                shopLayout.setBackgroundColor(deselectedBackground);
+                shopText.setTextColor(deselectedText);
+            }
+        }
+
+        if (resId == R.id.service) {
+            serviceLayout.setBackgroundColor(selectedBackground);
+            serviceText.setTextColor(selectedText);
+
+        } else {
+            if (isLaundyShopDone) {
+                serviceLayout.setBackgroundColor(confirmedBg);
+                serviceText.setTextColor(deselectedText);
+            } else {
+                serviceLayout.setBackgroundColor(deselectedBackground);
+                serviceText.setTextColor(deselectedText);
+            }
+        }
+
+        if (resId == R.id.summary) {
+            summaryLayout.setBackgroundColor(selectedBackground);
+            summaryText.setTextColor(selectedText);
+
+        } else {
+            if (isLaundyShopDone) {
+                summaryLayout.setBackgroundColor(confirmedBg);
+                summaryText.setTextColor(deselectedText);
+            } else {
+                summaryLayout.setBackgroundColor(deselectedBackground);
+                summaryText.setTextColor(deselectedText);
+            }
+        }
+
+//        shopLayout.setBackgroundColor(resId == R.id.shop ? selectedBackground : deselectedBackground);
+//        shopText.setTextColor(resId == R.id.shop ? selectedText : deselectedText);
+//        serviceLayout.setBackgroundColor(resId == R.id.service ? selectedBackground : deselectedBackground);
+//        serviceText.setTextColor(resId == R.id.service ? selectedText : deselectedText);
+//        summaryLayout.setBackgroundColor(resId == R.id.summary ? selectedBackground : deselectedBackground);
+//        summaryText.setTextColor(resId == R.id.summary ? selectedText : deselectedText);
 
         modeToggleLayout.setVisibility(resId == R.id.mode ? View.VISIBLE : View.GONE);
         typeToggleLayout.setVisibility(resId == R.id.type ? View.VISIBLE : View.GONE);
         locationToggleLayout.setVisibility(resId == R.id.location ? View.VISIBLE : View.GONE);
         summaryToggleLayout.setVisibility(resId == R.id.summary ? View.VISIBLE : View.GONE);
+    }
+
+    public void resetTrackers() {
+        isModeDone = false;
+        isTypeDone = false;
+        isLocationDone = false;
+        isLaundyShopDone = false;
+        isServiceDone = false;
     }
 
     public void updateLaundryShops() {
