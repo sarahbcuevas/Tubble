@@ -13,7 +13,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_start_up">StartUpActivity</string>
 
-    <string name="tips_main">Tubble is the Philippines\' first-ever laundry aid\nmobile platform used to provide and ease commu-\nication channels between laundry service provid-\ners and its consumers. Developed by consumers\nwho have experienced the inconvenience of hunt-\ning for laundry shops within Metro to help indi-\nviduals.\n\nFor many years, laundry has played a significant\nrole in our daily routine. The idea of Tubble is to\ncreate an innovative solution for students and laun-\ndry service providers allowing them to co-exist\nwith each other with ease and convenience.</string>
     <string name="laundry_shop">Laundry Shop</string>
     <string name="laundry_services">Laundry Service</string>
     <string name="cancel">Cancel</string>
@@ -68,4 +67,13 @@
 
     <!--View Address Dialog-->
     <string name="view_address_dialog_title">Address</string>
+
+    <!-- Tips Fragment-->
+    <string name="tips_main">Tubble is the Philippines\' first-ever laundry aid\nmobile platform used to provide and ease commu-\nication channels between laundry service provid-\ners and its consumers. Developed by consumers\nwho have experienced the inconvenience of hunt-\ning for laundry shops within Metro to help indi-\nviduals.\n\nFor many years, laundry has played a significant\nrole in our daily routine. The idea of Tubble is to\ncreate an innovative solution for students and laun-\ndry service providers allowing them to co-exist\nwith each other with ease and convenience.</string>
+    <string name="tips_video_text">We get it. Laundry\'s difficult.\nThat\'s why we made this\nspecially for you!</string>
+    <string name="tips_contact_us_text">If you have any concerns, feel\nfree to contact us.</string>
+    <string name="say_hi">Say hi!</string>
+    <string name="email_us">Lost? Just email us!</string>
+    <string name="know_more">Know more about us!</string>
+
 </resources>

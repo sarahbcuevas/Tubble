@@ -3,15 +3,21 @@ package com.laundryapp.tubble.fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.laundryapp.tubble.R;
-import com.squareup.picasso.Picasso;
+import com.laundryapp.tubble.fragment.tipsfragment.ContactUsFragment;
+import com.laundryapp.tubble.fragment.tipsfragment.TubbleInfoFragment;
+import com.laundryapp.tubble.fragment.tipsfragment.VideoFragment;
 
 import java.lang.reflect.Field;
 
@@ -34,7 +40,10 @@ public class TipsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private ImageView headerLogo;
+    private View fragmentView;
+    private ViewPager viewPager;
+    private TipsFragmentAdapter pagerAdapter;
+    private TabLayout tabLayout;
 
     private OnFragmentInteractionListener mListener;
 
@@ -73,10 +82,45 @@ public class TipsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_tips, container, false);
-        headerLogo = (ImageView) view.findViewById(R.id.header_image);
-        Picasso.with(getContext()).load(R.drawable.tubblelogo).into(headerLogo);
-        return view;
+        fragmentView = inflater.inflate(R.layout.fragment_tips, container, false);
+        viewPager = (ViewPager) fragmentView.findViewById(R.id.view_pager);
+        tabLayout = (TabLayout) fragmentView.findViewById(R.id.tablayout);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                pagerAdapter = new TipsFragmentAdapter(getContext(), getChildFragmentManager());
+                fragmentView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewPager.setOffscreenPageLimit(1);
+                        viewPager.setAdapter(pagerAdapter);
+                        tabLayout.setupWithViewPager(viewPager);
+                        for (int i=0; i<3; i++) {
+                            tabLayout.getTabAt(i).setIcon(R.drawable.tips_tab_icon_selector);
+                        }
+
+                        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                            @Override
+                            public void onTabSelected(TabLayout.Tab tab) {
+                                viewPager.setCurrentItem(tabLayout.getSelectedTabPosition());
+                            }
+
+                            @Override
+                            public void onTabUnselected(TabLayout.Tab tab) {
+
+                            }
+
+                            @Override
+                            public void onTabReselected(TabLayout.Tab tab) {
+
+                            }
+                        });
+                    }
+                });
+            }
+        }).start();
+
+        return fragmentView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -125,5 +169,34 @@ public class TipsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+}
+
+class TipsFragmentAdapter extends FragmentPagerAdapter {
+    Context context;
+
+    public TipsFragmentAdapter (Context context, FragmentManager fm) {
+        super(fm);
+        this.context = context;
+
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        switch (position) {
+            case 0:
+                return new TubbleInfoFragment();
+            case 1:
+                return new VideoFragment();
+            case 2:
+                return new ContactUsFragment();
+            default:
+                return new TubbleInfoFragment();
+        }
+    }
+
+    @Override
+    public int getCount() {
+        return 3;
     }
 }

@@ -427,26 +427,11 @@ public class MainActivity extends FragmentActivity implements
 }
 
 class TabPagerAdapter extends FragmentPagerAdapter {
-    //    FindFragment mFindFragment;
-//    LaundryRequestFragment mLaundryRequestFragment;
-//    SchedulerFragment mSchedulerFragment;
-//    StatusFragment mStatusFragment;
-//    TipsFragment mTipsFragment;
-//    ProfileFragment mProfileFragment;
     User.Type userType;
 
     public TabPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         userType = Utility.getUserType(context);
-//        if (User.Type.CUSTOMER == userType) {
-//            mFindFragment = new FindFragment();
-//        } else if (User.Type.LAUNDRY_SHOP == userType) {
-//            mLaundryRequestFragment = new LaundryRequestFragment();
-//        }
-//        mSchedulerFragment = new SchedulerFragment();
-//        mStatusFragment = new StatusFragment();
-//        mTipsFragment = new TipsFragment();
-//        mProfileFragment = new ProfileFragment();
     }
 
     @Override
