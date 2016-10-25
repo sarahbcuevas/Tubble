@@ -276,7 +276,7 @@ public class MainActivity extends FragmentActivity implements
 
             if (ratingPos == 0) {
                 for (LaundryShop tempShop : shops) {
-                    if (tempShop.getAddress().contains(location)) {
+                    if (tempShop.getAddress().toLowerCase().contains(location.toLowerCase())) {
                         elligibleShops.add(tempShop);
                     }
                 }
@@ -284,9 +284,9 @@ public class MainActivity extends FragmentActivity implements
                 FindFragment.showSearchResults(elligibleShops);
             } else {
                 for (LaundryShop tempShop : shops) {
-                    if ((tempShop.getRating() < (ratingPos + .99))
+                    if ((tempShop.getRating() <= (ratingPos + .99))
                             && (tempShop.getRating() >= ratingPos)
-                            && (tempShop.getAddress().contains(location))) {
+                            && (tempShop.getAddress().toLowerCase().contains(location.toLowerCase()))) {
                         elligibleShops.add(tempShop);
                     }
                 }
@@ -303,12 +303,12 @@ public class MainActivity extends FragmentActivity implements
 
                 Log.e("Search", "SHop " + shop.getName() + " " + shop.getRating() + " :: " + ratingPos);
                 if (ratingPos == 0) {
-                    if (shop.getAddress().contains(location)) {
+                    if (shop.getAddress().toLowerCase().contains(location.toLowerCase())) {
                         elligibleShops.add(shop);
                     }
-                } else if ((shop.getRating() < (ratingPos + .99))
+                } else if ((shop.getRating() <= (ratingPos + .99))
                         && (shop.getRating() >= ratingPos)
-                        && (shop.getAddress().contains(location))) {
+                        && (shop.getAddress().toLowerCase().contains(location.toLowerCase()))) {
                     elligibleShops.add(shop);
                 }
             }
