@@ -1,47 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="30dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:paddingTop="10dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
     tools:context="com.laundryapp.tubble.fragment.TipsFragment">
 
-    <ImageView
-        android:id="@+id/header_image"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:src="@drawable/tubblelogo" />
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:gravity="center"
-        android:text="@string/tips_main" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:textStyle="italic"
-        android:textSize="11sp"
-        android:gravity="center"
-        android:text="@string/disclaimer"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Know more about us!"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        android:textColor="@color/tubble_blue"/>
-
-    <ImageButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tablayout"
+        android:layout_width="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/web_copy"/>
+        app:tabIndicatorHeight="0dp"
+        app:tabPaddingStart="5dp"
+        app:tabPaddingEnd="5dp"
+        android:layout_height="wrap_content">
+        <android.support.design.widget.TabItem
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:icon="@drawable/tips_tab_icon_selector"/>
+        <android.support.design.widget.TabItem
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:icon="@drawable/tips_tab_icon_selector"/>
+        <android.support.design.widget.TabItem
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:icon="@drawable/tips_tab_icon_selector"/>
+
+    </android.support.design.widget.TabLayout>
 </LinearLayout>
