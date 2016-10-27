@@ -102,11 +102,7 @@ public class MainActivity extends FragmentActivity implements
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
                 if (mTabLayout.getSelectedTabPosition() == 2) { // Status Fragment
-                    if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
-
-                    } else {
-                        StatusFragment.updateLaundryList();
-                    }
+                    StatusFragment.updateLaundryList();
                 }
                 updateOptionsMenu();
             }
@@ -353,11 +349,6 @@ public class MainActivity extends FragmentActivity implements
                 menuStatus.setVisible(true);
                 menuCancel.setVisible(false);
                 onBackPressed = true;
-            } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
-                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
-                SchedulerFragment.setSelectedDateInCalendar(SchedulerFragment.calendarPager.getCurrentItem());
-                mViewPager.setCurrentItem(1);   // go back to Scheduler Fragment
-                onBackPressed = true;
             } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {
                 StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
                 StatusFragment.updateLaundryList();
@@ -405,12 +396,6 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onViewLaundryScheduleDetails() {
         menuCancel.setVisible(true);
-    }
-
-    @Override
-    public void onCheckBookingStatus(long id) {
-        StatusFragment.onCheckBookingStatus(id, StatusFragment.SCHEDULER);
-        mViewPager.setCurrentItem(2);
     }
 
     @Override

@@ -68,7 +68,6 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     // for handling back button press; must return to Scheduler if true, else, return to status list.
     private static int fragmentCaller = 0;
     public static final int DEFAULT = 0;
-    public static final int SCHEDULER = 1;
     public static final int STATUS_LIST = 2;
     public static final int APPROVED_STATUS_LIST = 3;
 
@@ -227,11 +226,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         editButton.setOnClickListener(this);
         sendRatingButton.setOnClickListener(this);
 
-        if (getCheckStatusFromScheduler() == SCHEDULER) {
-            // execute onCheckBookingStatus(id)
-        } else {
-            updateLaundryList();
-        }
+        updateLaundryList();
 
         return fragmentView;
     }
