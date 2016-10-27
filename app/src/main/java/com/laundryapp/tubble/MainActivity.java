@@ -306,12 +306,7 @@ public class MainActivity extends FragmentActivity implements
                     SchedulerFragment.onBackPressed();
                     menuCancel.setVisible(false);
                 } else if (mViewPager.getCurrentItem() == 2) {     // Status Fragment
-                    StatusFragment.updateLaundryList();
-                    menuCancel.setVisible(false);
-                    User.Type userType = Utility.getUserType(getApplicationContext());
-                    if (userType == User.Type.CUSTOMER) {
-                        menuStatus.setVisible(true);
-                    }
+                    onBackPressed();
                 }
                 return true;
             default:
@@ -397,19 +392,23 @@ public class MainActivity extends FragmentActivity implements
             onBackPressed = SchedulerFragment.onBackPressed();
             menuCancel.setVisible(false);
         } else if (mViewPager.getCurrentItem() == 2) { // Status Fragment
-            if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.APPROVED_STATUS_LIST) {
-                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+            if (StatusFragment.getCurrentVisibleMode() == StatusFragment.VisibleLayout.APPROVED_BOOKINGS_LAYOUT) {
+                if (StatusFragment.getParentLayoutOfApprovedBooking() == StatusFragment.ParentLayout.STATUS_LIST_PARENT) {
+                    StatusFragment.updateLaundryList();
+                } else if (StatusFragment.getParentLayoutOfApprovedBooking() == StatusFragment.ParentLayout.STATUS_INFO_PARENT) {
+                    StatusFragment.onCheckBookingStatus(StatusFragment.selectedBookingId);
+                }
+                menuStatus.setVisible(true);
+                menuCancel.setVisible(false);
+                onBackPressed = true;
+            } else if (StatusFragment.getCurrentVisibleMode() == StatusFragment.VisibleLayout.STATUS_INFO_LAYOUT) {
                 StatusFragment.updateLaundryList();
                 menuStatus.setVisible(true);
                 menuCancel.setVisible(false);
                 onBackPressed = true;
-            } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {
-                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+            } else if (StatusFragment.getCurrentVisibleMode() == StatusFragment.VisibleLayout.EDIT_LAUNDRY_LAYOUT) {
                 StatusFragment.updateLaundryList();
-                User.Type userType = Utility.getUserType(getApplicationContext());
-                if (userType == User.Type.LAUNDRY_SHOP) {
-                    menuCancel.setVisible(false);
-                }
+                menuCancel.setVisible(false);
                 onBackPressed = true;
             }
         } else if (mViewPager.getCurrentItem() == 4) {  // Profile Fragment
