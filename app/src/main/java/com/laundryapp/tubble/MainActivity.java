@@ -52,8 +52,8 @@ public class MainActivity extends FragmentActivity implements
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
-    private MenuItem menuSearch, menuLogout, menuStatus, menuCancel;
-    private RelativeLayout menuBack;
+    private MenuItem menuSearch, menuStatus, menuCancel;
+    private RelativeLayout menuBack, menuLogout;
 
     public static final String USER_ID = "user_id";
 
@@ -78,7 +78,9 @@ public class MainActivity extends FragmentActivity implements
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         menuBack = (RelativeLayout) mToolbar.findViewById(android.R.id.home);
+        menuLogout = (RelativeLayout) mToolbar.findViewById(R.id.action_logout);
         menuBack.setOnClickListener(this);
+        menuLogout.setOnClickListener(this);
         mToolbar.setTitle("");
         setActionBar(mToolbar);
 
@@ -153,7 +155,6 @@ public class MainActivity extends FragmentActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menuSearch = menu.findItem(R.id.action_search);
-        menuLogout = menu.findItem(R.id.action_logout);
         menuStatus = menu.findItem(R.id.action_status);
         menuCancel = menu.findItem(R.id.action_cancel);
         updateOptionsMenu();
@@ -185,19 +186,19 @@ public class MainActivity extends FragmentActivity implements
                 menuSearch.setVisible(false);
                 menuBack.setVisibility(View.GONE);
             }
-            menuLogout.setVisible(false);
+            menuLogout.setVisibility(View.GONE);
         } else if (currentTab == 4) {                          // Profile Fragment
             if (ProfileFragment.isTrackHistoryVisible()) {
-                menuLogout.setVisible(false);
+                menuLogout.setVisibility(View.GONE);
                 menuBack.setVisibility(View.VISIBLE);
             } else {
-                menuLogout.setVisible(true);
+                menuLogout.setVisibility(View.VISIBLE);
                 menuBack.setVisibility(View.GONE);
             }
             menuSearch.setVisible(false);
         } else {
             menuSearch.setVisible(false);
-            menuLogout.setVisible(false);
+            menuLogout.setVisibility(View.GONE);
             menuBack.setVisibility(View.GONE);
         }
         menuCancel.setVisible(false);
@@ -217,15 +218,17 @@ public class MainActivity extends FragmentActivity implements
                     menuBack.setVisibility(View.GONE);
                 }
                 break;
+            case R.id.action_logout:
+                Utility.logout(this);
+                break;
+            default:
+                break;
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_logout:
-                Utility.logout(this);
-                return true;
             case R.id.action_search:
                 final Dialog dialog = new Dialog(MainActivity.this);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
