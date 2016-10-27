@@ -52,7 +52,7 @@ public class MainActivity extends FragmentActivity implements
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
-    private MenuItem menuSearch, menuStatus, menuCancel;
+    private MenuItem menuSearch, menuStatus, menuCancel, menuEdit, menuDone;
     private RelativeLayout menuBack, menuLogout;
 
     public static final String USER_ID = "user_id";
@@ -157,6 +157,8 @@ public class MainActivity extends FragmentActivity implements
         menuSearch = menu.findItem(R.id.action_search);
         menuStatus = menu.findItem(R.id.action_status);
         menuCancel = menu.findItem(R.id.action_cancel);
+        menuEdit = menu.findItem(R.id.action_edit);
+        menuDone = menu.findItem(R.id.action_done);
         updateOptionsMenu();
         return super.onCreateOptionsMenu(menu);
     }
@@ -169,11 +171,7 @@ public class MainActivity extends FragmentActivity implements
     private void updateOptionsMenu() {
         int currentTab = mViewPager.getCurrentItem();
         User.Type userType = Utility.getUserType(getApplicationContext());
-        if (userType == User.Type.CUSTOMER) {
-            menuStatus.setVisible(currentTab == 2);     // Status Fragment
-        } else if (userType == User.Type.LAUNDRY_SHOP) {
-            menuStatus.setVisible(false);
-        }
+
         if (currentTab == 0) {                          // Find Fragment
             if (userType == User.Type.CUSTOMER) {
                 menuSearch.setVisible(true);
@@ -187,17 +185,44 @@ public class MainActivity extends FragmentActivity implements
                 menuBack.setVisibility(View.GONE);
             }
             menuLogout.setVisibility(View.GONE);
+            menuStatus.setVisible(false);
+            menuEdit.setVisible(false);
+            menuDone.setVisible(false);
+        } else if (currentTab == 2) {                           // Status Fragment
+            if (userType == User.Type.CUSTOMER) {
+                menuStatus.setVisible(true);
+            } else {
+                menuStatus.setVisible(false);
+            }
+            menuSearch.setVisible(false);
+            menuEdit.setVisible(false);
+            menuDone.setVisible(false);
+            menuBack.setVisibility(View.GONE);
+            menuLogout.setVisibility(View.GONE);
         } else if (currentTab == 4) {                          // Profile Fragment
             if (ProfileFragment.isTrackHistoryVisible()) {
                 menuLogout.setVisibility(View.GONE);
+                menuEdit.setVisible(false);
+                menuDone.setVisible(false);
                 menuBack.setVisibility(View.VISIBLE);
             } else {
                 menuLogout.setVisibility(View.VISIBLE);
                 menuBack.setVisibility(View.GONE);
+                if (userType == User.Type.CUSTOMER) {
+                    menuEdit.setVisible(!ProfileFragment.isOnEditMode());
+                    menuDone.setVisible(ProfileFragment.isOnEditMode());
+                } else {
+                    menuEdit.setVisible(false);
+                    menuDone.setVisible(false);
+                }
             }
             menuSearch.setVisible(false);
+            menuStatus.setVisible(false);
         } else {
+            menuStatus.setVisible(false);
             menuSearch.setVisible(false);
+            menuEdit.setVisible(false);
+            menuDone.setVisible(false);
             menuLogout.setVisibility(View.GONE);
             menuBack.setVisibility(View.GONE);
         }
@@ -308,6 +333,17 @@ public class MainActivity extends FragmentActivity implements
                 } else if (mViewPager.getCurrentItem() == 2) {     // Status Fragment
                     onBackPressed();
                 }
+                return true;
+            case R.id.action_edit:
+                ProfileFragment.onEditUserProfile(true);
+                menuEdit.setVisible(false);
+                menuDone.setVisible(true);
+                return true;
+            case R.id.action_done:
+                ProfileFragment.updateUserProfile();
+                ProfileFragment.onEditUserProfile(false);
+                menuEdit.setVisible(true);
+                menuDone.setVisible(false);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

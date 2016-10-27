@@ -73,14 +73,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private static OnFragmentInteractionListener mListener;
 
     private View fragmentView;
-    private EditText mMobileNumber, mFullName, mEmail;
+    private static EditText mMobileNumber, mFullName, mEmail, mPassword;
     private static ScrollView profileLayout, shopLayout;
     private static RelativeLayout trackLayout;
     private LinearLayout noTrackLayout;
     private ListView trackListView;
     private Button trackHistoryButton, viewAddressButton;
     private User.Type userType;
-    private ImageView selectPhotoButton, takePhotoButton;
+    private static ImageView selectPhotoButton, takePhotoButton;
     private CircleImageView userPhoto;
     private String imageDecode;
 
@@ -93,6 +93,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private TableLayout servicesTable;
 
     private static Context mContext;
+    private static boolean isOnEdit = false;
 
 
     public ProfileFragment() {
@@ -144,6 +145,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         mMobileNumber = (EditText) fragmentView.findViewById(R.id.mobile_number);
         mFullName = (EditText) fragmentView.findViewById(R.id.full_name);
         mEmail = (EditText) fragmentView.findViewById(R.id.email);
+        mPassword = (EditText) fragmentView.findViewById(R.id.password);
         trackHistoryButton = (Button) fragmentView.findViewById(R.id.track_history_button);
         viewAddressButton = (Button) fragmentView.findViewById(R.id.view_address_button);
         selectPhotoButton = (ImageView) fragmentView.findViewById(R.id.select_photo_button);
@@ -169,6 +171,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             mEmail.setText(user.getEmailAddress());
             mFullName.setText(user.getFullName());
             mMobileNumber.setText(user.getMobileNumber());
+            mPassword.setText(user.getPassword());
             bookings = BookingDetails.find(BookingDetails.class, "m_User_id = ?", Long.toString(Utility.getUserId(getContext())));
             profileLayout.setVisibility(View.VISIBLE);
             shopLayout.setVisibility(View.GONE);
@@ -207,6 +210,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         selectPhotoButton.setOnClickListener(this);
         takePhotoButton.setOnClickListener(this);
         shopTrackHistoryButton.setOnClickListener(this);
+        selectPhotoButton.setEnabled(false);
+        takePhotoButton.setEnabled(false);
         Picasso.with(getContext()).load(R.drawable.nolaundry).into((ImageView) fragmentView.findViewById(R.id.no_track_image));
 
         ArrayAdapter<BookingDetails> adapter = new TrackHistoryAdapter(getContext(), bookings);
@@ -251,11 +256,59 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         return false;
     }
 
+    public static void onEditUserProfile(boolean onEdit) {
+        try {
+            isOnEdit = onEdit;
+            mMobileNumber.setEnabled(onEdit);
+            mFullName.setEnabled(onEdit);
+            mEmail.setEnabled(onEdit);
+            mPassword.setEnabled(onEdit);
+            selectPhotoButton.setEnabled(onEdit);
+            takePhotoButton.setEnabled(onEdit);
+        } catch (NullPointerException ex) {
+            Log.d(TAG, ex.getMessage(), ex);
+        }
+    }
+
+    public static void updateUserProfile() {
+        if (Utility.getUserType(mContext) == User.Type.CUSTOMER) {
+            User user = User.findById(User.class, Utility.getUserId(mContext));
+            String oldNumber = user.getMobileNumber();
+            String oldName = user.getFullName();
+            String oldEmail = user.getEmailAddress();
+            String oldPassword = user.getPassword();
+            String newNumber = mMobileNumber.getText().toString();
+            String newName = mFullName.getText().toString();
+            String newEmail = mEmail.getText().toString();
+            String newPassword = mPassword.getText().toString();
+            if (oldNumber.equals(newNumber) && oldName.equals(newName) && oldEmail.equals(newEmail) && oldPassword.equals(newPassword)) {
+                return;
+            }
+            user.setMobileNumber(newNumber);
+            user.setFullName(newName);
+            user.setEmailAddress(newEmail);
+            user.setPassword(newPassword);
+            user.save();
+        }
+    }
+
+    public static boolean isOnEditMode() {
+        return isOnEdit;
+    }
+
     public static boolean isTrackHistoryVisible() {
         if (trackLayout != null && trackLayout.getVisibility() == View.VISIBLE) {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            onEditUserProfile(false);
+        }
     }
 
     @Override

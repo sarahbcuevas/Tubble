@@ -324,6 +324,7 @@ public class Utility {
         String userFullname = user.getFullName();
         String userEmail = user.getEmailAddress();
         String userMobile = user.getMobileNumber();
+        String userUniqueId = user.getUniqueId();
         String location = details.getLocation();
         String notes = details.getNotes();
         String pickupDate = Long.toString(details.getPickupDate());
@@ -350,7 +351,8 @@ public class Utility {
                 userFullname + DELIMETER +
                 userMobile + DELIMETER +
                 userEmail + DELIMETER +
-                location + "}";
+                location + DELIMETER +
+                userUniqueId + "}";
 
         LaundryShop laundryShop = details.getLaundryShop();
 //        String phoneNo = laundryShop.getContact();

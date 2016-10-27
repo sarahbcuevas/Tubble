@@ -8,7 +8,7 @@
     <ScrollView
         android:id="@+id/user_profile"
         android:layout_width="match_parent"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="280dp"
@@ -84,6 +84,15 @@
                 android:enabled="false"
                 android:hint="email" />
 
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="@dimen/form_edittext_width"
+                android:layout_height="@dimen/form_edittext_height"
+                android:gravity="center"
+                android:hint="password"
+                android:enabled="false"
+                android:inputType="textPassword" />
+
             <Button
                 android:id="@+id/view_address_button"
                 android:layout_width="match_parent"
@@ -146,7 +155,7 @@
     <ScrollView
         android:id="@+id/shop_layout"
         android:layout_width="match_parent"
-        android:visibility="visible"
+        android:visibility="gone"
         android:layout_height="match_parent">
 
         <LinearLayout

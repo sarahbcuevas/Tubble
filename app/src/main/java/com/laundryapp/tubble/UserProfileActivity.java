@@ -13,9 +13,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Toolbar;
 
 import com.laundryapp.tubble.entities.User;
 import com.squareup.picasso.Picasso;
+
+import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -37,6 +41,12 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userprofile);
+
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        RelativeLayout menuLogout = (RelativeLayout) mToolbar.findViewById(R.id.action_logout);
+        RelativeLayout menuBack = (RelativeLayout) mToolbar.findViewById(android.R.id.home);
+        menuLogout.setVisibility(View.GONE);
+        menuBack.setVisibility(View.GONE);
 
         mClearButton = (Button) findViewById(R.id.clear_button);
         mSaveButton = (Button) findViewById(R.id.save_button);
@@ -76,7 +86,8 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
                 String address = mAddress.getText().toString();
-                User user = new User(fullName, mobileNumber, email, address, password, imageDecode);
+                String uniqueId = UUID.randomUUID().toString();
+                User user = new User(fullName, mobileNumber, email, address, password, imageDecode, uniqueId);
                 long user_id = user.save();
                 Utility.setUserId(this, user_id);
                 Utility.setUserType(this, User.Type.CUSTOMER);

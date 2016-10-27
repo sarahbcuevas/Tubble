@@ -382,6 +382,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             bookingLayout.setVisibility(View.GONE);
             laundryScheduleDetails.setVisibility(View.GONE);
         } else {
+            reset();
             if (mContext != null) {
                 InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(schedulerLayout.getWindowToken(), 0);
