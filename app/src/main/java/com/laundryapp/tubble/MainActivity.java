@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toolbar;
 
@@ -43,7 +44,8 @@ import java.util.List;
 public class MainActivity extends FragmentActivity implements
         FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener,
-        TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener {
+        TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener,
+        View.OnClickListener {
 
     private final String TAG = this.getClass().getName();
     private TabPagerAdapter mTabPagerAdapter;
@@ -51,6 +53,7 @@ public class MainActivity extends FragmentActivity implements
     private TabLayout mTabLayout;
 
     private MenuItem menuSearch, menuLogout, menuStatus, menuCancel;
+    private RelativeLayout menuBack;
 
     public static final String USER_ID = "user_id";
 
@@ -74,6 +77,8 @@ public class MainActivity extends FragmentActivity implements
         }
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        menuBack = (RelativeLayout) mToolbar.findViewById(android.R.id.home);
+        menuBack.setOnClickListener(this);
         mToolbar.setTitle("");
         setActionBar(mToolbar);
 
@@ -155,10 +160,14 @@ public class MainActivity extends FragmentActivity implements
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public void onTrackHistoryVisible() {
+        updateOptionsMenu();
+    }
+
     private void updateOptionsMenu() {
         int currentTab = mViewPager.getCurrentItem();
         User.Type userType = Utility.getUserType(getApplicationContext());
-        menuLogout.setVisible(currentTab == 4);     // Profile Fragment
         if (userType == User.Type.CUSTOMER) {
             menuSearch.setVisible(currentTab == 0);     // Find Fragment
             menuStatus.setVisible(currentTab == 2);     // Status Fragment
@@ -166,7 +175,32 @@ public class MainActivity extends FragmentActivity implements
             menuSearch.setVisible(false);
             menuStatus.setVisible(false);
         }
+        if (currentTab == 4) {                          // Profile Fragment
+            if (ProfileFragment.isTrackHistoryVisible()) {
+                menuLogout.setVisible(false);
+                menuBack.setVisibility(View.VISIBLE);
+            } else {
+                menuLogout.setVisible(true);
+                menuBack.setVisibility(View.GONE);
+            }
+        } else {
+            menuLogout.setVisible(false);
+            menuBack.setVisibility(View.GONE);
+        }
         menuCancel.setVisible(false);
+    }
+
+    @Override
+    public void onClick(View view) {
+        int currentTab = mViewPager.getCurrentItem();
+        switch (view.getId()) {
+            case android.R.id.home:
+                if (currentTab == 4 && ProfileFragment.isTrackHistoryVisible()) {     // Profile Fragment
+                    ProfileFragment.onBackPressed();
+                    menuBack.setVisibility(View.GONE);
+                }
+                break;
+        }
     }
 
     @Override

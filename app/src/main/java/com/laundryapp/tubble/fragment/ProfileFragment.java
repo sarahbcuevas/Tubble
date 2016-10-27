@@ -70,7 +70,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private static OnFragmentInteractionListener mListener;
 
     private View fragmentView;
     private EditText mMobileNumber, mFullName, mEmail;
@@ -238,13 +238,21 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     public static boolean onBackPressed() {
         User.Type userType = Utility.getUserType(mContext);
-        if (trackLayout != null && trackLayout.getVisibility() == View.VISIBLE) {
+        if (isTrackHistoryVisible()) {
             trackLayout.setVisibility(View.GONE);
             if (userType == User.Type.CUSTOMER) {
                 profileLayout.setVisibility(View.VISIBLE);
             } else {
                 shopLayout.setVisibility(View.VISIBLE);
             }
+            mListener.onTrackHistoryVisible();
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isTrackHistoryVisible() {
+        if (trackLayout != null && trackLayout.getVisibility() == View.VISIBLE) {
             return true;
         }
         return false;
@@ -289,7 +297,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onTrackHistoryVisible();
     }
 
     @Override
@@ -375,6 +383,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             }
             trackLayout.setVisibility(View.GONE);
         }
+        mListener.onTrackHistoryVisible();
     }
 
     class TrackHistoryAdapter extends ArrayAdapter<BookingDetails> {
