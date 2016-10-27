@@ -2,32 +2,20 @@ package com.laundryapp.tubble;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.laundryapp.tubble.entities.User;
 import com.squareup.picasso.Picasso;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -126,8 +114,8 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
                 mUserPhoto.setImageBitmap(BitmapFactory.decodeFile(imageDecode));
                 mUserPhoto.setBorderWidth(20);
             } else if (requestCode == Utility.CAPTURE_IMAGE_RESULT && resultCode == Activity.RESULT_OK) {
+                Utility.scaleAndRotateImage(mUserPhoto, imageDecode);
                 Utility.savePicToGallery(this, imageDecode);
-                Utility.scaleImage(mUserPhoto, imageDecode);
             }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);

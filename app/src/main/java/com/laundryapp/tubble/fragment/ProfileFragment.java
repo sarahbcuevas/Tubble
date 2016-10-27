@@ -8,13 +8,11 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +46,6 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -465,8 +462,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 user.setUserPhoto(imageDecode);
                 user.save();
             } else if (requestCode == Utility.CAPTURE_IMAGE_RESULT && resultCode == Activity.RESULT_OK) {
+                Utility.scaleAndRotateImage(userPhoto, imageDecode);
                 Utility.savePicToGallery(getActivity(), imageDecode);
-                Utility.scaleImage(userPhoto, imageDecode);
                 User user = User.findById(User.class, Utility.getUserId(getContext()));
                 user.setUserPhoto(imageDecode);
                 user.save();
