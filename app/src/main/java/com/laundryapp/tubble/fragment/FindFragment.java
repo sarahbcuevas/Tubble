@@ -68,7 +68,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     private MapView mMapView;
     private List<Marker> mapMarkers = new ArrayList<>();
 
-    private OnFragmentInteractionListener mListener;
+    private static OnFragmentInteractionListener mListener;
 
     private static LinearLayout searchResultsLayout;
     private static LinearLayoutManager searchLayoutManager;
@@ -296,6 +296,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
         mapLayout.setVisibility(View.GONE);
         searchResultsLayout.setVisibility(View.GONE);
         infoLayout.setVisibility(View.VISIBLE);
+        mListener.updateBackButtonVisibility();
 
         TextView shopNameText = (TextView) infoLayout.findViewById(R.id.shop_name);
         TextView shopScheduleText = (TextView) infoLayout.findViewById(R.id.shop_schedule);
@@ -332,12 +333,14 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
                 servicesTable.addView(row);
             }
         }
+
     }
 
     public static void showSearchResults(List<LaundryShop> laundryShops) {
         searchResultsLayout.setVisibility(View.VISIBLE);
         mapLayout.setVisibility(View.GONE);
         infoLayout.setVisibility(View.GONE);
+        mListener.updateBackButtonVisibility();
 
         RecyclerView recyclerView = (RecyclerView) searchResultsLayout.findViewById(R.id.search_recyclerview);
         recyclerView.setHasFixedSize(true);
@@ -353,6 +356,7 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
         searchResultsLayout.setVisibility(View.GONE);
         infoLayout.setVisibility(View.GONE);
         mapLayout.setVisibility(View.VISIBLE);
+        mListener.updateBackButtonVisibility();
 
         for (int i = 0; i < mapMarkers.size(); i++) {
             if (name.equals(mapMarkers.get(i).getTitle())) {
@@ -368,8 +372,15 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
             infoLayout.setVisibility(View.GONE);
             searchResultsLayout.setVisibility(View.GONE);
             mapLayout.setVisibility(View.VISIBLE);
-
+            mListener.updateBackButtonVisibility();
             // true handled
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isLaundryInfoVisible() {
+        if (infoLayout != null && infoLayout.getVisibility() == View.VISIBLE) {
             return true;
         }
         return false;
@@ -388,5 +399,6 @@ public class FindFragment extends Fragment implements OnMapReadyCallback,
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+        void updateBackButtonVisibility();
     }
 }

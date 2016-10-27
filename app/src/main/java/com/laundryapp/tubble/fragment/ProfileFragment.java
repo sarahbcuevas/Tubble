@@ -245,7 +245,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             } else {
                 shopLayout.setVisibility(View.VISIBLE);
             }
-            mListener.onTrackHistoryVisible();
+            mListener.updateBackButtonVisibility();
             return true;
         }
         return false;
@@ -297,7 +297,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onTrackHistoryVisible();
+        void updateBackButtonVisibility();
     }
 
     @Override
@@ -383,7 +383,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             }
             trackLayout.setVisibility(View.GONE);
         }
-        mListener.onTrackHistoryVisible();
+        mListener.updateBackButtonVisibility();
     }
 
     class TrackHistoryAdapter extends ArrayAdapter<BookingDetails> {

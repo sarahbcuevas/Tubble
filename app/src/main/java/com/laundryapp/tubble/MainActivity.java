@@ -161,7 +161,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onTrackHistoryVisible() {
+    public void updateBackButtonVisibility() {
         updateOptionsMenu();
     }
 
@@ -169,13 +169,24 @@ public class MainActivity extends FragmentActivity implements
         int currentTab = mViewPager.getCurrentItem();
         User.Type userType = Utility.getUserType(getApplicationContext());
         if (userType == User.Type.CUSTOMER) {
-            menuSearch.setVisible(currentTab == 0);     // Find Fragment
             menuStatus.setVisible(currentTab == 2);     // Status Fragment
         } else if (userType == User.Type.LAUNDRY_SHOP) {
-            menuSearch.setVisible(false);
             menuStatus.setVisible(false);
         }
-        if (currentTab == 4) {                          // Profile Fragment
+        if (currentTab == 0) {                          // Find Fragment
+            if (userType == User.Type.CUSTOMER) {
+                menuSearch.setVisible(true);
+                if (FindFragment.isLaundryInfoVisible()) {
+                    menuBack.setVisibility(View.VISIBLE);
+                } else {
+                    menuBack.setVisibility(View.GONE);
+                }
+            } else {
+                menuSearch.setVisible(false);
+                menuBack.setVisibility(View.GONE);
+            }
+            menuLogout.setVisible(false);
+        } else if (currentTab == 4) {                          // Profile Fragment
             if (ProfileFragment.isTrackHistoryVisible()) {
                 menuLogout.setVisible(false);
                 menuBack.setVisibility(View.VISIBLE);
@@ -183,7 +194,9 @@ public class MainActivity extends FragmentActivity implements
                 menuLogout.setVisible(true);
                 menuBack.setVisibility(View.GONE);
             }
+            menuSearch.setVisible(false);
         } else {
+            menuSearch.setVisible(false);
             menuLogout.setVisible(false);
             menuBack.setVisibility(View.GONE);
         }
@@ -193,9 +206,13 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onClick(View view) {
         int currentTab = mViewPager.getCurrentItem();
+        User.Type userType = Utility.getUserType(getApplicationContext());
         switch (view.getId()) {
             case android.R.id.home:
-                if (currentTab == 4 && ProfileFragment.isTrackHistoryVisible()) {     // Profile Fragment
+                if (currentTab == 0 && userType == User.Type.CUSTOMER && FindFragment.isLaundryInfoVisible()) {
+                    FindFragment.onBackPressed();
+                    menuBack.setVisibility(View.GONE);
+                } else if (currentTab == 4 && ProfileFragment.isTrackHistoryVisible()) {     // Profile Fragment
                     ProfileFragment.onBackPressed();
                     menuBack.setVisibility(View.GONE);
                 }
