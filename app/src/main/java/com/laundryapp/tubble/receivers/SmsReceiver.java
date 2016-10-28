@@ -176,14 +176,14 @@ public class SmsReceiver extends BroadcastReceiver {
             String[] subStr = message.split(Utility.DELIMETER);
 
             List<BookingDetails> booking = null;
-            List<User> users = User.find(User.class, "m_Full_Name = ? and m_Mobile_Number = ?", subStr[1], subStr[2]);
+            List<User> users = User.find(User.class, "m_Unique_Id = ?", subStr[1]);
             if (!users.isEmpty()) {
                 booking = BookingDetails.find(BookingDetails.class, "m_Date_Created = ? and m_User_Id = ?", subStr[0], Long.toString(users.get(0).getId()));
             }
 
             Log.d(TAG, "booking found: " + booking.size());
             if (!booking.isEmpty()) {
-                UserRating userRating = new UserRating(booking.get(0).getId(), Float.parseFloat(subStr[3]), subStr[4]);
+                UserRating userRating = new UserRating(booking.get(0).getId(), Float.parseFloat(subStr[2]), subStr[3]);
                 userRating.save();
                 LaundryShop shop = booking.get(0).getLaundryShop();
                 shop.addRating(userRating.getRating());
@@ -191,17 +191,19 @@ public class SmsReceiver extends BroadcastReceiver {
             }
 
         } else if (message.startsWith("assign")) {
+            Log.d(TAG, "Assignee received.");
             message = message.substring("assign{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
-
             List<BookingDetails> booking = null;
-            List<User> users = User.find(User.class, "m_Full_Name = ? and m_Mobile_Number = ?", subStr[1], subStr[2]);
+            List<User> users = User.find(User.class, "m_Unique_Id = ?", subStr[1]);
             if (!users.isEmpty()) {
+                Log.d(TAG, "Found user");
                 booking = BookingDetails.find(BookingDetails.class, "m_Date_Created = ? and m_User_Id = ?", subStr[0], Long.toString(users.get(0).getId()));
             }
 
             if (!booking.isEmpty()) {
-                LaundryAssignment assignment = new LaundryAssignment(Long.parseLong(subStr[3]), booking.get(0).getId());
+                Log.d(TAG, "Found booking");
+                LaundryAssignment assignment = new LaundryAssignment(Long.parseLong(subStr[2]), booking.get(0).getId());
                 assignment.save();
                 booking.get(0).setStatus(BookingDetails.Status.PROCESSING);
                 booking.get(0).save();

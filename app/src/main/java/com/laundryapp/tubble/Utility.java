@@ -172,13 +172,11 @@ public class Utility {
     public static void sendRatingThruSms(Context context, BookingDetails details, float rating, String comments) {
         String dateCreated = Long.toString(details.getDateCreatedInMillis());
         User user = User.findById(User.class, details.getUserId());
-        String userName = user.getFullName();
-        String userMobile = user.getMobileNumber();
+        String userUniqueId = user.getUniqueId();
 
         String message = "rating{" +
                 dateCreated + DELIMETER +
-                userName + DELIMETER +
-                userMobile + DELIMETER +
+                userUniqueId + DELIMETER +
                 rating + DELIMETER +
                 comments + "}";
 
@@ -200,13 +198,11 @@ public class Utility {
     public static void sendAssignLaundryProcessing(Context context, BookingDetails details, LaundryShopStaff assignee) {
         String dateCreated = Long.toString(details.getDateCreatedInMillis());
         User user = User.findById(User.class, details.getUserId());
-        String userName = user.getFullName();
-        String userMobile = user.getMobileNumber();
+        String userUniqueId = user.getUniqueId();
 
         String message = "assign{" +
                 dateCreated + DELIMETER +
-                userName + DELIMETER +
-                userMobile + DELIMETER +
+                userUniqueId + DELIMETER +
                 assignee.getId() + "}";
 
         String phoneNo = user.getMobileNumber();
@@ -366,7 +362,7 @@ public class Utility {
             byte[] b = message.getBytes();
             smsManager.sendDataMessage(phoneNo, null, PORT, b, sentIntent, null);
             Log.d(TAG, "Size of message: " + b.length);
-            Log.d(TAG, "Send laundry request START...");
+            Log.d(TAG, "Sending laundry request START...");
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

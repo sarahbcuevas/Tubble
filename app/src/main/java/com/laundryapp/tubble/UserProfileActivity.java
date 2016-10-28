@@ -87,6 +87,7 @@ public class UserProfileActivity extends AppCompatActivity implements View.OnCli
                 String password = mPassword.getText().toString();
                 String address = mAddress.getText().toString();
                 String uniqueId = UUID.randomUUID().toString();
+                uniqueId = uniqueId.substring((uniqueId.length()-10), uniqueId.length());
                 User user = new User(fullName, mobileNumber, email, address, password, imageDecode, uniqueId);
                 long user_id = user.save();
                 Utility.setUserId(this, user_id);
