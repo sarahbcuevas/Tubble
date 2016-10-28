@@ -106,6 +106,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     private static TextView scheduleCustomer, scheduleFee, scheduleMode, scheduleType, scheduleLocation, scheduleService, schedulePickupDate, schedulePickupLocation, scheduleDeliveryDate, scheduleDeliveryLocation, scheduleNoOfClothes, scheduleEstimatedKilo, scheduleNotes;
 
     private static boolean isModeDone, isTypeDone, isLocationDone, isLaundyShopDone, isServiceDone;
+    private LinearLayout goToCurrent;
 
     static OnFragmentInteractionListener mListener;
 
@@ -271,6 +272,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         mCalendar.setFirstDayOfWeek(Calendar.MONDAY);
         updateLaundryShops();
         updateMessageDialog(R.string.select_laundry_shop);
+
+        goToCurrent = (LinearLayout) fragmentView.findViewById(R.id.go_to_current);
+        goToCurrent.setOnClickListener(this);
         return fragmentView;
     }
 
@@ -442,6 +446,8 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                     calendarPager.setCurrentItem(currentItem2);
                 }
                 break;
+            case R.id.go_to_current:
+                updateCalendarAdapter();
             case R.id.book_button:
                 break;
             case R.id.mode:
