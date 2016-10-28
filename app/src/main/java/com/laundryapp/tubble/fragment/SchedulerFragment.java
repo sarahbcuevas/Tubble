@@ -808,6 +808,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         } else if (mEstimatedKilo.equals("")) {
             updateMessageDialog(R.string.input_estimated_kilo);
             messageDialog.show();
+        } else if ((Float.parseFloat(mNoOfClothes) / Float.parseFloat(mEstimatedKilo)) > 50) {
+            updateMessageDialog("Seems like there is an error with the ratio of the no. of clothes and estimated kilo.");
+            messageDialog.show();
         } else {
             final float estimatedFee = LaundryShopService.findById(LaundryShopService.class, laundryShopService_id).getPrice() * Float.parseFloat(mEstimatedKilo);
 
