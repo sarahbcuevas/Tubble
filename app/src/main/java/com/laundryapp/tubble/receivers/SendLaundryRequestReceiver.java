@@ -25,6 +25,8 @@ public class SendLaundryRequestReceiver extends BroadcastReceiver {
                 if (details != null) {
                     details.save();
                     SchedulerFragment.updateScheduleListAndCalendar();
+                    SchedulerFragment.updateScheduleList(details.getPickupDate());
+                    SchedulerFragment.updateScheduleList(details.getReturnDate());
                     StatusFragment.updateLaundryList();
                     Toast.makeText(context, "Laundry request has been sent.", Toast.LENGTH_SHORT).show();
                 }

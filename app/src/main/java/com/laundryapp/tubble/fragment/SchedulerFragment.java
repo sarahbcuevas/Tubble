@@ -241,6 +241,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
         pickupTimeButton.setOnClickListener(this);
         returnDateButton.setOnClickListener(this);
         returnTimeButton.setOnClickListener(this);
+        monthTextView.setOnClickListener(this);
 
         updateDateTimeString();
 
@@ -367,9 +368,9 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
     public void onResume() {
         super.onResume();
         fm = getChildFragmentManager();
+        CalendarWeekViewFragment.setSelectedDayPosition(-1);
         updateCalendarAdapter();
         updateScheduleList(System.currentTimeMillis());
-//        calendarAdapter.updateCalendar();
     }
 
     @Override
@@ -383,6 +384,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             laundryScheduleDetails.setVisibility(View.GONE);
         } else {
             reset();
+            CalendarWeekViewFragment.setSelectedDayPosition(-1);
             if (mContext != null) {
                 InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(schedulerLayout.getWindowToken(), 0);
@@ -440,6 +442,16 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
                 if (currentItem2 < calendarAdapter.getCount() - 1) {
                     currentItem2++;
                     calendarPager.setCurrentItem(currentItem2);
+                }
+                break;
+            case R.id.month_text:
+                int oldPosition = calendarPager.getCurrentItem();
+                CalendarWeekViewFragment.setSelectedDayPosition(CalendarWeekViewFragment.getCurrentDatePosition());
+                updateCalendarAdapter();
+                updateScheduleList(System.currentTimeMillis());
+                if (oldPosition == 5000) {
+                    calendarPager.setCurrentItem(4999);
+                    calendarPager.setCurrentItem(5000);
                 }
                 break;
             case R.id.book_button:
@@ -833,7 +845,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
 //                    booking.save();
                     reset();
                     Utility.sendLaundryRequestThruSms(getContext(), booking);
-//                    calendarAdapter.updateCalendar();
+//                    calendarAdapter.updateCalendarSelectedDay();
 //                    mListener.onAddOrDeleteLaundrySchedule();
 //                    listAdapter.notifyDataSetChanged();
                 }
