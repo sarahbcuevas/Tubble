@@ -53,10 +53,22 @@ public class SmsReceiver extends BroadcastReceiver {
         if (message.startsWith("user")) {
             message = message.substring("user{".length(), message.length() - 1);
             String[] subStr = message.split(Utility.DELIMETER);
-            List<User> users = User.find(User.class, "m_Mobile_Number = ?", subStr[1]);
+            List<User> users = User.find(User.class, "m_Unique_Id = ?", subStr[4]);
             if (users.isEmpty()) {
-                User user = new User(subStr[0], subStr[1], subStr[2], subStr[3], null, null);
+                User user = new User(subStr[0], subStr[1], subStr[2], subStr[3], null, null, subStr[4]);
                 user.save();
+            } else {
+                String oldNumber = users.get(0).getMobileNumber();
+                String oldName = users.get(0).getFullName();
+                String oldEmail = users.get(0).getEmailAddress();
+                String oldLocation = users.get(0).getAddress();
+                if (!(oldNumber.equals(subStr[1]) && oldName.equals(subStr[0]) && oldEmail.equals(subStr[2]) && oldLocation.equals(subStr[3]))) {
+                    users.get(0).setMobileNumber(subStr[1]);
+                    users.get(0).setFullName(subStr[0]);
+                    users.get(0).setEmailAddress(subStr[2]);
+                    users.get(0).setAddress(subStr[3]);
+                    users.get(0).save();
+                }
             }
         } else if (message.startsWith("laundry")) {
             message = message.substring("laundry{".length(), message.length() - 1);

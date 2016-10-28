@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toolbar;
 
@@ -43,14 +44,16 @@ import java.util.List;
 public class MainActivity extends FragmentActivity implements
         FindFragment.OnFragmentInteractionListener, SchedulerFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener, StatusFragment.OnFragmentInteractionListener,
-        TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener {
+        TipsFragment.OnFragmentInteractionListener, LaundryRequestFragment.OnFragmentInteractionListener,
+        View.OnClickListener {
 
     private final String TAG = this.getClass().getName();
     private TabPagerAdapter mTabPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
-    private MenuItem menuSearch, menuLogout, menuStatus, menuCancel;
+    private MenuItem menuSearch, menuStatus, menuCancel, menuEdit, menuDone;
+    private RelativeLayout menuBack, menuLogout;
 
     public static final String USER_ID = "user_id";
 
@@ -74,6 +77,10 @@ public class MainActivity extends FragmentActivity implements
         }
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        menuBack = (RelativeLayout) mToolbar.findViewById(android.R.id.home);
+        menuLogout = (RelativeLayout) mToolbar.findViewById(R.id.action_logout);
+        menuBack.setOnClickListener(this);
+        menuLogout.setOnClickListener(this);
         mToolbar.setTitle("");
         setActionBar(mToolbar);
 
@@ -102,11 +109,7 @@ public class MainActivity extends FragmentActivity implements
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(mTabLayout.getSelectedTabPosition());
                 if (mTabLayout.getSelectedTabPosition() == 2) { // Status Fragment
-                    if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
-
-                    } else {
-                        StatusFragment.updateLaundryList();
-                    }
+                    StatusFragment.updateLaundryList();
                 }
                 updateOptionsMenu();
             }
@@ -152,33 +155,105 @@ public class MainActivity extends FragmentActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menuSearch = menu.findItem(R.id.action_search);
-        menuLogout = menu.findItem(R.id.action_logout);
         menuStatus = menu.findItem(R.id.action_status);
         menuCancel = menu.findItem(R.id.action_cancel);
+        menuEdit = menu.findItem(R.id.action_edit);
+        menuDone = menu.findItem(R.id.action_done);
         updateOptionsMenu();
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void updateBackButtonVisibility() {
+        updateOptionsMenu();
     }
 
     private void updateOptionsMenu() {
         int currentTab = mViewPager.getCurrentItem();
         User.Type userType = Utility.getUserType(getApplicationContext());
-        menuLogout.setVisible(currentTab == 4);     // Profile Fragment
-        if (userType == User.Type.CUSTOMER) {
-            menuSearch.setVisible(currentTab == 0);     // Find Fragment
-            menuStatus.setVisible(currentTab == 2);     // Status Fragment
-        } else if (userType == User.Type.LAUNDRY_SHOP) {
+
+        if (currentTab == 0) {                          // Find Fragment
+            if (userType == User.Type.CUSTOMER) {
+                menuSearch.setVisible(true);
+                if (FindFragment.isLaundryInfoVisible()) {
+                    menuBack.setVisibility(View.VISIBLE);
+                } else {
+                    menuBack.setVisibility(View.GONE);
+                }
+            } else {
+                menuSearch.setVisible(false);
+                menuBack.setVisibility(View.GONE);
+            }
+            menuLogout.setVisibility(View.GONE);
+            menuStatus.setVisible(false);
+            menuEdit.setVisible(false);
+            menuDone.setVisible(false);
+        } else if (currentTab == 2) {                           // Status Fragment
+            if (userType == User.Type.CUSTOMER) {
+                menuStatus.setVisible(true);
+            } else {
+                menuStatus.setVisible(false);
+            }
+            menuSearch.setVisible(false);
+            menuEdit.setVisible(false);
+            menuDone.setVisible(false);
+            menuBack.setVisibility(View.GONE);
+            menuLogout.setVisibility(View.GONE);
+        } else if (currentTab == 4) {                          // Profile Fragment
+            if (ProfileFragment.isTrackHistoryVisible()) {
+                menuLogout.setVisibility(View.GONE);
+                menuEdit.setVisible(false);
+                menuDone.setVisible(false);
+                menuBack.setVisibility(View.VISIBLE);
+            } else {
+                menuLogout.setVisibility(View.VISIBLE);
+                menuBack.setVisibility(View.GONE);
+                if (userType == User.Type.CUSTOMER) {
+                    menuEdit.setVisible(!ProfileFragment.isOnEditMode());
+                    menuDone.setVisible(ProfileFragment.isOnEditMode());
+                } else {
+                    menuEdit.setVisible(false);
+                    menuDone.setVisible(false);
+                }
+            }
             menuSearch.setVisible(false);
             menuStatus.setVisible(false);
+        } else {
+            menuStatus.setVisible(false);
+            menuSearch.setVisible(false);
+            menuEdit.setVisible(false);
+            menuDone.setVisible(false);
+            menuLogout.setVisibility(View.GONE);
+            menuBack.setVisibility(View.GONE);
         }
         menuCancel.setVisible(false);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public void onClick(View view) {
+        int currentTab = mViewPager.getCurrentItem();
+        User.Type userType = Utility.getUserType(getApplicationContext());
+        switch (view.getId()) {
+            case android.R.id.home:
+                if (currentTab == 0 && userType == User.Type.CUSTOMER && FindFragment.isLaundryInfoVisible()) {
+                    FindFragment.onBackPressed();
+                    menuBack.setVisibility(View.GONE);
+                } else if (currentTab == 4 && ProfileFragment.isTrackHistoryVisible()) {     // Profile Fragment
+                    ProfileFragment.onBackPressed();
+                    menuBack.setVisibility(View.GONE);
+                }
+                break;
             case R.id.action_logout:
                 Utility.logout(this);
-                return true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.action_search:
                 final Dialog dialog = new Dialog(MainActivity.this);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -256,13 +331,19 @@ public class MainActivity extends FragmentActivity implements
                     SchedulerFragment.onBackPressed();
                     menuCancel.setVisible(false);
                 } else if (mViewPager.getCurrentItem() == 2) {     // Status Fragment
-                    StatusFragment.updateLaundryList();
-                    menuCancel.setVisible(false);
-                    User.Type userType = Utility.getUserType(getApplicationContext());
-                    if (userType == User.Type.CUSTOMER) {
-                        menuStatus.setVisible(true);
-                    }
+                    onBackPressed();
                 }
+                return true;
+            case R.id.action_edit:
+                ProfileFragment.onEditUserProfile(true);
+                menuEdit.setVisible(false);
+                menuDone.setVisible(true);
+                return true;
+            case R.id.action_done:
+                ProfileFragment.updateUserProfile();
+                ProfileFragment.onEditUserProfile(false);
+                menuEdit.setVisible(true);
+                menuDone.setVisible(false);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -347,24 +428,23 @@ public class MainActivity extends FragmentActivity implements
             onBackPressed = SchedulerFragment.onBackPressed();
             menuCancel.setVisible(false);
         } else if (mViewPager.getCurrentItem() == 2) { // Status Fragment
-            if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.APPROVED_STATUS_LIST) {
-                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+            if (StatusFragment.getCurrentVisibleMode() == StatusFragment.VisibleLayout.APPROVED_BOOKINGS_LAYOUT) {
+                if (StatusFragment.getParentLayoutOfApprovedBooking() == StatusFragment.ParentLayout.STATUS_LIST_PARENT) {
+                    StatusFragment.updateLaundryList();
+                } else if (StatusFragment.getParentLayoutOfApprovedBooking() == StatusFragment.ParentLayout.STATUS_INFO_PARENT) {
+                    StatusFragment.onCheckBookingStatus(StatusFragment.selectedBookingId);
+                }
+                menuStatus.setVisible(true);
+                menuCancel.setVisible(false);
+                onBackPressed = true;
+            } else if (StatusFragment.getCurrentVisibleMode() == StatusFragment.VisibleLayout.STATUS_INFO_LAYOUT) {
                 StatusFragment.updateLaundryList();
                 menuStatus.setVisible(true);
                 menuCancel.setVisible(false);
                 onBackPressed = true;
-            } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.SCHEDULER) {
-                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
-                SchedulerFragment.setSelectedDateInCalendar(SchedulerFragment.calendarPager.getCurrentItem());
-                mViewPager.setCurrentItem(1);   // go back to Scheduler Fragment
-                onBackPressed = true;
-            } else if (StatusFragment.getCheckStatusFromScheduler() == StatusFragment.STATUS_LIST) {
-                StatusFragment.setCheckStatusFromScheduler(StatusFragment.DEFAULT);
+            } else if (StatusFragment.getCurrentVisibleMode() == StatusFragment.VisibleLayout.EDIT_LAUNDRY_LAYOUT) {
                 StatusFragment.updateLaundryList();
-                User.Type userType = Utility.getUserType(getApplicationContext());
-                if (userType == User.Type.LAUNDRY_SHOP) {
-                    menuCancel.setVisible(false);
-                }
+                menuCancel.setVisible(false);
                 onBackPressed = true;
             }
         } else if (mViewPager.getCurrentItem() == 4) {  // Profile Fragment
@@ -405,12 +485,6 @@ public class MainActivity extends FragmentActivity implements
     @Override
     public void onViewLaundryScheduleDetails() {
         menuCancel.setVisible(true);
-    }
-
-    @Override
-    public void onCheckBookingStatus(long id) {
-        StatusFragment.onCheckBookingStatus(id, StatusFragment.SCHEDULER);
-        mViewPager.setCurrentItem(2);
     }
 
     @Override

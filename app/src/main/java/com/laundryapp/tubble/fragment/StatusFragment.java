@@ -61,16 +61,11 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     private static final String ARG_PARAM2 = "param2";
     private final static String TAG = "StatusFragment";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public enum VisibleLayout { STATUS_LIST_LAYOUT, STATUS_INFO_LAYOUT, APPROVED_BOOKINGS_LAYOUT, EDIT_LAUNDRY_LAYOUT }
+    private static VisibleLayout currentVisibleLayout = null;
 
-    // for handling back button press; must return to Scheduler if true, else, return to status list.
-    private static int fragmentCaller = 0;
-    public static final int DEFAULT = 0;
-    public static final int SCHEDULER = 1;
-    public static final int STATUS_LIST = 2;
-    public static final int APPROVED_STATUS_LIST = 3;
+    public enum ParentLayout { STATUS_INFO_PARENT, STATUS_LIST_PARENT }
+    private static ParentLayout parentLayoutOfApprovedBooking = null;
 
     View fragmentView;
     static LinearLayout noLaundryLayout, laundryProcessedLayout, laundryListLayout, laundryScheduleDetailsLayout;
@@ -110,7 +105,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     private static OnFragmentInteractionListener mListener;
     private static Context mContext;
 
-    private static long selectedBookingId = -1;
+    public static long selectedBookingId = -1;
 
     private Dialog dialog;
 
@@ -139,10 +134,6 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -227,11 +218,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         editButton.setOnClickListener(this);
         sendRatingButton.setOnClickListener(this);
 
-        if (getCheckStatusFromScheduler() == SCHEDULER) {
-            // execute onCheckBookingStatus(id)
-        } else {
-            updateLaundryList();
-        }
+        updateLaundryList();
 
         return fragmentView;
     }
@@ -240,7 +227,6 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (!isVisibleToUser) {
-            setCheckStatusFromScheduler(DEFAULT);
             if (mContext != null && fragmentView != null) {
                 InputMethodManager imm  = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(fragmentView.getWindowToken(), 0);
@@ -290,8 +276,8 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         void onViewLaundryScheduleDetails();
     }
 
-    public static void onCheckBookingStatus(long id, int caller) {
-        setCheckStatusFromScheduler(caller);
+    public static void onCheckBookingStatus(long id) {
+        setCurrentVisibleMode(VisibleLayout.STATUS_INFO_LAYOUT);
         noLaundryLayout.setVisibility(View.GONE);
         laundryListLayout.setVisibility(View.GONE);
         approvedBookingsStatus.setVisibility(View.GONE);
@@ -301,6 +287,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     }
 
     public static void updateLaundryList() {
+        setCurrentVisibleMode(VisibleLayout.STATUS_LIST_LAYOUT);
         final User.Type userType = Utility.getUserType(mContext);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -357,7 +344,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
                     public void onClick(View view) {
                         long id = Long.parseLong(((TextView) view.findViewById(R.id.laundry_shop_id)).getText().toString());
                         if (userType == User.Type.CUSTOMER) {
-                            onCheckBookingStatus(id, StatusFragment.STATUS_LIST);
+                            onCheckBookingStatus(id);
                         } else if (userType == User.Type.LAUNDRY_SHOP) {
                             updateLaundryScheduleDetailsLayout(id);
                         }
@@ -484,7 +471,7 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
 
     public static void updateLaundryScheduleDetailsLayout(long detailsId) {
         selectedBookingId = detailsId;
-        setCheckStatusFromScheduler(STATUS_LIST);
+        setCurrentVisibleMode(VisibleLayout.EDIT_LAUNDRY_LAYOUT);
         final BookingDetails details = BookingDetails.findById(BookingDetails.class, detailsId);
         if (details == null) {
             return;
@@ -761,7 +748,12 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
     }
 
     public static void updateApprovedBookingsList() {
-        setCheckStatusFromScheduler(APPROVED_STATUS_LIST);
+        if (getCurrentVisibleMode() == VisibleLayout.STATUS_LIST_LAYOUT) {
+            setParentLayoutOfApprovedBooking(ParentLayout.STATUS_LIST_PARENT);
+        } else if (getCurrentVisibleMode() == VisibleLayout.STATUS_INFO_LAYOUT) {
+            setParentLayoutOfApprovedBooking(ParentLayout.STATUS_INFO_PARENT);
+        }
+        setCurrentVisibleMode(VisibleLayout.APPROVED_BOOKINGS_LAYOUT);
         laundryListLayout.setVisibility(View.GONE);
         laundryProcessedLayout.setVisibility(View.GONE);
         laundryCompletedLayout.setVisibility(View.GONE);
@@ -845,11 +837,19 @@ public class StatusFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public static void setCheckStatusFromScheduler (int status) {
-        fragmentCaller = status;
+    public static VisibleLayout getCurrentVisibleMode() {
+        return currentVisibleLayout;
     }
 
-    public static int getCheckStatusFromScheduler() {
-        return fragmentCaller;
+    public static void setCurrentVisibleMode(VisibleLayout mode) {
+        currentVisibleLayout = mode;
+    }
+
+    public static ParentLayout getParentLayoutOfApprovedBooking() {
+        return parentLayoutOfApprovedBooking;
+    }
+
+    public static void setParentLayoutOfApprovedBooking(ParentLayout parent) {
+        parentLayoutOfApprovedBooking = parent;
     }
 }

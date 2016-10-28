@@ -386,6 +386,7 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
             bookingLayout.setVisibility(View.GONE);
             laundryScheduleDetails.setVisibility(View.GONE);
         } else {
+            reset();
             if (mContext != null) {
                 InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(schedulerLayout.getWindowToken(), 0);
@@ -422,7 +423,6 @@ public class SchedulerFragment extends Fragment implements View.OnClickListener,
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onCheckBookingStatus(long id);
 
         void onAddOrDeleteLaundrySchedule();
 
@@ -1116,12 +1116,7 @@ class ScheduleListAdapter extends ArrayAdapter<BookingDetails> {
         viewHolder.infoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User.Type userType = Utility.getUserType(context);
-                if (userType == User.Type.CUSTOMER) {
-                    ((SchedulerFragment.OnFragmentInteractionListener) context).onCheckBookingStatus(details.getId());
-                } else if (userType == User.Type.LAUNDRY_SHOP) {
-                    SchedulerFragment.updateLaundryScheduleDetails(details.getId());
-                }
+                SchedulerFragment.updateLaundryScheduleDetails(details.getId());
             }
         });
         return convertView;

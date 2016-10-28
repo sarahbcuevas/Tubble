@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -36,6 +37,7 @@ import com.laundryapp.tubble.receivers.SendLaundryStatusReceiver;
 import com.laundryapp.tubble.receivers.SendRatingReceiver;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -128,7 +130,7 @@ public class Utility {
         return image;
     }
 
-    public static void scaleImage(CircleImageView mUserPhoto, String imageDecode) {
+    public static void scaleAndRotateImage(CircleImageView mUserPhoto, String imageDecode) {
         int targetW = mUserPhoto.getWidth();
         int targetH = mUserPhoto.getHeight();
 
@@ -145,7 +147,17 @@ public class Utility {
         bmOptions.inPurgeable = true;
 
         Bitmap bitmap = BitmapFactory.decodeFile(imageDecode, bmOptions);
-        mUserPhoto.setImageBitmap(bitmap);
+        Matrix matrix = new Matrix();
+        matrix.setRotate(90);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(imageDecode);
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage(), e);
+        }
+        mUserPhoto.setImageBitmap(rotatedBitmap);
         mUserPhoto.setBorderWidth(20);
     }
 
@@ -312,6 +324,7 @@ public class Utility {
         String userFullname = user.getFullName();
         String userEmail = user.getEmailAddress();
         String userMobile = user.getMobileNumber();
+        String userUniqueId = user.getUniqueId();
         String location = details.getLocation();
         String notes = details.getNotes();
         String pickupDate = Long.toString(details.getPickupDate());
@@ -338,7 +351,8 @@ public class Utility {
                 userFullname + DELIMETER +
                 userMobile + DELIMETER +
                 userEmail + DELIMETER +
-                location + "}";
+                location + DELIMETER +
+                userUniqueId + "}";
 
         LaundryShop laundryShop = details.getLaundryShop();
 //        String phoneNo = laundryShop.getContact();

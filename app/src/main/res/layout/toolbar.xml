@@ -5,8 +5,37 @@
     android:layout_height="@dimen/actionbar_height"
     android:background="@color/tubble_yellow"
     android:elevation="@dimen/actionbar_elevation"
-    android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-    android:gravity="center">
+    android:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+    <RelativeLayout
+        android:id="@android:id/home"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="0dp"
+        android:padding="5dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_centerInParent="true"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/bluebutton_left"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/action_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="0dp"
+        android:padding="5dp"
+        android:visibility="visible">
+
+        <ImageView
+            android:layout_centerInParent="true"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/settings"/>
+    </RelativeLayout>
 
     <ImageView
         android:layout_width="@dimen/actionbar_logo_width"
